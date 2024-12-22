@@ -7,6 +7,8 @@
 
 ![demo](https://github.com/user-attachments/assets/b7a1890f-9cda-42b7-bde7-acaff6ff45ae)
 
+[![Unit Tests](https://github.com/hitblast/trimsec/actions/workflows/tests.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/tests.yml)
+
 </div>
 
 ## Overview
