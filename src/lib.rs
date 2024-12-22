@@ -141,7 +141,7 @@ pub fn parse_time(time: f64) -> String {
 }
 
 // trim() function to trim time!
-pub fn trim<'a>(config: Config) -> (String, String) {
+pub fn trim(config: Config) -> (String, String) {
     let duration = config.duration as f64;
     let multiplier = config.multiplier;
 
