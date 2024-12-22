@@ -92,8 +92,8 @@ $ trimsec 1h20m 1.75x
   - `<minutes>m` for minutes
   - `<seconds>s` for seconds
 - The speed multiplier must be a float-point number, and *can* suffixed with `x`, such as:
-  - `1.5x` indicates 1.5 times the original speed
-  - But, `1.5` is also valid and indicates the same speed multiplier
+  - `1.5x` indicates 1.5 times the original speed.
+  - But, `1.5` is also valid and indicates the same speed multiplier.
 
 ## Contributors
 
