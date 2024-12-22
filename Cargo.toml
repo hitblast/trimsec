@@ -1,12 +1,13 @@
 [package]
-name = "timetrim"
-description = "Calculate saved time on speed multipliers, with speed."
+name = "trimsec"
+description = "Calculate saved time on using media speed multipliers, with speed."
 authors = ["HitBlast <hitblastlive@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/hitblast/timetrim"
 license = "MIT"
 readme = "README.md"
+exclude = ["assets/*"]
 
 [dependencies]
 colored = "2.2.0"

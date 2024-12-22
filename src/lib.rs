@@ -84,6 +84,8 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
     for c in duration.chars() {
         if c.is_digit(10) {
             current_number.push(c);
+        } else if c.is_whitespace() {
+            continue;
         } else {
             let number: u64 = current_number
                 .parse()
