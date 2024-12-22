@@ -1,6 +1,27 @@
-use std::process;
+// Imports.
 use std::fmt::Display;
+use std::process;
 
+/// The primary run function.
+pub fn run(config: Config) -> Result<(String, String), TrimsecError> {
+    Ok(trim(config))
+}
+
+/// Calculate how much time has been saved by using a multiplier.
+pub fn trim(config: Config) -> (String, String) {
+    let duration = config.duration as f64;
+    let multiplier = config.multiplier;
+
+    let result = duration / multiplier;
+    let result_string = parse_time(result);
+
+    let saved = duration - result;
+    let saved_string = parse_time(saved);
+
+    (result_string, saved_string)
+}
+
+/// The error enum for generating error messages later on.
 #[derive(Debug)]
 pub enum TrimsecError {
     InvalidDurationFormat,
@@ -13,17 +34,20 @@ pub enum TrimsecError {
 impl Display for TrimsecError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidTimeUnit => write!(f, "{}", "Specify duration in seconds (s), minutes (m), hours (h), or days (d)"),
+            Self::InvalidTimeUnit => write!(
+                f,
+                "{}",
+                "Specify duration in seconds (s), minutes (m), hours (h), or days (d)"
+            ),
             Self::InvalidDurationFormat => write!(f, "{}", "Invalid duration format!"),
-            Self::InsufficientArgumentsProvided => write!(f, "{}", "You need to provide a duration and a multiplier (e.g. `trimsec 1h 2x`)."),
-            Self::NegativeDuration => write!(f, "{}", "Duration must be a positive value.")
+            Self::InsufficientArgumentsProvided => write!(
+                f,
+                "{}",
+                "You need to provide a duration and a multiplier (e.g. `trimsec 1h 2x`)."
+            ),
+            Self::NegativeDuration => write!(f, "{}", "Duration must be a positive value."),
         }
     }
-}
-
-// The primary run function.
-pub fn run(config: Config) -> Result<(String, String), TrimsecError> {
-    Ok(trim(config))
 }
 
 /// The configuration struct used for
@@ -34,23 +58,16 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, TrimsecError> {
-        // close immediately if sufficient arguments aren't passed
-        if args.len() < 3 {
-            return Err(TrimsecError::InsufficientArgumentsProvided);
-        }
-
+    pub fn new(duration: &str, multiplier_user: &str) -> Result<Config, TrimsecError> {
         // format conversion
         // firstly, parse the duration to *only* seconds and then convert it to a string
-        let duration = args[1].clone();
         let duration_in_seconds = parse_duration(&duration)?;
 
         // remove any multiplier formats and convert to a float
-        let multiplier_unformatted = args[2].clone();
-        let multiplier = if multiplier_unformatted.ends_with('x') {
-            &multiplier_unformatted[..multiplier_unformatted.len() - 1]
+        let multiplier = if multiplier_user.ends_with('x') {
+            &multiplier_user[..multiplier_user.len() - 1]
         } else {
-            &multiplier_unformatted
+            &multiplier_user
         };
 
         let multiplier_value: f64 = multiplier.parse().unwrap_or_else(|_| {
@@ -110,20 +127,6 @@ pub fn parse_time(time: f64) -> String {
     time_string
 }
 
-/// Calculate how much time has been saved by using a multiplier.
-pub fn trim(config: Config) -> (String, String) {
-    let duration = config.duration as f64;
-    let multiplier = config.multiplier;
-
-    let result = duration / multiplier;
-    let result_string = parse_time(result);
-
-    let saved = duration - result;
-    let saved_string = parse_time(saved);
-
-    (result_string, saved_string)
-}
-
 // Function to pass the duration string and return the total seconds.
 fn parse_duration(duration: &str) -> Result<u64, TrimsecError> {
     let mut total_seconds = 0u64;
@@ -144,9 +147,7 @@ fn parse_duration(duration: &str) -> Result<u64, TrimsecError> {
                 'm' => number * 60,
                 'h' => number * 3600,
                 'd' => number * 86400,
-                _ => {
-                    return Err(TrimsecError::InvalidTimeUnit)
-                }
+                _ => return Err(TrimsecError::InvalidTimeUnit),
             };
         }
     }

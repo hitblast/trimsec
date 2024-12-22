@@ -11,4 +11,5 @@ readme = "README.md"
 exclude = ["assets/*"]
 
 [dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
 colored = "2.2.0"

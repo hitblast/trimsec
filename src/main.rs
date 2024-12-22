@@ -1,17 +1,25 @@
-// imports
+// Imports.
+use clap::Parser;
 use colored::*;
-use std::env;
 use std::process;
 
 use trimsec::Config;
 
-// run the cli
-fn main() {
-    // parse the arguments
-    let args: Vec<String> = env::args().collect();
+// Struct for parsing.
+#[derive(Parser)]
+struct Cli {
+    /// The duration of the content to be recalculated.
+    duration: String,
+    /// The multiplier to apply.
+    multiplier: String,
+}
 
-    // create a new Config struct
-    let config = Config::new(&args).unwrap_or_else(|err| {
+// Runner.
+fn main() {
+    let args = Cli::parse();
+
+    // The Config struct is created here and the rest is handled by lib.rs.
+    let config = Config::new(&args.duration, &args.multiplier).unwrap_or_else(|err| {
         eprintln!("{}: {}", "ERROR".red(), err);
         process::exit(1);
     });
