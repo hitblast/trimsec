@@ -7,6 +7,7 @@ use trimsec::Config;
 
 // Struct for parsing.
 #[derive(Parser)]
+#[command(version, about, long_about = None)]
 struct Cli {
     /// The duration of the content to be recalculated.
     duration: String,
