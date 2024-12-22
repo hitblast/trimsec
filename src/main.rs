@@ -2,7 +2,7 @@
 use std::env;
 use std::process;
 
-use timetrim::Config;
+use trimsec::Config;
 
 // run the cli
 fn main() {
@@ -15,8 +15,8 @@ fn main() {
         process::exit(1);
     });
 
-    // run the timetrim function
-    if let Err(e) = timetrim::run(config) {
+    // run the trimsec function
+    if let Err(e) = trimsec::run(config) {
         eprintln!("Application error: {}", e);
         process::exit(1);
     }

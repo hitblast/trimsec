@@ -1,6 +1,6 @@
 <div align="center">
 
-# timetrim
+# trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
 ![](assets/demo.mov)
