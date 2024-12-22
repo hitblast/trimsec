@@ -5,7 +5,7 @@
 # trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
-https://github.com/user-attachments/assets/64fd80fe-2fca-4281-89c5-ff89f44aae44
+![397985031-64fd80fe-2fca-4281-89c5-ff89f44aae44-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/2f91eecd-dff9-401b-ad77-61cd002baf0d)
 
 </div>
 
