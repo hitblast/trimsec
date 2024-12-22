@@ -12,13 +12,8 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/*
-
-The Config struct
-It is used for parsing the duration and multiplier with edge cases.
-
-*/
-
+/// The configuration struct used for
+/// parsing and storing the duration and multiplier.
 pub struct Config {
     pub duration: u64,
     pub multiplier: f64,
@@ -76,6 +71,48 @@ impl Config {
     }
 }
 
+/// Convert seconds to a human-readable `String`.
+pub fn parse_time(time: f64) -> String {
+    let mut time_string = String::new();
+
+    let days = time as u64 / 86400;
+    let hours = (time as u64 % 86400) / 3600;
+    let minutes = (time as u64 % 3600) / 60;
+    let seconds = time as u64 % 60;
+
+    for (i, time) in [days, hours, minutes, seconds].iter().enumerate() {
+        if *time != 0 {
+            time_string.push_str(&format!(
+                "{}{}",
+                time,
+                match i {
+                    0 => "d",
+                    1 => "h",
+                    2 => "m",
+                    3 => "s",
+                    _ => "",
+                }
+            ));
+        }
+    }
+
+    time_string
+}
+
+/// Calculate how much time has been saved by using a multiplier.
+pub fn trim(config: Config) -> (String, String) {
+    let duration = config.duration as f64;
+    let multiplier = config.multiplier;
+
+    let result = duration / multiplier;
+    let result_string = parse_time(result);
+
+    let saved = duration - result;
+    let saved_string = parse_time(saved);
+
+    (result_string, saved_string)
+}
+
 // Function to pass the duration string and return the total seconds.
 fn parse_duration(duration: &str) -> Result<u64, &str> {
     let mut total_seconds = 0u64;
@@ -110,46 +147,4 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
     }
 
     Ok(total_seconds)
-}
-
-// Function to parse the time format in string.
-pub fn parse_time(time: f64) -> String {
-    let mut time_string = String::new();
-
-    let days = time as u64 / 86400;
-    let hours = (time as u64 % 86400) / 3600;
-    let minutes = (time as u64 % 3600) / 60;
-    let seconds = time as u64 % 60;
-
-    for (i, time) in [days, hours, minutes, seconds].iter().enumerate() {
-        if *time != 0 {
-            time_string.push_str(&format!(
-                "{}{}",
-                time,
-                match i {
-                    0 => "d",
-                    1 => "h",
-                    2 => "m",
-                    3 => "s",
-                    _ => "",
-                }
-            ));
-        }
-    }
-
-    time_string
-}
-
-// trim() function to trim time!
-pub fn trim(config: Config) -> (String, String) {
-    let duration = config.duration as f64;
-    let multiplier = config.multiplier;
-
-    let result = duration / multiplier;
-    let result_string = parse_time(result);
-
-    let saved = duration - result;
-    let saved_string = parse_time(saved);
-
-    (result_string, saved_string)
 }
