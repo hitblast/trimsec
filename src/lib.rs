@@ -52,9 +52,20 @@ impl Config {
             process::exit(1);
         });
 
-        if multiplier_value <= 0.0 {
-            eprintln!("Multiplier must be a positive float");
-            process::exit(1);
+        match multiplier_value {
+            ..0.0 => {
+                eprintln!("Multiplier must be a positive float.");
+                process::exit(1);
+            }
+            0.0..=1.0 => {
+                eprintln!("Multiplier must be greater than 1x.");
+                process::exit(1);
+            }
+            100.0..=f64::INFINITY => {
+                eprintln!("Multiplier must be less than 100x.");
+                process::exit(1);
+            }
+            _ => (),
         }
 
         // return the Config struct

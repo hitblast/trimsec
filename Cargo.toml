@@ -1,6 +1,11 @@
 [package]
 name = "timetrim"
+description = "Cut your watch time and save time by calculating!"
+authors = ["HitBlast <hitblastlive@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/hitblast/timetrim"
+license = "MIT"
+readme = "README.md"
 
 [dependencies]
