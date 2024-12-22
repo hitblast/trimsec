@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/sprite.png" width="40px">
+
 # trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
@@ -74,7 +76,7 @@ directory on macOS:
 ```bash
 $ mv target/release/trimsec ~/.local/bin/
 
-# this code appends the binary path to the PATH environment variable
+# (optional) this code appends the binary path to the PATH environment variable
 $ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 $ source ~/.bashrc
 
