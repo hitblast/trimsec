@@ -95,6 +95,17 @@ $ trimsec 1h20m 1.75x
   - `1.5x` indicates 1.5 times the original speed
   - But, `1.5` is also valid and indicates the same speed multiplier
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
