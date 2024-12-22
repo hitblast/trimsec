@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/sprite.png" width="40px">
+<img src="assets/sprite.png" width="100px">
 
 # trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
@@ -12,7 +12,7 @@
 ## Overview
 
 [trimsec]() provides an easy way to accurately estimate how much time you save
-on watching videos by using [speed multipliers](). This is essentially helpful
+on watching videos when using speed multipliers. This is essentially helpful
 when watching recorded classes or documentaries online, in case you do not have
 enough time to spare based on your situation.
 
