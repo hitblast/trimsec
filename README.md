@@ -5,4 +5,12 @@
 
 ![](assets/demo.mov)
 
+- [Usage]
+
 </div>
+
+## ⚡ Usage
+
+## 📦 Installation
+
+## 🔖 License
