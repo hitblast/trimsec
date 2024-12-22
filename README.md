@@ -25,7 +25,7 @@ option I'd consider - I chose to program a tool that would automate the process 
 As shown in the demo above, you can use `trimsec` by running the following command:
 
 ```bash
-$ trimsec <speed> <duration>
+$ trimsec <duration> <speed>
 ```
 
 Here, `<speed>` is the speed multiplier you are using, and `<duration>` is the
