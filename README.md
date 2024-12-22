@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/sprite.png" width="100px">
+<img src="assets/sprite.png" width="150px">
 
 # trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
