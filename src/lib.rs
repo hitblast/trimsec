@@ -94,9 +94,11 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
                 'm' => number * 60,
                 'h' => number * 3600,
                 'd' => number * 86400,
-                _ => return Err(
-                    "You must specify duration in seconds (s), minutes (m), days (d) or hours (h).",
-                ),
+                _ => {
+                    return Err(
+                        "Specify duration in seconds (s), minutes (m), hours (h), or days (d).",
+                    )
+                }
             };
         }
     }
@@ -112,19 +114,21 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
 pub fn parse_time(time: f64) -> String {
     let mut time_string = String::new();
 
-    let hours = time as u64 / 3600;
-    let minutes = time as u64 % 3600 / 60;
+    let days = time as u64 / 86400;
+    let hours = (time as u64 % 86400) / 3600;
+    let minutes = (time as u64 % 3600) / 60;
     let seconds = time as u64 % 60;
 
-    for (i, time) in [hours, minutes, seconds].iter().enumerate() {
+    for (i, time) in [days, hours, minutes, seconds].iter().enumerate() {
         if *time != 0 {
             time_string.push_str(&format!(
                 "{}{}",
                 time,
                 match i {
-                    0 => "h",
-                    1 => "m",
-                    2 => "s",
+                    0 => "d",
+                    1 => "h",
+                    2 => "m",
+                    3 => "s",
                     _ => "",
                 }
             ));
