@@ -2,7 +2,7 @@
 
 <img src="assets/sprite.png" width="150px">
 
-# <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="25px"> trimsec
+# <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
 ![demo](https://github.com/user-attachments/assets/b7a1890f-9cda-42b7-bde7-acaff6ff45ae)
