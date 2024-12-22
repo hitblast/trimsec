@@ -1,15 +1,29 @@
-use colored::*;
-use std::error::Error;
 use std::process;
+use std::fmt::Display;
+
+#[derive(Debug)]
+pub enum TrimsecError {
+    InvalidDurationFormat,
+    /// Called when omething other than `s`, `m`, `h`, `d` was used
+    InvalidTimeUnit,
+    NegativeDuration,
+    InsufficientArgumentsProvided,
+}
+
+impl Display for TrimsecError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidTimeUnit => write!(f, "{}", "Specify duration in seconds (s), minutes (m), hours (h), or days (d)"),
+            Self::InvalidDurationFormat => write!(f, "{}", "Invalid duration format!"),
+            Self::InsufficientArgumentsProvided => write!(f, "{}", "You need to provide a duration and a multiplier (e.g. `trimsec 1h 2x`)."),
+            Self::NegativeDuration => write!(f, "{}", "Duration must be a positive value.")
+        }
+    }
+}
 
 // The primary run function.
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let result = trim(config);
-
-    println!("\nReduced time: {}", result.0.yellow());
-    println!("Saved {}!\n", result.1.green());
-
-    Ok(())
+pub fn run(config: Config) -> Result<(String, String), TrimsecError> {
+    Ok(trim(config))
 }
 
 /// The configuration struct used for
@@ -20,19 +34,16 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &str> {
+    pub fn new(args: &[String]) -> Result<Config, TrimsecError> {
         // close immediately if sufficient arguments aren't passed
         if args.len() < 3 {
-            return Err("git gud, you need to provide a duration and a multiplier");
+            return Err(TrimsecError::InsufficientArgumentsProvided);
         }
 
         // format conversion
         // firstly, parse the duration to *only* seconds and then convert it to a string
         let duration = args[1].clone();
-        let duration_in_seconds = parse_duration(&duration).unwrap_or_else(|err| {
-            eprintln!("{}", err);
-            process::exit(1);
-        });
+        let duration_in_seconds = parse_duration(&duration)?;
 
         // remove any multiplier formats and convert to a float
         let multiplier_unformatted = args[2].clone();
@@ -114,7 +125,7 @@ pub fn trim(config: Config) -> (String, String) {
 }
 
 // Function to pass the duration string and return the total seconds.
-fn parse_duration(duration: &str) -> Result<u64, &str> {
+fn parse_duration(duration: &str) -> Result<u64, TrimsecError> {
     let mut total_seconds = 0u64;
     let mut current_number = String::new();
 
@@ -126,7 +137,7 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
         } else {
             let number: u64 = current_number
                 .parse()
-                .map_err(|_| "git gud, duration must be a positive integer")?;
+                .map_err(|_| TrimsecError::NegativeDuration)?;
             current_number.clear();
             total_seconds += match c {
                 's' => number,
@@ -134,16 +145,14 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
                 'h' => number * 3600,
                 'd' => number * 86400,
                 _ => {
-                    return Err(
-                        "Specify duration in seconds (s), minutes (m), hours (h), or days (d).",
-                    )
+                    return Err(TrimsecError::InvalidTimeUnit)
                 }
             };
         }
     }
 
     if !current_number.is_empty() {
-        return Err("Invalid duration format");
+        return Err(TrimsecError::InvalidDurationFormat);
     }
 
     Ok(total_seconds)

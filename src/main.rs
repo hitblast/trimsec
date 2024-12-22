@@ -1,4 +1,5 @@
 // imports
+use colored::*;
 use std::env;
 use std::process;
 
@@ -11,13 +12,19 @@ fn main() {
 
     // create a new Config struct
     let config = Config::new(&args).unwrap_or_else(|err| {
-        eprintln!("{}", err);
+        eprintln!("{}: {}", "ERROR".red(), err);
         process::exit(1);
     });
 
-    // run the trimsec function
-    if let Err(e) = trimsec::run(config) {
-        eprintln!("Application error: {}", e);
-        process::exit(1);
+    let result = trimsec::run(config);
+    match result {
+        Ok((dur, saved)) => {
+            println!("\nReduced time: {}", dur.yellow());
+            println!("Saved {}!\n", saved.green());
+        }
+        Err(e) => {
+            eprintln!("{}: {}", "ERROR".red(), e);
+            process::exit(1);
+        }
     }
 }
