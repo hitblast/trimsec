@@ -1,3 +1,4 @@
+use colored::*;
 use std::error::Error;
 use std::process;
 
@@ -5,17 +6,16 @@ use std::process;
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let result = trim(config);
 
-    println!("Reduced time: {}", result.0);
-    println!("Saved {}!", result.1);
+    println!("\nReduced time: {}", result.0.yellow());
+    println!("Saved {}!\n", result.1.green());
 
     Ok(())
 }
 
 /*
 
-The Config struct is used to store the duration and multiplier values that are parsed from the command line arguments.
-The Config::new function is used to parse the command line arguments and return a Config struct.
-The parse_duration function is used to parse the duration string and return the total number of seconds.
+The Config struct
+It is used for parsing the duration and multiplier with edge cases.
 
 */
 

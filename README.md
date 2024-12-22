@@ -5,7 +5,7 @@
 
 ![](assets/demo.mov)
 
-- [Usage]
+- [Usage](#-usage)
 
 </div>
 

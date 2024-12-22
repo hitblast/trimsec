@@ -9,3 +9,4 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
+colored = "2.2.0"
