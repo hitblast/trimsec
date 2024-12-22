@@ -4,7 +4,7 @@ use std::fmt::Display;
 #[derive(Debug)]
 pub enum TrimsecError {
     InvalidDurationFormat,
-    /// Called when omething other than `s`, `m`, `h`, `d` was used
+    /// Called when something other than `s`, `m`, `h`, `d` was used
     InvalidTimeUnit,
     NegativeDuration,
     InsufficientArgumentsProvided,
