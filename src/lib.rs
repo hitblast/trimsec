@@ -158,3 +158,46 @@ fn parse_duration(duration: &str) -> Result<u64, TrimsecError> {
 
     Ok(total_seconds)
 }
+
+/// Unit tests.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_duration() {
+        assert_eq!(parse_duration("1s").unwrap(), 1);
+        assert_eq!(parse_duration("1m").unwrap(), 60);
+        assert_eq!(parse_duration("1h").unwrap(), 3600);
+        assert_eq!(parse_duration("1d").unwrap(), 86400);
+        assert_eq!(parse_duration("1d1h1m1s").unwrap(), 90061);
+        assert!(parse_duration("1x").is_err());
+        assert!(parse_duration("1").is_err());
+    }
+
+    #[test]
+    fn test_parse_time() {
+        assert_eq!(parse_time(1.0), "1s");
+        assert_eq!(parse_time(60.0), "1m");
+        assert_eq!(parse_time(3600.0), "1h");
+        assert_eq!(parse_time(86400.0), "1d");
+        assert_eq!(parse_time(90061.0), "1d1h1m1s");
+    }
+
+    #[test]
+    fn test_config_new() {
+        assert!(Config::new("1s", "2x").is_ok());
+        assert!(Config::new("1m", "1.5x").is_ok());
+        assert!(Config::new("1h", "1.25x").is_ok());
+        assert!(Config::new("1d", "2x").is_ok());
+        assert!(Config::new("1d1h1m1s", "2x").is_ok());
+        assert!(Config::new("1x", "2x").is_err());
+        assert!(Config::new("1", "2x").is_err());
+    }
+
+    #[test]
+    fn test_trim() {
+        let config = Config::new("1d", "2x").unwrap();
+        assert_eq!(trim(config), (String::from("12h"), String::from("12h")));
+    }
+}
