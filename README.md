@@ -5,7 +5,7 @@
 # trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
-https://github.com/user-attachments/assets/59c3003e-2ff9-4621-a21a-fab4a13daee4
+https://github.com/user-attachments/assets/64fd80fe-2fca-4281-89c5-ff89f44aae44
 
 </div>
 
