@@ -35,7 +35,7 @@ impl Config {
         // firstly, parse the duration to *only* seconds and then convert it to a string
         let duration = args[1].clone();
         let duration_in_seconds = parse_duration(&duration).unwrap_or_else(|err| {
-            eprintln!("Problem parsing duration: {}", err);
+            eprintln!("{}", err);
             process::exit(1);
         });
 
@@ -87,7 +87,7 @@ fn parse_duration(duration: &str) -> Result<u64, &str> {
         } else {
             let number: u64 = current_number
                 .parse()
-                .map_err(|_| "git gud, duration must be an integer")?;
+                .map_err(|_| "git gud, duration must be a positive integer")?;
             current_number.clear();
             total_seconds += match c {
                 's' => number,
