@@ -5,7 +5,7 @@
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 ### Calculate saved time on using media speed multipliers, with speed.
 
-![demo](https://github.com/user-attachments/assets/b7a1890f-9cda-42b7-bde7-acaff6ff45ae)
+![demo](https://github.com/user-attachments/assets/a4d9a91c-f59e-4579-b96b-28e38782f851)
 
 [![Unit Tests](https://github.com/hitblast/trimsec/actions/workflows/tests.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/tests.yml)
 
