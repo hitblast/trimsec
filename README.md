@@ -61,8 +61,8 @@ In order to calculate multiple durations at once with the same speed multiplier,
 you can use the following pattern:
 
 ```bash
-# Use a colon to separate the durations.
-$ trimsec 1h30m:2h50m 1.25x
+# Use a '+' to separate the durations.
+$ trimsec 1h30m+2h50m 1.25x
 ```
 
 > [!NOTE]

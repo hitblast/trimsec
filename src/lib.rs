@@ -1,4 +1,3 @@
-// Imports.
 use std::fmt::Display;
 
 /// The primary run function.
@@ -133,7 +132,7 @@ fn parse_duration(duration: &str) -> Result<(u64, i32), TrimsecError> {
     let mut total_seconds = 0u64;
     let mut splits = 0;
 
-    for part in duration.split(':') {
+    for part in duration.split('+') {
         let mut current_number = String::new();
         let mut part_seconds = 0u64;
 
@@ -180,7 +179,7 @@ mod tests {
         assert_eq!(parse_duration("1h").unwrap(), (3600, 1));
         assert_eq!(parse_duration("1d").unwrap(), (86400, 1));
         assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061, 1));
-        assert_eq!(parse_duration("1h:1m:1s").unwrap(), (3661, 3));
+        assert_eq!(parse_duration("1h+1m+1s").unwrap(), (3661, 3));
         assert!(parse_duration("1x").is_err());
         assert!(parse_duration("1").is_err());
     }
