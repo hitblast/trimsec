@@ -51,10 +51,18 @@ $ trimsec 1h 2x
 
 This will output the time you saved by watching the video at 2x speed. You can
 also combine multiple duration indicators and float-point speed multipliers. For
-example,
+example:
 
 ```bash
 $ trimsec 1h30m 1.5x
+```
+
+In order to calculate multiple durations at once with the same speed multiplier,
+you can use the following pattern:
+
+```bash
+# Use a colon to separate the durations.
+$ trimsec 1h30m:2h50m 1.25x
 ```
 
 > [!NOTE]

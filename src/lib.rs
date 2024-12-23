@@ -91,11 +91,10 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
         .parse()
         .map_err(|_| TrimsecError::InvalidMultiplierFormat)?;
 
-    match multiplier_value {
-        ..0.0 => Err(TrimsecError::InvalidMultiplierFormat),
-        0.0..=1.0 => Err(TrimsecError::MultiplierOutOfRange),
-        100.0..=f64::INFINITY => Err(TrimsecError::MultiplierOutOfRange),
-        _ => Ok(multiplier_value),
+    if multiplier_value <= 1.0 || multiplier_value >= 100.0 {
+        Err(TrimsecError::MultiplierOutOfRange)
+    } else {
+        Ok(multiplier_value)
     }
 }
 
