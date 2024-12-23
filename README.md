@@ -84,9 +84,9 @@ Here we can clearly see that all of the commands above follow a similar pattern:
 > [!NOTE]
 > For more information on the available flags and options, type `trimsec --help`.
 
----
-
 ## Installation
+
+---
 
 ### cargo
 
@@ -105,6 +105,8 @@ the following command:
 ```bash
 $ mise use -g cargo:trimsec
 ```
+
+---
 
 ### Manual installation
 
@@ -134,8 +136,6 @@ $ source ~/.bashrc
 # now you can run the binary from anywhere
 $ trimsec 1h20m 1.75x
 ```
-
----
 
 ## Contributors
 
