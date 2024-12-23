@@ -13,28 +13,27 @@
 
 ## Table of Contents
 
-- [Overview](#Overview)
-- [Usage](#Usage)
-- [Installation](#Installation)
-  - [cargo](#cargo) (rust)
-  - [mise](#mise) (rust)
-- [Manual Installation](#Manual-Installation)
-- [Caveats](#Caveats)
-- [Contributors](#Contributors)
-- [License](#License)
+- [Overview](#overview)
+- [Usage](#usage)
+- [Installation](#installation)
+  - [cargo](#cargo) [rust]
+  - [mise](#mise) [rust]
+- [Manual Installation](#manual-installation)
+- [Caveats](#caveats)
+- [Contributors](#contributors)
+- [License](#license)
 
 ## Overview
 
-[trimsec](https://crates.io/crates/trimsec) provides an easy way to accurately estimate how much time you save
-on watching videos when using speed multipliers. This is essentially helpful
-when watching recorded classes or documentaries online, in case you do not have
-enough time to spare based on your situation.
+[trimsec](https://crates.io/crates/trimsec) provides an easy way to accurately
+estimate how much time you save on watching videos when using speed multipliers.
+This is essentially helpful when watching recorded classes or documentaries
+online, in case you do not have enough time to spare based on your situation.
 
 Since I am also a student and both coordinating between my routine, as well as
-manually doing the math required to estimate my overall hours for study wasn't an
-option I'd consider - I chose to program a tool that would automate the process for me.
-
-## Usage
+manually doing the math required to estimate my overall hours for study wasn't
+an option I'd consider - I chose to program a tool that would automate the
+process for me. ## Usage
 
 As shown in the demo above, you can use `trimsec` by running the following command:
 
@@ -50,8 +49,9 @@ video at 2x speed, you can run the following command:
 $ trimsec 1h 2x
 ```
 
-This will output the time you saved by watching the video at 2x speed. You can also
-combine multiple duration indicators and float-point speed multipliers. For example,
+This will output the time you saved by watching the video at 2x speed. You can
+also combine multiple duration indicators and float-point speed multipliers. For
+example,
 
 ```bash
 $ trimsec 1h30m 1.5x
