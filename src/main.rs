@@ -6,12 +6,23 @@ use trimsec::Config;
 
 /// Struct for parsing.
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(
+    version,
+    about,
+    arg_required_else_help = true,
+    long_about = None,
+)]
 struct Cli {
     /// The duration of the content to be recalculated.
     duration: String,
     /// The multiplier to apply.
     multiplier: String,
+    /// Only show new duration.
+    #[clap(short, long)]
+    duration_only: bool,
+    /// Only show saved time.
+    #[clap(short, long)]
+    time_saved_only: bool,
 }
 
 /// Runner.
@@ -26,17 +37,25 @@ fn main() {
 
     let result = trimsec::run(config);
     match result {
-        Ok((new_duration, saved, splits)) => {
-            if splits > 1 {
-                println!(
-                    "\nNew duration: {} ({} splits)",
-                    new_duration.yellow(),
-                    splits
-                );
-            } else {
-                println!("\nNew duration: {}", new_duration.yellow());
+        Ok((new_duration, time_saved, splits)) => {
+            // duration
+            if !args.time_saved_only {
+                let duration_message = if splits > 1 {
+                    format!(
+                        "\nNew duration: {} ({} splits)",
+                        new_duration.yellow(),
+                        splits
+                    )
+                } else {
+                    format!("\nNew duration: {}", new_duration.yellow())
+                };
+                println!("{}", duration_message);
             }
-            println!("Saved {}!\n", saved.green());
+
+            // saved time
+            if !args.duration_only {
+                println!("Saved {}!\n", time_saved.green());
+            }
         }
         Err(e) => {
             eprintln!("{}: {}", "ERROR".red(), e);
