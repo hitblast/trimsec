@@ -175,11 +175,12 @@ mod tests {
 
     #[test]
     fn test_parse_duration() {
-        assert_eq!(parse_duration("1s").unwrap(), 1);
-        assert_eq!(parse_duration("1m").unwrap(), 60);
-        assert_eq!(parse_duration("1h").unwrap(), 3600);
-        assert_eq!(parse_duration("1d").unwrap(), 86400);
-        assert_eq!(parse_duration("1d1h1m1s").unwrap(), 90061);
+        assert_eq!(parse_duration("1s").unwrap(), (1, 1));
+        assert_eq!(parse_duration("1m").unwrap(), (60, 1));
+        assert_eq!(parse_duration("1h").unwrap(), (3600, 1));
+        assert_eq!(parse_duration("1d").unwrap(), (86400, 1));
+        assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061, 1));
+        assert_eq!(parse_duration("1h:1m:1s").unwrap(), (3661, 3));
         assert!(parse_duration("1x").is_err());
         assert!(parse_duration("1").is_err());
     }
@@ -207,6 +208,6 @@ mod tests {
     #[test]
     fn test_trim() {
         let config = Config::new("1d", "2x").unwrap();
-        assert_eq!(trim(config), (String::from("12h"), String::from("12h")));
+        assert_eq!(trim(config), (String::from("12h"), String::from("12h"), 1));
     }
 }
