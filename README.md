@@ -34,7 +34,11 @@ online, in case you do not have enough time to spare based on your situation.
 Since I am also a student and both coordinating between my routine, as well as
 manually doing the math required to estimate my overall hours for study wasn't
 an option I'd consider - I chose to program a tool that would automate the
-process for me. ## Usage
+process for me.
+
+If you like this tool, **consider starring the repository ✨** on GitHub! It really encourages me to build more open-source tools. :D
+
+## Usage
 
 As shown in the demo above, you can use `trimsec` by running the following command:
 
