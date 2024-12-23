@@ -16,6 +16,8 @@
 - [Overview](#Overview)
 - [Usage](#Usage)
 - [Installation](#Installation)
+  - [cargo](#cargo) (rust)
+  - [mise](#mise) (rust)
 - [Manual Installation](#Manual-Installation)
 - [Caveats](#Caveats)
 - [Contributors](#Contributors)
@@ -23,7 +25,7 @@
 
 ## Overview
 
-[trimsec]() provides an easy way to accurately estimate how much time you save
+[trimsec](https://crates.io/crates/trimsec) provides an easy way to accurately estimate how much time you save
 on watching videos when using speed multipliers. This is essentially helpful
 when watching recorded classes or documentaries online, in case you do not have
 enough time to spare based on your situation.
@@ -60,12 +62,27 @@ $ trimsec 1h30m 1.5x
 
 ## Installation
 
+---
+
+### cargo
+
 If you have [Rust](https://rust-lang.org/) and [Cargo](https://crates.io/)
 installed, you can install `trimsec` by running the following command:
 
 ```bash
 $ cargo install trimsec
 ```
+
+### mise
+
+To install `trimsec` as a tool using [mise](https://github.com/jdx/mise), use
+the following command:
+
+```bash
+$ mise use -g cargo:trimsec
+```
+
+---
 
 ## Manual Installation
 
