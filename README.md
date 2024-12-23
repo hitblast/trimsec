@@ -84,9 +84,9 @@ Here we can clearly see that all of the commands above follow a similar pattern:
 > [!NOTE]
 > For more information on the available flags and options, type `trimsec --help`.
 
-## Installation
-
 ---
+
+## Installation
 
 ### cargo
 
@@ -106,9 +106,7 @@ the following command:
 $ mise use -g cargo:trimsec
 ```
 
----
-
-## Manual Installation
+### Manual installation
 
 If you do not have Rust and Cargo installed, you can clone this repository and
 build the binary manually:
@@ -136,6 +134,8 @@ $ source ~/.bashrc
 # now you can run the binary from anywhere
 $ trimsec 1h20m 1.75x
 ```
+
+---
 
 ## Contributors
 
