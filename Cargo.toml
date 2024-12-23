@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Calculate saved time on using media speed multipliers, with speed."
 authors = ["HitBlast <hitblastlive@gmail.com>"]
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
