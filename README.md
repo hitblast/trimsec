@@ -36,7 +36,8 @@ manually doing the math required to estimate my overall hours for study wasn't
 an option I'd consider - I chose to program a tool that would automate the
 process for me.
 
-If you like this tool, **consider starring the repository ✨** on GitHub! It really encourages me to build more open-source tools. :D
+If you like this tool, **consider starring the repository ✨** on GitHub! It
+really encourages me to build more open-source tools like this. :D
 
 ## Usage
 
