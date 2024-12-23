@@ -21,6 +21,7 @@
 - [Manual Installation](#manual-installation)
 - [Caveats](#caveats)
 - [Contributors](#contributors)
+- [Changelog](#changelog)
 - [License](#license)
 
 ## Overview
@@ -149,6 +150,10 @@ $ trimsec 1h20m 1.75x
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## Changelog
+
+For release notes and changelog, please refer to the [CHANGELOG.md](CHANGELOG.md) file.
 
 ## License
 
