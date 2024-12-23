@@ -1,11 +1,10 @@
-// Imports.
 use clap::Parser;
 use colored::*;
 use std::process;
 
 use trimsec::Config;
 
-// Struct for parsing.
+/// Struct for parsing.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
@@ -15,7 +14,7 @@ struct Cli {
     multiplier: String,
 }
 
-// Runner.
+/// Runner.
 fn main() {
     let args = Cli::parse();
 

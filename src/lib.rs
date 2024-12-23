@@ -127,7 +127,7 @@ pub fn parse_time(time: f64) -> String {
     time_string
 }
 
-// Function to pass the duration string and return the total seconds.
+/// Function to pass the duration string and return the total seconds.
 fn parse_duration(duration: &str) -> Result<(u64, i32), TrimsecError> {
     let mut total_seconds = 0u64;
     let mut splits = 0;
