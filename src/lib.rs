@@ -1,6 +1,5 @@
 // Imports.
 use std::fmt::Display;
-use std::process;
 
 /// The primary run function.
 pub fn run(config: Config) -> Result<(String, String), TrimsecError> {
@@ -25,10 +24,11 @@ pub fn trim(config: Config) -> (String, String) {
 #[derive(Debug)]
 pub enum TrimsecError {
     InvalidDurationFormat,
-    /// Called when something other than `s`, `m`, `h`, `d` was used
     InvalidTimeUnit,
     NegativeDuration,
     InsufficientArgumentsProvided,
+    InvalidMultiplierFormat,
+    MultiplierOutOfRange,
 }
 
 impl Display for TrimsecError {
@@ -46,6 +46,14 @@ impl Display for TrimsecError {
                 "You need to provide a duration and a multiplier (e.g. `trimsec 1h 2x`)."
             ),
             Self::NegativeDuration => write!(f, "{}", "Duration must be a positive value."),
+            Self::InvalidMultiplierFormat => {
+                write!(f, "{}", "Multiplier must be a positive float.")
+            }
+            Self::MultiplierOutOfRange => write!(
+                f,
+                "{}",
+                "Multiplier must be greater than 1x and less than 100x."
+            ),
         }
     }
 }
@@ -60,42 +68,34 @@ pub struct Config {
 impl Config {
     pub fn new(duration: &str, multiplier_user: &str) -> Result<Config, TrimsecError> {
         // format conversion
-        // firstly, parse the duration to *only* seconds and then convert it to a string
         let duration_in_seconds = parse_duration(&duration)?;
-
-        // remove any multiplier formats and convert to a float
-        let multiplier = if multiplier_user.ends_with('x') {
-            &multiplier_user[..multiplier_user.len() - 1]
-        } else {
-            &multiplier_user
-        };
-
-        let multiplier_value: f64 = multiplier.parse().unwrap_or_else(|_| {
-            eprintln!("Multiplier must be a positive float");
-            process::exit(1);
-        });
-
-        match multiplier_value {
-            ..0.0 => {
-                eprintln!("Multiplier must be a positive float.");
-                process::exit(1);
-            }
-            0.0..=1.0 => {
-                eprintln!("Multiplier must be greater than 1x.");
-                process::exit(1);
-            }
-            100.0..=f64::INFINITY => {
-                eprintln!("Multiplier must be less than 100x.");
-                process::exit(1);
-            }
-            _ => (),
-        }
+        let multiplier_value = parse_multiplier(multiplier_user)?;
 
         // return the Config struct
         Ok(Config {
             duration: duration_in_seconds,
             multiplier: multiplier_value,
         })
+    }
+}
+
+/// Parse the multiplier string and return the multiplier value as a float.
+fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
+    let multiplier = if multiplier_user.ends_with('x') {
+        &multiplier_user[..multiplier_user.len() - 1]
+    } else {
+        &multiplier_user
+    };
+
+    let multiplier_value: f64 = multiplier
+        .parse()
+        .map_err(|_| TrimsecError::InvalidMultiplierFormat)?;
+
+    match multiplier_value {
+        ..0.0 => Err(TrimsecError::InvalidMultiplierFormat),
+        0.0..=1.0 => Err(TrimsecError::MultiplierOutOfRange),
+        100.0..=f64::INFINITY => Err(TrimsecError::MultiplierOutOfRange),
+        _ => Ok(multiplier_value),
     }
 }
 
