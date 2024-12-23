@@ -27,8 +27,16 @@ fn main() {
 
     let result = trimsec::run(config);
     match result {
-        Ok((dur, saved)) => {
-            println!("\nReduced time: {}", dur.yellow());
+        Ok((new_duration, saved, splits)) => {
+            if splits > 1 {
+                println!(
+                    "\nNew duration: {} ({} splits)",
+                    new_duration.yellow(),
+                    splits
+                );
+            } else {
+                println!("\nNew duration: {}", new_duration.yellow());
+            }
             println!("Saved {}!\n", saved.green());
         }
         Err(e) => {

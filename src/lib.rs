@@ -2,12 +2,12 @@
 use std::fmt::Display;
 
 /// The primary run function.
-pub fn run(config: Config) -> Result<(String, String), TrimsecError> {
+pub fn run(config: Config) -> Result<(String, String, i32), TrimsecError> {
     Ok(trim(config))
 }
 
 /// Calculate how much time has been saved by using a multiplier.
-pub fn trim(config: Config) -> (String, String) {
+pub fn trim(config: Config) -> (String, String, i32) {
     let duration = config.duration as f64;
     let multiplier = config.multiplier;
 
@@ -17,7 +17,7 @@ pub fn trim(config: Config) -> (String, String) {
     let saved = duration - result;
     let saved_string = parse_time(saved);
 
-    (result_string, saved_string)
+    (result_string, saved_string, config.splits)
 }
 
 /// The error enum for generating error messages later on.
@@ -63,18 +63,20 @@ impl Display for TrimsecError {
 pub struct Config {
     pub duration: u64,
     pub multiplier: f64,
+    pub splits: i32,
 }
 
 impl Config {
     pub fn new(duration: &str, multiplier_user: &str) -> Result<Config, TrimsecError> {
         // format conversion
-        let duration_in_seconds = parse_duration(&duration)?;
+        let duration_tuple = parse_duration(&duration)?;
         let multiplier_value = parse_multiplier(multiplier_user)?;
 
         // return the Config struct
         Ok(Config {
-            duration: duration_in_seconds,
+            duration: duration_tuple.0,
             multiplier: multiplier_value,
+            splits: duration_tuple.1,
         })
     }
 }
@@ -127,35 +129,43 @@ pub fn parse_time(time: f64) -> String {
 }
 
 // Function to pass the duration string and return the total seconds.
-fn parse_duration(duration: &str) -> Result<u64, TrimsecError> {
+fn parse_duration(duration: &str) -> Result<(u64, i32), TrimsecError> {
     let mut total_seconds = 0u64;
-    let mut current_number = String::new();
+    let mut splits = 0;
 
-    for c in duration.chars() {
-        if c.is_digit(10) {
-            current_number.push(c);
-        } else if c.is_whitespace() {
-            continue;
-        } else {
-            let number: u64 = current_number
-                .parse()
-                .map_err(|_| TrimsecError::NegativeDuration)?;
-            current_number.clear();
-            total_seconds += match c {
-                's' => number,
-                'm' => number * 60,
-                'h' => number * 3600,
-                'd' => number * 86400,
-                _ => return Err(TrimsecError::InvalidTimeUnit),
-            };
+    for part in duration.split(':') {
+        let mut current_number = String::new();
+        let mut part_seconds = 0u64;
+
+        for c in part.chars() {
+            if c.is_digit(10) {
+                current_number.push(c);
+            } else if c.is_whitespace() {
+                continue;
+            } else {
+                let number: u64 = current_number
+                    .parse()
+                    .map_err(|_| TrimsecError::NegativeDuration)?;
+                current_number.clear();
+                part_seconds += match c {
+                    's' => number,
+                    'm' => number * 60,
+                    'h' => number * 3600,
+                    'd' => number * 86400,
+                    _ => return Err(TrimsecError::InvalidTimeUnit),
+                };
+            }
         }
+
+        if !current_number.is_empty() {
+            return Err(TrimsecError::InvalidDurationFormat);
+        }
+
+        total_seconds += part_seconds;
+        splits += 1;
     }
 
-    if !current_number.is_empty() {
-        return Err(TrimsecError::InvalidDurationFormat);
-    }
-
-    Ok(total_seconds)
+    Ok((total_seconds, splits))
 }
 
 /// Unit tests.
