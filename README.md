@@ -11,6 +11,16 @@
 
 </div>
 
+## Table of Contents
+
+- [Overview](#Overview)
+- [Usage](#Usage)
+- [Installation](#Installation)
+- [Manual Installation](#Manual-Installation)
+- [Caveats](#Caveats)
+- [Contributors](#Contributors)
+- [License](#License)
+
 ## Overview
 
 [trimsec]() provides an easy way to accurately estimate how much time you save
