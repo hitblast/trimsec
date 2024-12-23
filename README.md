@@ -19,7 +19,6 @@
   - [cargo](#cargo) [rust]
   - [mise](#mise) [rust]
 - [Manual Installation](#manual-installation)
-- [Caveats](#caveats)
 - [Contributors](#contributors)
 - [Changelog](#changelog)
 - [License](#license)
@@ -71,8 +70,19 @@ you can use the following pattern:
 $ trimsec 1h30m+2h50m 1.25x
 ```
 
+Here we can clearly see that all of the commands above follow a similar pattern:
+
+- While specifying the duration, you must use any combination of the following formats:
+  - `<days>d` for days
+  - `<hours>h` for hours
+  - `<minutes>m` for minutes
+  - `<seconds>s` for seconds
+- The speed multiplier must be a float-point number, and *can* suffixed with `x`, such as:
+  - `1.5x` indicates 1.5 times the original speed.
+  - But, `1.5` is also valid and indicates the same speed multiplier.
+
 > [!NOTE]
-> Please read [Caveats](#Caveats) for more information on the supported formats.
+> For more information on the available flags and options, type `trimsec --help`.
 
 ## Installation
 
@@ -127,17 +137,6 @@ $ source ~/.bashrc
 $ trimsec 1h20m 1.75x
 ```
 
-## Caveats
-
-- While specifying the duration, you must use any combination of the following formats:
-  - `<days>d` for days
-  - `<hours>h` for hours
-  - `<minutes>m` for minutes
-  - `<seconds>s` for seconds
-- The speed multiplier must be a float-point number, and *can* suffixed with `x`, such as:
-  - `1.5x` indicates 1.5 times the original speed.
-  - But, `1.5` is also valid and indicates the same speed multiplier.
-
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -158,7 +157,7 @@ $ trimsec 1h20m 1.75x
 
 ## Changelog
 
-For release notes and changelog, please refer to the [CHANGELOG.md](CHANGELOG.md) file.
+For release notes and changelog, please refer to the [CHANGELOG.md](https://github.com/hitblast/trimsec/blob/main/CHANGELOG.md) file.
 
 ## License
 
