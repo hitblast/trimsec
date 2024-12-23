@@ -18,7 +18,7 @@
 - [Installation](#installation)
   - [cargo](#cargo) [rust]
   - [mise](#mise) [rust]
-- [Manual Installation](#manual-installation)
+- [Manual installation](#manual-installation)
 - [Contributors](#contributors)
 - [Changelog](#changelog)
 - [License](#license)
