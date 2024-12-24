@@ -110,8 +110,8 @@ $ mise use -g cargo:trimsec
 
 ### Manual installation
 
-If you do not have Rust and Cargo installed, you can clone this repository and
-build the binary manually:
+In case you prefer building standalone binaries native to your machine, here's a
+few commands to help you:
 
 ```bash
 # clone the repository
