@@ -7,7 +7,7 @@ pub fn run(config: Config) -> Result<(String, String, i32), TrimsecError> {
 
 /// Calculate how much time has been saved by using a multiplier.
 pub fn trim(config: Config) -> (String, String, i32) {
-    let duration = config.duration as f64;
+    let duration = config.duration;
     let multiplier = config.multiplier;
 
     let result = duration / multiplier;
@@ -60,7 +60,7 @@ impl Display for TrimsecError {
 /// The configuration struct used for
 /// parsing and storing the duration and multiplier.
 pub struct Config {
-    pub duration: u64,
+    pub duration: f64,
     pub multiplier: f64,
     pub splits: i32,
 }
@@ -128,29 +128,29 @@ pub fn parse_time(time: f64) -> String {
 }
 
 /// Function to pass the duration string and return the total seconds.
-fn parse_duration(duration: &str) -> Result<(u64, i32), TrimsecError> {
-    let mut total_seconds = 0u64;
+fn parse_duration(duration: &str) -> Result<(f64, i32), TrimsecError> {
+    let mut total_seconds = 0f64;
     let mut splits = 0;
 
     for part in duration.split('+') {
         let mut current_number = String::new();
-        let mut part_seconds = 0u64;
+        let mut part_seconds = 0f64;
 
         for c in part.chars() {
-            if c.is_digit(10) {
+            if c.is_digit(10) || c == '.' {
                 current_number.push(c);
             } else if c.is_whitespace() {
                 continue;
             } else {
-                let number: u64 = current_number
+                let number: f64 = current_number
                     .parse()
                     .map_err(|_| TrimsecError::NegativeDuration)?;
                 current_number.clear();
                 part_seconds += match c {
                     's' => number,
-                    'm' => number * 60,
-                    'h' => number * 3600,
-                    'd' => number * 86400,
+                    'm' => number * 60.0,
+                    'h' => number * 3600.0,
+                    'd' => number * 86400.0,
                     _ => return Err(TrimsecError::InvalidTimeUnit),
                 };
             }
@@ -174,12 +174,14 @@ mod tests {
 
     #[test]
     fn test_parse_duration() {
-        assert_eq!(parse_duration("1s").unwrap(), (1, 1));
-        assert_eq!(parse_duration("1m").unwrap(), (60, 1));
-        assert_eq!(parse_duration("1h").unwrap(), (3600, 1));
-        assert_eq!(parse_duration("1d").unwrap(), (86400, 1));
-        assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061, 1));
-        assert_eq!(parse_duration("1h+1m+1s").unwrap(), (3661, 3));
+        assert_eq!(parse_duration("1s").unwrap(), (1.0, 1));
+        assert_eq!(parse_duration("1m").unwrap(), (60.0, 1));
+        assert_eq!(parse_duration("1h").unwrap(), (3600.0, 1));
+        assert_eq!(parse_duration("1d").unwrap(), (86400.0, 1));
+        assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061.0, 1));
+        assert_eq!(parse_duration("1h+1m+1s").unwrap(), (3661.0, 3));
+        assert_eq!(parse_duration("1.5h").unwrap(), (5400.0, 1));
+        assert_eq!(parse_duration("1.5h+30m").unwrap(), (7200.0, 2));
         assert!(parse_duration("1x").is_err());
         assert!(parse_duration("1").is_err());
     }
@@ -200,6 +202,8 @@ mod tests {
         assert!(Config::new("1h", "1.25x").is_ok());
         assert!(Config::new("1d", "2x").is_ok());
         assert!(Config::new("1d1h1m1s", "2x").is_ok());
+        assert!(Config::new("1.5h", "2x").is_ok());
+        assert!(Config::new("1.5h+30m", "2x").is_ok());
         assert!(Config::new("1x", "2x").is_err());
         assert!(Config::new("1", "2x").is_err());
     }
