@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `--seconds` flag for using seconds as the default time unita (by @hitblast)
+- Automation workflows (GitHub Actions) for releases (by @hitblast)
 
 ### Changed
 

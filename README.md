@@ -118,8 +118,13 @@ $ mise use -g cargo:trimsec
 
 ### Manual installation
 
-In case you prefer building standalone binaries native to your machine, here's a
-few commands to help you:
+Standalone binaries for this project are all available at the [GitHub
+Releases](https://github.com/hitblast/trimsec/releases) page. The binaries are
+produced by automated GitHub Actions workflows on three distinct runners and
+should run on all their respective platforms.
+
+In case, however, if you prefer building standalone binaries native to your
+machine, here's a few commands to help you:
 
 ```bash
 # Clone the repository.
@@ -130,9 +135,9 @@ $ cd trimsec
 $ cargo build --release
 ```
 
-After building the binary, move the binary to a directory which is registered in
-the `$PATH` environment variable. Here's an example with the `~/.local/bin/`
-directory on macOS:
+Either you download the binary from the mentioned page above or manually
+compile, you will have to move it to somewhere which can be directly pointed at
+using the `$PATH` variable. Here's an example:
 
 ```bash
 $ mv target/release/trimsec ~/.local/bin/
