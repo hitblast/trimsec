@@ -122,11 +122,11 @@ In case you prefer building standalone binaries native to your machine, here's a
 few commands to help you:
 
 ```bash
-# clone the repository
+# Clone the repository.
 $ git clone https://github.com/hitblast/trimsec.git
 $ cd trimsec
 
-# output: target/release/trimsec
+# Output: target/release/trimsec
 $ cargo build --release
 ```
 
@@ -137,11 +137,11 @@ directory on macOS:
 ```bash
 $ mv target/release/trimsec ~/.local/bin/
 
-# (optional) this code appends the binary path to the PATH environment variable
+# (Optional) This code appends the binary path to the PATH environment variable.
 $ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 $ source ~/.bashrc
 
-# now you can run the binary from anywhere
+# Now you can run the binary from anywhere.
 $ trimsec 1h20m 1.75x
 ```
 
