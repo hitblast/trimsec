@@ -1,12 +1,12 @@
 use std::fmt::Display;
 
 /// The primary run function.
-pub fn run(config: Config) -> Result<(String, String, i32), TrimsecError> {
+pub fn run(config: Config) -> Result<(String, String, i64), TrimsecError> {
     Ok(trim(config))
 }
 
 /// Calculate how much time has been saved by using a multiplier.
-pub fn trim(config: Config) -> (String, String, i32) {
+pub fn trim(config: Config) -> (String, String, i64) {
     let duration = config.duration;
     let multiplier = config.multiplier;
 
@@ -62,7 +62,7 @@ impl Display for TrimsecError {
 pub struct Config {
     pub duration: f64,
     pub multiplier: f64,
-    pub splits: i32,
+    pub splits: i64,
 }
 
 impl Config {
@@ -128,7 +128,7 @@ pub fn parse_time(time: f64) -> String {
 }
 
 /// Function to pass the duration string and return the total seconds.
-fn parse_duration(duration: &str) -> Result<(f64, i32), TrimsecError> {
+fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecError> {
     let mut total_seconds = 0f64;
     let mut splits = 0;
 

@@ -62,6 +62,14 @@ example:
 $ trimsec 1h30m 1.5x
 ```
 
+For convenience in *some* cases, instead of using plain integers for duration,
+you can also use floating-point numbers. For example:
+
+```bash
+# Equivalent to `2h 1.5x`.
+$ trimsec 1.5h30m 1.5x
+```
+
 In order to calculate multiple durations at once with the same speed multiplier,
 you can use the following pattern:
 
