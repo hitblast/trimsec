@@ -23,6 +23,9 @@ struct Cli {
     /// Only show saved time.
     #[clap(short, long)]
     time_saved_only: bool,
+    /// Use seconds as the time unit.
+    #[clap(short, long)]
+    seconds: bool,
 }
 
 /// Runner.
@@ -40,21 +43,32 @@ fn main() {
         Ok((new_duration, time_saved, splits)) => {
             // duration
             if !args.time_saved_only {
-                let duration_message = if splits > 1 {
-                    format!(
-                        "\nNew duration: {} ({} splits)",
-                        new_duration.yellow(),
-                        splits
-                    )
+                let parsed = if args.seconds {
+                    format!("{:.2}s", new_duration)
                 } else {
-                    format!("\nNew duration: {}", new_duration.yellow())
+                    trimsec::parse_time(new_duration)
                 };
-                println!("{}", duration_message);
+
+                let message = format!(
+                    "\nNew duration: {}",
+                    if splits > 1 {
+                        format!("{} ({} splits)", parsed, splits)
+                    } else {
+                        parsed
+                    }
+                );
+
+                println!("{}", message);
             }
 
             // saved time
             if !args.duration_only {
-                println!("Saved {}!\n", time_saved.green());
+                let parsed = if args.seconds {
+                    format!("{:.2}s", time_saved)
+                } else {
+                    trimsec::parse_time(time_saved)
+                };
+                println!("Saved {}!\n", parsed.green());
             }
         }
         Err(e) => {

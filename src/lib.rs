@@ -1,22 +1,19 @@
 use std::fmt::Display;
 
 /// The primary run function.
-pub fn run(config: Config) -> Result<(String, String, i64), TrimsecError> {
+pub fn run(config: Config) -> Result<(f64, f64, i64), TrimsecError> {
     Ok(trim(config))
 }
 
 /// Calculate how much time has been saved by using a multiplier.
-pub fn trim(config: Config) -> (String, String, i64) {
-    let duration = config.duration;
+pub fn trim(config: Config) -> (f64, f64, i64) {
+    let old_duration = config.duration;
     let multiplier = config.multiplier;
 
-    let result = duration / multiplier;
-    let result_string = parse_time(result);
+    let new_duration = old_duration / multiplier;
+    let saved_time = old_duration - new_duration;
 
-    let saved = duration - result;
-    let saved_string = parse_time(saved);
-
-    (result_string, saved_string, config.splits)
+    (new_duration, saved_time, config.splits)
 }
 
 /// The error enum for generating error messages later on.
@@ -211,6 +208,15 @@ mod tests {
     #[test]
     fn test_trim() {
         let config = Config::new("1d", "2x").unwrap();
-        assert_eq!(trim(config), (String::from("12h"), String::from("12h"), 1));
+        assert_eq!(trim(config), (43200.0, 43200.0, 1));
+    }
+
+    #[test]
+    fn test_run() {
+        let config = Config::new("1d", "2x").unwrap();
+        let result = run(config).unwrap();
+        assert_eq!(parse_time(result.0), "12h");
+        assert_eq!(parse_time(result.1), "12h");
+        assert_eq!(result.2, 1);
     }
 }
