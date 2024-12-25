@@ -26,6 +26,9 @@ struct Cli {
     /// Use seconds as the time unit.
     #[clap(short, long)]
     seconds: bool,
+    /// Show emojis in the output.
+    #[clap(short, long)]
+    emoji: bool,
 }
 
 /// Runner.
@@ -50,7 +53,8 @@ fn main() {
                 };
 
                 let message = format!(
-                    "\nNew duration: {}",
+                    "\nNew duration: {}{}",
+                    if args.emoji { "⏳ " } else { r#""# },
                     if splits > 1 {
                         format!("{} ({} splits)", parsed, splits)
                     } else {
@@ -68,7 +72,11 @@ fn main() {
                 } else {
                     trimsec::parse_time(time_saved)
                 };
-                println!("Saved {}!\n", parsed.green());
+                println!(
+                    "Saved {}{}!\n",
+                    if args.emoji { "⏰ " } else { r#""# },
+                    parsed.green()
+                );
             }
         }
         Err(e) => {

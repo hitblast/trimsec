@@ -9,6 +9,8 @@
   - [x] `--version`
   - [x] `--duration-only`
   - [x] `--time-saved-only`
+  - [x] `--seconds`
+  - [x] `--emoji`
   - [ ] `--raw`
   - [ ] `--unit`
 - [ ] Add an efficiency indicator for the time saved based on the leftover time for the day.
