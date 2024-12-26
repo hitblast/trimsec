@@ -1,11 +1,14 @@
 use std::fmt::Display;
 
+use chrono::{Datelike, TimeZone};
+
 /// The primary run function.
 pub fn run(config: Config) -> Result<(f64, f64, i64), TrimsecError> {
     Ok(trim(config))
 }
 
 /// Calculate how much time has been saved by using a multiplier.
+/// Returns a tuple with the new duration, saved time, and the number of splits.
 pub fn trim(config: Config) -> (f64, f64, i64) {
     let old_duration = config.duration;
     let multiplier = config.multiplier;
@@ -89,7 +92,7 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
         .parse()
         .map_err(|_| TrimsecError::InvalidMultiplierFormat)?;
 
-    if multiplier_value <= 1.0 || multiplier_value >= 100.0 {
+    if multiplier_value < 1.0 || multiplier_value >= 100.0 {
         Err(TrimsecError::MultiplierOutOfRange)
     } else {
         Ok(multiplier_value)
@@ -162,6 +165,21 @@ fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecError> {
     }
 
     Ok((total_seconds, splits))
+}
+
+/// Function to check the time efficiency for the current day.
+pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
+    let now = chrono::Local::now();
+    let end_of_day = chrono::Local
+        .with_ymd_and_hms(now.year(), now.month(), now.day(), 23, 59, 59)
+        .unwrap();
+    let duration = end_of_day.signed_duration_since(now).num_seconds() as f64;
+
+    if duration > trimmed_dur {
+        duration - trimmed_dur
+    } else {
+        0.0
+    }
 }
 
 /// Unit tests.

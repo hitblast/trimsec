@@ -45,7 +45,7 @@ fn main() {
     match result {
         Ok((new_duration, time_saved, splits)) => {
             // duration
-            if !args.time_saved_only {
+            if !args.time_saved_only && time_saved > 0.0 {
                 let parsed = if args.seconds {
                     format!("{:.2}s", new_duration)
                 } else {
@@ -53,7 +53,7 @@ fn main() {
                 };
 
                 let message = format!(
-                    "\nNew duration: {}{}",
+                    " New duration: {}{} ",
                     if args.emoji { "⏳ " } else { r#""# },
                     if splits > 1 {
                         format!("{} ({} splits)", parsed, splits)
@@ -65,17 +65,43 @@ fn main() {
                 println!("{}", message);
             }
 
+            // remaining time in current day
+            if !args.duration_only && !args.time_saved_only {
+                let remaining = trimsec::calculate_remaining(new_duration);
+                println!(
+                    " Time leftover in day: {}{} ",
+                    if args.emoji {
+                        if remaining > 0.0 {
+                            "🟢 "
+                        } else {
+                            "🔴 "
+                        }
+                    } else {
+                        r#""#
+                    },
+                    if args.seconds {
+                        format!("{:.2}s", remaining)
+                    } else {
+                        trimsec::parse_time(remaining)
+                    }
+                );
+            }
+
             // saved time
-            if !args.duration_only {
+            if !args.duration_only && time_saved > 0.0 {
                 let parsed = if args.seconds {
                     format!("{:.2}s", time_saved)
                 } else {
                     trimsec::parse_time(time_saved)
                 };
                 println!(
-                    "Saved {}{}!\n",
-                    if args.emoji { "⏰ " } else { r#""# },
-                    parsed.green()
+                    "{}",
+                    format!(
+                        " Saved {}{}! ",
+                        if args.emoji { "⏰ " } else { r#""# },
+                        parsed
+                    )
+                    .green()
                 );
             }
         }

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.9] - 2024.12.2
+
+### Added
+
+- Calculation of the estimated time remaining in current day after trimming (by @hitblast)
+
+### Changed
+
+- Support for calculating even at 1x multiplier (correlate with "Added" section) (by @hitblast)
+- "Better?" text output formatting (by @hitblast)
+
 ## [v0.1.8] - 2024.12.26
 
 ### Added
