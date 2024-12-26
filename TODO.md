@@ -13,5 +13,5 @@
   - [x] `--emoji`
   - [ ] `--raw`
   - [ ] `--unit`
-- [ ] Add an efficiency indicator for the time saved based on the leftover time for the day.
+- [x] Add an indicator for the leftover time in the current day.
 - [ ] Integrate with [dijo](https://github.com/oppiliappan/dijo/wiki/Auto-Habits) for automatic time tracking.

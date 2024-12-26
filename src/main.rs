@@ -82,7 +82,11 @@ fn main() {
                     if args.seconds {
                         format!("{:.2}s", remaining)
                     } else {
-                        trimsec::parse_time(remaining)
+                        if remaining == 0.0 {
+                            "0s".to_string()
+                        } else {
+                            trimsec::parse_time(remaining)
+                        }
                     }
                 );
             }
