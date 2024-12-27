@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Strategic (& fast) content consumption planner."
 authors = ["HitBlast <hitblastlive@gmail.com>"]
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
