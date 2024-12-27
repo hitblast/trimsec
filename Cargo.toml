@@ -1,6 +1,6 @@
 [package]
 name = "trimsec"
-description = "Calculate saved time on using media speed multipliers, with speed."
+description = "Strategic content consumption planner."
 authors = ["HitBlast <hitblastlive@gmail.com>"]
 version = "0.1.9"
 edition = "2021"
