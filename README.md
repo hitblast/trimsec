@@ -3,9 +3,9 @@
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
 [![Unit Tests](https://github.com/hitblast/trimsec/actions/workflows/tests.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/tests.yml)
+[![Release Builds](https://github.com/hitblast/trimsec/actions/workflows/release.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/release.yml)
 
-Strategic (& fast content consumption planner.<br>
-Built with Rust with <1k lines of code.
+Strategic (& fast) content consumption planner.<br>
 
 > [!NOTE]
 > This project is still under active development. New ideas of improvement are always welcome!
