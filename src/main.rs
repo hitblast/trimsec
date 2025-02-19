@@ -1,7 +1,7 @@
 // Imports.
 use clap::{Parser, Subcommand};
 use colored::*;
-use std::process;
+use std::{fs, process};
 
 use trimsec::Config;
 
@@ -50,6 +50,8 @@ enum BankCommands {
     Show,
     /// Reset (clear) the time bank.
     Reset,
+    /// Return the absolute path to the bank file.
+    Path,
 }
 
 fn main() {
@@ -205,6 +207,17 @@ fn main() {
                         println!("Time bank has been reset.");
                     }
                 }
+                Some(BankCommands::Path) => match TimeBank::load() {
+                    Ok(bank) => match fs::canonicalize(bank.bank_file_path()) {
+                        Ok(path) => println!("{}", path.display()),
+                        Err(e) => {
+                            eprintln!("{}: Could not get canonical path: {}", "ERROR".red(), e)
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("{}: Could not load time bank: {}", "ERROR".red(), e);
+                    }
+                },
             }
         }
     }
