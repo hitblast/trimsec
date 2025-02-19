@@ -1,12 +1,16 @@
-<div align="center">
-
-<img src="assets/sprite.png" width="150px" align="right">
+<img src="assets/sprite.png" width="200px" align="right">
 
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
 [![Unit Tests](https://github.com/hitblast/trimsec/actions/workflows/tests.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/tests.yml)
 
-</div>
+Strategic (& fast content consumption planner.<br>
+Built with Rust with <1k lines of code.
+
+> [!NOTE]
+> This project is still under active development. New ideas of improvement are always welcome!
+
+
 
 ## Table of Contents
 
