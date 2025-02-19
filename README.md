@@ -40,10 +40,21 @@ really encourages me to build more open-source tools like this. :D
 
 ## Usage
 
-As shown in the demo above, you can use `trimsec` by running the following command:
+> [!NOTE]
+> For more information on all available commands, type `trimsec --help`.
+
+The available commands for trimsec are as follows:
+
+- `trim` - Calculate saved time using a multiplier over a given duration.
+- `bank` - Manage or view your time bank data.
+  1. `show` - Show the current time bank details.
+  2. `reset`- Reset the time bank.
+  3. `path` - Return the absolute path to the bank file.
+
+### Command: `trimsec trim`
 
 ```bash
-$ trimsec <duration> <speed>
+$ trimsec trim <duration> <speed>
 ```
 
 Here, `<speed>` is the speed multiplier you are using, and `<duration>` is the
@@ -51,7 +62,7 @@ duration of the video you are watching. For example, if you are watching a 1-hou
 video at 2x speed, you can run the following command:
 
 ```bash
-$ trimsec 1h 2x
+$ trimsec trim 1h 2x
 ```
 
 This will output the time you saved by watching the video at 2x speed. You can
@@ -59,7 +70,7 @@ also combine multiple duration indicators and float-point speed multipliers. For
 example:
 
 ```bash
-$ trimsec 1h30m 1.5x
+$ trimsec trim 1h30m 1.5x
 ```
 
 For convenience in *some* cases, instead of using plain integers for duration,
@@ -67,7 +78,7 @@ you can also use floating-point numbers. For example:
 
 ```bash
 # Equivalent to `2h 1.5x`.
-$ trimsec 1.5h30m 1.5x
+$ trimsec trim 1.5h30m 1.5x
 ```
 
 In order to calculate multiple durations at once with the same speed multiplier,
@@ -75,7 +86,7 @@ you can use the following pattern:
 
 ```bash
 # Use a '+' to separate the durations.
-$ trimsec 1h30m+2h50m 1.25x
+$ trimsec trim 1h30m+2h50m 1.25x
 ```
 
 Here we can clearly see that all of the commands above follow a similar pattern:
@@ -89,8 +100,29 @@ Here we can clearly see that all of the commands above follow a similar pattern:
   - `1.5x` indicates 1.5 times the original speed.
   - But, `1.5` is also valid and indicates the same speed multiplier.
 
-> [!NOTE]
-> For more information on the available flags and options, type `trimsec --help`.
+### Command: `trimsec bank`
+
+The `trimsec trim` command interacts with the "time bank" implementation each
+time you run it, which means it stores the total amount of saved time for each
+day within a JSON file.
+
+To show saved time for each day individually, use the `bank show` command:
+
+```bash
+$ trimsec bank show
+```
+
+If you'd like to reset the time bank, use this command:
+
+```bash
+$ trimsec bank reset
+```
+
+The `bank path` command allows you to view the path to the time bank file:
+
+```bash
+$ trimsec bank path
+```
 
 ## Installation
 
