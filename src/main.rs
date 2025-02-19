@@ -139,7 +139,7 @@ fn main() {
                         };
                         println!(
                             "{}",
-                            format!(" Saved {}{}! ", if emoji { "⏰ " } else { "" }, parsed)
+                            format!(" Saved {}{}!\n", if emoji { "⏰ " } else { "" }, parsed)
                                 .green()
                         );
 
@@ -151,8 +151,12 @@ fn main() {
                                     print_warning(format!("Could not update time bank: {}", e));
                                 } else {
                                     println!(
-                                        "Time bank updated. Total saved time: {}",
-                                        trimsec::parse_time(bank.total_saved())
+                                        "{}",
+                                        format!(
+                                            " [Total saved time: {}]",
+                                            trimsec::parse_time(bank.total_saved())
+                                        )
+                                        .dimmed()
                                     );
                                 }
                             }
