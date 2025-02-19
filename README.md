@@ -124,9 +124,12 @@ The `bank path` command allows you to view the path to the time bank file:
 $ trimsec bank path
 ```
 
+---
+
 ## Installation
 
----
+> [!NOTE]
+> These methods are subject to change as the library is in stable development.
 
 ### cargo
 
