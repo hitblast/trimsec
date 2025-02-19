@@ -54,6 +54,14 @@ enum BankCommands {
     Path,
 }
 
+fn print_error<T: std::fmt::Display>(msg: T) {
+    eprintln!("{} {}", "[ERROR]".red(), msg);
+}
+
+fn print_warning<T: std::fmt::Display>(msg: T) {
+    eprintln!("{} {}", "[WARNING]".yellow(), msg);
+}
+
 fn main() {
     let args = Cli::parse();
 
@@ -68,7 +76,7 @@ fn main() {
         } => {
             // Create the Config – in case of errors exit.
             let config = Config::new(&duration, &multiplier).unwrap_or_else(|err| {
-                eprintln!("{}: {}", "ERROR".red(), err);
+                print_error(err);
                 process::exit(1);
             });
 
@@ -140,11 +148,7 @@ fn main() {
                             Ok(mut bank) => {
                                 bank.add_time(time_saved);
                                 if let Err(e) = bank.save() {
-                                    eprintln!(
-                                        "{}: Could not update time bank: {}",
-                                        "WARNING".yellow(),
-                                        e
-                                    );
+                                    print_warning(format!("Could not update time bank: {}", e));
                                 } else {
                                     println!(
                                         "Time bank updated. Total saved time: {}",
@@ -153,17 +157,13 @@ fn main() {
                                 }
                             }
                             Err(e) => {
-                                eprintln!(
-                                    "{}: Could not load time bank: {}",
-                                    "WARNING".yellow(),
-                                    e
-                                );
+                                print_warning(format!("Could not load time bank: {}", e));
                             }
                         }
                     }
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "ERROR".red(), e);
+                    print_error(e);
                     process::exit(1);
                 }
             }
@@ -193,7 +193,7 @@ fn main() {
                             }
                         }
                         Err(e) => {
-                            eprintln!("{}: Could not load time bank: {}", "ERROR".red(), e);
+                            print_error(format!("Could not load time bank: {}", e));
                         }
                     }
                 }
@@ -201,7 +201,7 @@ fn main() {
                     // Reset the bank: overwrite with an empty bank structure.
                     let bank = TimeBank { entries: vec![] };
                     if let Err(e) = bank.save() {
-                        eprintln!("{}: Could not reset time bank: {}", "ERROR".red(), e);
+                        print_error(format!("Could not reset time bank: {}", e));
                         process::exit(1);
                     } else {
                         println!("Time bank has been reset.");
@@ -210,12 +210,12 @@ fn main() {
                 Some(BankCommands::Path) => match TimeBank::load() {
                     Ok(bank) => match fs::canonicalize(bank.bank_file_path()) {
                         Ok(path) => println!("{}", path.display()),
-                        Err(e) => {
-                            eprintln!("{}: Could not get canonical path: {}", "ERROR".red(), e)
+                        Err(_) => {
+                            print_error("Could not get canonical path. Time bank was not initialized by trimsec.");
                         }
                     },
                     Err(e) => {
-                        eprintln!("{}: Could not load time bank: {}", "ERROR".red(), e);
+                        print_error(format!("Could not load time bank: {}", e));
                     }
                 },
             }

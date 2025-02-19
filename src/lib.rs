@@ -28,6 +28,7 @@ pub enum TrimsecError {
     InsufficientArgumentsProvided,
     InvalidMultiplierFormat,
     MultiplierOutOfRange,
+    TimeBankUnloaded,
 }
 
 impl Display for TrimsecError {
@@ -53,6 +54,7 @@ impl Display for TrimsecError {
                 "{}",
                 "Multiplier must be greater than 1x and less than 100x."
             ),
+            Self::TimeBankUnloaded => write!(f, "{}", "Time bank was not loaded."),
         }
     }
 }
