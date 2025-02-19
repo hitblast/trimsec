@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.3.0] - 2025.02.20
 
-- Placed the existing CLI workflow within the `trimsec trim` command.
-- Added `trimsec bank` command with the following subcommands:
+### Added
+
+- `trimsec bank` command with the following subcommands: (by @hitblast)
   - `trimsec bank show`
   - `trimsec bank reset`
   - `trimsec bank path`
+
+### Changed
+
+- The CLI workflow - now placed within the `trimsec trim` command (by @hitblast)
+
+### Changed
 
 ## [v0.2.0] - 2024.12.27
 
