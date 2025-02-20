@@ -10,8 +10,6 @@ Strategic (& fast) content consumption planner.<br>
 > [!NOTE]
 > This project is still under active development. New ideas of improvement are always welcome!
 
-
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -44,82 +42,68 @@ really encourages me to build more open-source tools like this. :D
 > [!NOTE]
 > For more information on all available commands, type `trimsec --help`.
 
-The available commands for trimsec are as follows:
+Trimsec provides two core functionalities: calculating saved time with a speed
+multiplier and managing your time bank data. This guide explains how to use both
+features in a seamless flow.
 
-- `trim` - Calculate saved time using a multiplier over a given duration.
-- `bank` - Manage or view your time bank data.
-  1. `show` - Show the current time bank details.
-  2. `reset`- Reset the time bank.
-  3. `path` - Return the absolute path to the bank file.
-
-### Command: `trimsec trim`
+To calculate saved time, you run the trim command as follows:
 
 ```bash
 $ trimsec trim <duration> <speed>
 ```
 
-Here, `<speed>` is the speed multiplier you are using, and `<duration>` is the
-duration of the video you are watching. For example, if you are watching a 1-hour
-video at 2x speed, you can run the following command:
+Here, `<duration>` represents the length of the video you are watching (using
+any combination of `<days>d`, `<hours>h`, `<minutes>m`, and `<seconds>s`), and
+`<speed>` is the speed multiplier—a floating-point number that can optionally be
+suffixed with an `x` (for example, both `1.5x` and `1.5` are valid). For
+instance, if you are watching a 1-hour video at 2x speed, execute:
 
 ```bash
 $ trimsec trim 1h 2x
 ```
 
-This will output the time you saved by watching the video at 2x speed. You can
-also combine multiple duration indicators and float-point speed multipliers. For
-example:
+This command outputs the time you saved by watching the video at 2x speed. You
+can also combine multiple duration indicators and apply floating-point
+multipliers, such as:
 
 ```bash
 $ trimsec trim 1h30m 1.5x
 ```
 
-For convenience in *some* cases, instead of using plain integers for duration,
-you can also use floating-point numbers. For example:
+For convenience, in some cases you might use floating-point numbers for the
+duration itself. For example:
 
 ```bash
 # Equivalent to `2h 1.5x`.
 $ trimsec trim 1.5h30m 1.5x
 ```
 
-In order to calculate multiple durations at once with the same speed multiplier,
-you can use the following pattern:
+If you wish to calculate saved time for multiple durations at once using the
+same speed multiplier, separate the durations with a '+' sign:
 
 ```bash
-# Use a '+' to separate the durations.
 $ trimsec trim 1h30m+2h50m 1.25x
 ```
 
-Here we can clearly see that all of the commands above follow a similar pattern:
+Each of these commands follows a consistent pattern for specifying durations and multipliers.
 
-- While specifying the duration, you must use any combination of the following formats:
-  - `<days>d` for days
-  - `<hours>h` for hours
-  - `<minutes>m` for minutes
-  - `<seconds>s` for seconds
-- The speed multiplier must be a float-point number, and *can* suffixed with `x`, such as:
-  - `1.5x` indicates 1.5 times the original speed.
-  - But, `1.5` is also valid and indicates the same speed multiplier.
+In addition to calculating saved time, every trim command interacts with a “time
+bank” that logs the total amount of saved time per day in a JSON file. To manage
+this time bank, you have several options:
 
-### Command: `trimsec bank`
-
-The `trimsec trim` command interacts with the "time bank" implementation each
-time you run it, which means it stores the total amount of saved time for each
-day within a JSON file.
-
-To show saved time for each day individually, use the `bank show` command:
+- To display the current saved time for each day, use:
 
 ```bash
 $ trimsec bank show
 ```
 
-If you'd like to reset the time bank, use this command:
+- To reset the time bank, run:
 
 ```bash
 $ trimsec bank reset
 ```
 
-The `bank path` command allows you to view the path to the time bank file:
+- And if you want to know the absolute path to the time bank file, simply execute:
 
 ```bash
 $ trimsec bank path
@@ -128,9 +112,6 @@ $ trimsec bank path
 ---
 
 ## Installation
-
-> [!NOTE]
-> These methods are subject to change as the library is in stable development.
 
 ### cargo
 
@@ -149,6 +130,9 @@ the following command:
 ```bash
 $ mise use -g cargo:trimsec
 ```
+
+> [!NOTE]
+> These methods are subject to change as the library is in stable development.
 
 ---
 
