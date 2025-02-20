@@ -15,6 +15,6 @@ if [ ! -f "$file" ]; then
 fi
 
 # Use sed in-place to delete any lines starting with ">".
-    sed -i '/^>/d' "$file"
+sed -i '/^>/d' "$file"
 
-    echo "Processed '$file' and updated it."
+echo "Processed '$file' and updated it."
