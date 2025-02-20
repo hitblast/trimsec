@@ -61,5 +61,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Generate markdown for cargo
+        run: |
+          chmod +x generate_md.sh
+          ./generate_md.sh
+
       - name: Publish using cargo
         run: cargo publish --token ${{ secrets.CRATES_TOKEN }}

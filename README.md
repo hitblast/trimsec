@@ -42,7 +42,7 @@ really encourages me to build more open-source tools like this. :D
 > [!NOTE]
 > For more information on all available commands, type `trimsec --help`.
 
-Trimsec provides two core functionalities: calculating saved time with a speed
+The tool provides two core functionalities: calculating saved time with a speed
 multiplier and managing your time bank data. This guide explains how to use both
 features in a seamless flow.
 
