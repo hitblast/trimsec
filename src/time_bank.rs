@@ -6,7 +6,7 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 
 // File for handling data storage for the time bank.
-const BANK_FILE: &str = "time_bank.json";
+const BANK_FILE: &str = ".time_bank.json";
 
 /// A typical time bank entry struct.
 #[derive(Serialize, Deserialize, Debug)]
