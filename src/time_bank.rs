@@ -1,12 +1,13 @@
 // Imports.
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::fs;
 use std::io::ErrorKind;
 use std::path::PathBuf;
 
 // File for handling data storage for the time bank.
-const BANK_FILE: &str = ".time_bank.json";
+const BANK_FILE: &str = ".trimsec";
 
 /// A typical time bank entry struct.
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,7 +29,8 @@ pub struct TimeBank {
 impl TimeBank {
     /// Load the time bank from the file. If the file does not exist, return an empty bank.
     pub fn load() -> Result<TimeBank, Box<dyn std::error::Error>> {
-        match fs::read_to_string(BANK_FILE) {
+        let path = Self::bank_file_path();
+        match fs::read_to_string(&path) {
             Ok(content) => {
                 let bank: TimeBank = serde_json::from_str(&content)?;
                 Ok(bank)
@@ -60,14 +62,20 @@ impl TimeBank {
     }
 
     /// Return the absolute path to the bank file.
-    pub fn bank_file_path(&self) -> PathBuf {
-        PathBuf::from(BANK_FILE)
+    pub fn bank_file_path() -> PathBuf {
+        let mut path = match env::var("HOME") {
+            Ok(home) => PathBuf::from(home),
+            Err(_) => PathBuf::from("."),
+        };
+        path.push(BANK_FILE);
+        path
     }
 
     /// Save the current bank state to the designated JSON file.
     pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
         let json = serde_json::to_string_pretty(self)?;
-        fs::write(BANK_FILE, json)?;
+        let path = Self::bank_file_path();
+        fs::write(&path, json)?;
         Ok(())
     }
 }

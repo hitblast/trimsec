@@ -212,7 +212,7 @@ fn main() {
                     }
                 }
                 Some(BankCommands::Path) => match TimeBank::load() {
-                    Ok(bank) => match fs::canonicalize(bank.bank_file_path()) {
+                    Ok(_) => match fs::canonicalize(TimeBank::bank_file_path()) {
                         Ok(path) => println!("{}", path.display()),
                         Err(_) => {
                             print_error("Could not get canonical path. Time bank was not initialized by trimsec.");
