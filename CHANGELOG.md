@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The handling of the canonical path which is used to store the time bank data, so that it's always absolute.
+- The handling of the canonical path which is used to store the time bank data, so that it's always absolute. (by @hitblast)
 
 ## [v0.3.0] - 2025.02.20
 
