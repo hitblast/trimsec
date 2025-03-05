@@ -67,4 +67,4 @@ jobs:
           ./generate_md.sh
 
       - name: Publish using cargo
-        run: cargo publish --token ${{ secrets.CRATES_TOKEN }}
+        run: cargo publish --token ${{ secrets.CRATES_TOKEN }} --allow-dirty
