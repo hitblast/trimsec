@@ -89,7 +89,6 @@ mod tests {
     fn test_add_time() {
         let mut bank = TimeBank { entries: vec![] };
         bank.add_time(100.0);
-        // Add more saved seconds – should accumulate on the same day.
         bank.add_time(50.0);
         assert_eq!(bank.entries.len(), 1);
         assert_eq!(bank.entries[0].saved_time, 150.0);
