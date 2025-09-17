@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 
-/// trimsec - Strategic (& fast) content consumption planner.
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
