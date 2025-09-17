@@ -15,7 +15,6 @@ Calculate time saved on using speed multipliers.
   - [cargo](#cargo)
   - [mise](#mise)
 - [Manual Installation](#manual-installation)
-- [Contributors](#contributors)
 - [License](#license)
 
 ## Overview
@@ -122,16 +121,6 @@ $ cd trimsec
 # Output: target/release/trimsec
 $ cargo build --release
 ```
-
-## Contributors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="http://furtidev.github.io"><img src="https://avatars.githubusercontent.com/u/44488750?v=4?s=100" width="100px;" alt="furtidev"/><br /><sub><b>furtidev</b></sub></a><br /><a href="#code-furtidev" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
 
 ## License
 
