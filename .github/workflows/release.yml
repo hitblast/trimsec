@@ -26,7 +26,8 @@ jobs:
         run: cargo test --release --verbose --locked
 
       - name: Compress binary
-        run: zip -j ${{ env.FILE_NAME }} target/release/trimsec.exe
+        run: |
+          powershell -Command "Compress-Archive -Path target/release/trimsec.exe -DestinationPath $env:FILE_NAME"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
