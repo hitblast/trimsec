@@ -1,62 +1,18 @@
-use std::fmt::Display;
-
 use chrono::{Datelike, TimeZone};
 
-/// The primary run function.
-pub fn run(config: Config) -> Result<(f64, f64, i64), TrimsecError> {
-    Ok(trim(config))
-}
+mod errors;
+use errors::TrimsecError;
 
 /// Calculate how much time has been saved by using a multiplier.
 /// Returns a tuple with the new duration, saved time, and the number of splits.
-pub fn trim(config: Config) -> (f64, f64, i64) {
+pub fn trim(config: Config) -> Result<(f64, f64, i64), TrimsecError> {
     let old_duration = config.duration;
     let multiplier = config.multiplier;
 
     let new_duration = old_duration / multiplier;
     let saved_time = old_duration - new_duration;
 
-    (new_duration, saved_time, config.splits)
-}
-
-/// The error enum for generating error messages later on.
-#[derive(Debug)]
-pub enum TrimsecError {
-    InvalidDurationFormat,
-    InvalidTimeUnit,
-    NegativeDuration,
-    InsufficientArgumentsProvided,
-    InvalidMultiplierFormat,
-    MultiplierOutOfRange,
-    TimeBankUnloaded,
-}
-
-impl Display for TrimsecError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::InvalidTimeUnit => write!(
-                f,
-                "{}",
-                "Specify duration in seconds (s), minutes (m), hours (h), or days (d)"
-            ),
-            Self::InvalidDurationFormat => write!(f, "{}", "Invalid duration format!"),
-            Self::InsufficientArgumentsProvided => write!(
-                f,
-                "{}",
-                "You need to provide a duration and a multiplier (e.g. `trimsec 1h 2x`)."
-            ),
-            Self::NegativeDuration => write!(f, "{}", "Duration must be a positive value."),
-            Self::InvalidMultiplierFormat => {
-                write!(f, "{}", "Multiplier must be a positive float.")
-            }
-            Self::MultiplierOutOfRange => write!(
-                f,
-                "{}",
-                "Multiplier must be greater than 1x and less than 100x."
-            ),
-            Self::TimeBankUnloaded => write!(f, "{}", "Time bank was not loaded."),
-        }
-    }
+    Ok((new_duration, saved_time, config.splits))
 }
 
 /// The configuration struct used for
@@ -228,13 +184,13 @@ mod tests {
     #[test]
     fn test_trim() {
         let config = Config::new("1d", "2x").unwrap();
-        assert_eq!(trim(config), (43200.0, 43200.0, 1));
+        assert_eq!(trim(config).unwrap(), (43200.0, 43200.0, 1));
     }
 
     #[test]
     fn test_run() {
         let config = Config::new("1d", "2x").unwrap();
-        let result = run(config).unwrap();
+        let result = trim(config).unwrap();
         assert_eq!(parse_time(result.0), "12h");
         assert_eq!(parse_time(result.1), "12h");
         assert_eq!(result.2, 1);
