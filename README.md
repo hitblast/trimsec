@@ -28,7 +28,7 @@ Thus, I tried making a simple solution which lives in the terminal.
 To calculate saved time, you run the trim command as follows:
 
 ```bash
-$ trimsec trim <duration> <speed>
+$ ts <duration> <speed>
 ```
 
 Here, `<duration>` represents the length of the video you are watching (using
@@ -38,7 +38,7 @@ suffixed with an `x` (for example, both `1.5x` and `1.5` are valid). For
 instance, if you are watching a 1-hour video at 2x speed, execute:
 
 ```bash
-$ trimsec trim 1h 2x
+$ ts 1h 2x
 ```
 
 This command outputs the time you saved by watching the video at 2x speed. You
@@ -46,7 +46,7 @@ can also combine multiple duration indicators and apply floating-point
 multipliers, such as:
 
 ```bash
-$ trimsec trim 1h30m 1.5x
+$ ts 1h30m 1.5x
 ```
 
 For convenience, in some cases you might use floating-point numbers for the
@@ -54,41 +54,15 @@ duration itself. For example:
 
 ```bash
 # Equivalent to `2h 1.5x`.
-$ trimsec trim 1.5h30m 1.5x
+$ ts 1.5h30m 1.5x
 ```
 
 If you wish to calculate saved time for multiple durations at once using the
 same speed multiplier, separate the durations with a '+' sign:
 
 ```bash
-$ trimsec trim 1h30m+2h50m 1.25x
+$ ts 1h30m+2h50m 1.25x
 ```
-
-Each of these commands follows a consistent pattern for specifying durations and multipliers.
-
-In addition to calculating saved time, every trim command interacts with a “time
-bank” that logs the total amount of saved time per day in a JSON file. To manage
-this time bank, you have several options:
-
-- To display the current saved time for each day, use:
-
-```bash
-$ trimsec bank show
-```
-
-- To reset the time bank, run:
-
-```bash
-$ trimsec bank reset
-```
-
-- And if you want to know the absolute path to the time bank file, simply execute:
-
-```bash
-$ trimsec bank path
-```
-
----
 
 ## Installation
 
