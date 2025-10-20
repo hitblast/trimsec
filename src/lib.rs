@@ -40,8 +40,8 @@ impl Config {
 
 /// Parse the multiplier string and return the multiplier value as a float.
 fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
-    let multiplier = if multiplier_user.ends_with('x') {
-        &multiplier_user[..multiplier_user.len() - 1]
+    let multiplier = if let Some(stripped) = multiplier_user.strip_suffix('x') {
+        stripped
     } else {
         multiplier_user
     };

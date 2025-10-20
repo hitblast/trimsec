@@ -20,6 +20,7 @@ fn main() {
         println!("Usage: ts <duration> <multiplier>");
         println!("       ts 1h2m 1.5x");
         println!("       ts 2d1h3m 1.25");
+        return;
     }
 
     let duration = &args[1];
@@ -47,7 +48,8 @@ fn main() {
                 );
                 println!("{}", message);
             } else {
-                return println!("No time saved. Would finish in linear time.");
+                println!("No time saved. Would finish in linear time.");
+                return;
             }
 
             // Display remaining time in day.
@@ -64,7 +66,7 @@ fn main() {
             // Display saved time.
             if time_saved > 0.0 {
                 let parsed = trimsec::parse_time(time_saved);
-                println!("{}", format!("{GREEN}{BOLD}Saved {parsed}!{RESET}\n"));
+                println!("{GREEN}{BOLD}Saved {parsed}!{RESET}\n");
             }
         }
         Err(e) => {
