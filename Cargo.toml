@@ -10,5 +10,9 @@ license = "MIT"
 readme = "README.md"
 exclude = ["assets/*"]
 
+[[bin]]
+name = "ts"
+path = "src/main.rs"
+
 [dependencies]
 chrono = "0.4"
