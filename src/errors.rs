@@ -28,10 +28,9 @@ impl Display for TrimsecError {
             Self::InvalidMultiplierFormat => {
                 write!(f, "Multiplier must be a positive float.")
             }
-            Self::MultiplierOutOfRange => write!(
-                f,
-                "Multiplier must be greater than 1x and less than 100x."
-            ),
+            Self::MultiplierOutOfRange => {
+                write!(f, "Multiplier must be greater than 1x and less than 100x.")
+            }
             Self::TimeBankUnloaded => write!(f, "Time bank was not loaded."),
         }
     }
