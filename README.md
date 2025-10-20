@@ -92,7 +92,7 @@ For manual building, proceed with the following:
 $ git clone https://github.com/hitblast/trimsec.git
 $ cd trimsec
 
-# Output: target/release/trimsec
+# Output: target/release/ts
 $ cargo build --release
 ```
 
