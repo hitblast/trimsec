@@ -26,7 +26,7 @@ pub struct Config {
 impl Config {
     pub fn new(duration: &str, multiplier_user: &str) -> Result<Config, TrimsecError> {
         // format conversion
-        let duration_tuple = parse_duration(&duration)?;
+        let duration_tuple = parse_duration(duration)?;
         let multiplier_value = parse_multiplier(multiplier_user)?;
 
         // return the Config struct
@@ -43,14 +43,14 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
     let multiplier = if multiplier_user.ends_with('x') {
         &multiplier_user[..multiplier_user.len() - 1]
     } else {
-        &multiplier_user
+        multiplier_user
     };
 
     let multiplier_value: f64 = multiplier
         .parse()
         .map_err(|_| TrimsecError::InvalidMultiplierFormat)?;
 
-    if multiplier_value < 1.0 || multiplier_value >= 100.0 {
+    if !(1.0..100.0).contains(&multiplier_value) {
         Err(TrimsecError::MultiplierOutOfRange)
     } else {
         Ok(multiplier_value)
@@ -95,7 +95,7 @@ fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecError> {
         let mut part_seconds = 0f64;
 
         for c in part.chars() {
-            if c.is_digit(10) || c == '.' {
+            if c.is_ascii_digit() || c == '.' {
                 current_number.push(c);
             } else if c.is_whitespace() {
                 continue;

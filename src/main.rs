@@ -25,7 +25,7 @@ fn main() {
     let duration = &args[1];
     let multiplier = &args[2];
 
-    let config = Config::new(&duration, &multiplier).unwrap_or_else(|err| {
+    let config = Config::new(duration, multiplier).unwrap_or_else(|err| {
         print_error(err);
         process::exit(1);
     });
