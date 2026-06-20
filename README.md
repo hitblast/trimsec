@@ -2,26 +2,14 @@
 
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
-[![Unit Tests](https://github.com/hitblast/trimsec/actions/workflows/tests.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/tests.yml)
-[![Release Builds](https://github.com/hitblast/trimsec/actions/workflows/release.yml/badge.svg)](https://github.com/hitblast/trimsec/actions/workflows/release.yml)
-
-Calculate time saved on using speed multipliers.
+> [!NOTE]
+> Want it even simpler? Try [ts.c](https://github.com/hitblast/ts.c).
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Usage](#usage)
 - [Installation](#installation)
-  - [cargo](#cargo)
-  - [mise](#mise)
-- [Manual Installation](#manual-installation)
 - [License](#license)
-
-## Overview
-
-I wanted a simple solution to calculate how much time I could save by using speed multipliers during lectures.
-But, I did not want to hop onto the browser or even open up the calculator, or even do mind-maths for this.
-Thus, I tried making a simple solution which lives in the terminal.
 
 ## Usage
 
@@ -64,6 +52,8 @@ same speed multiplier, separate the durations with a '+' sign:
 $ ts 1h30m+2h50m 1.25x
 ```
 
+To summarize, *any combination of durations and multipliers can be used.*
+
 ## Installation
 
 ### cargo
@@ -78,22 +68,15 @@ $ cargo install trimsec
 $ mise use -g cargo:trimsec
 ```
 
-## Manual Installation
+### Prebuilt Binaries
 
-Standalone binaries for this project are all available at the [GitHub
-Releases](https://github.com/hitblast/trimsec/releases) page. The binaries are
-produced by automated GitHub Actions workflows on three distinct runners and
-should run on all their respective platforms.
+Get platform-based binaries here: https://github.com/hitblast/trimsec/releases
 
-For manual building, proceed with the following:
+### Manual Installation
 
 ```bash
-# Clone the repository.
-$ git clone https://github.com/hitblast/trimsec.git
-$ cd trimsec
-
-# Output: target/release/ts
-$ cargo build --release
+git clone https://github.com/hitblast/trimsec.git
+cd trimsec && cargo build --release
 ```
 
 ## License
