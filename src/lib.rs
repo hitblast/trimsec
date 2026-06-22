@@ -1,5 +1,6 @@
 use chrono::{Datelike, TimeZone};
 
+mod api;
 mod errors;
 use errors::TrimsecError;
 
