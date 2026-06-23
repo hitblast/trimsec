@@ -3,7 +3,7 @@
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
 > [!NOTE]
-> Want a very simple, basic version of it? Try [ts.c](https://github.com/hitblast/ts.c).
+> Want a very simple, basic version of it? Try [trimsec.c](https://gist.github.com/hitblast/3898c05bc13385507a0c37db3b19608e).
 
 ## Table of Contents
 
