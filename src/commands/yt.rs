@@ -1,8 +1,8 @@
 use clap::Args;
 
 use crate::{
-    api::ApiClientManager,
     commands::{Runnable, trim::TrimCmd},
+    core::api::ApiClientManager,
     youtube_utils::{get_youtube_api_key, get_youtube_video_id},
 };
 use anyhow::{Result, bail};
