@@ -2,10 +2,6 @@ use anyhow::Result;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
-pub fn get_youtube_api_key() -> Option<String> {
-    std::env::var("TRIMSEC_YOUTUBE_KEY").ok()
-}
-
 #[derive(Debug, Deserialize)]
 pub struct YTResponseDetails {
     pub duration: String,
