@@ -29,10 +29,10 @@ impl Runnable for YtCmd {
         let id = get_youtube_video_id(self.link);
 
         if let Some(id) = id {
-            match manager.get_details_for_id(&id) {
-                Ok(details) => {
+            match manager.fetch_duration_from_id(&id) {
+                Ok(duration) => {
                     let cmd = TrimCmd {
-                        duration: details.duration,
+                        duration,
                         multiplier: self.multiplier,
                     };
 

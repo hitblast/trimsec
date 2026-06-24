@@ -1,6 +1,6 @@
 use chrono::{Datelike, TimeZone};
 
-use crate::errors::TrimsecError;
+use crate::errors::TrimsecTimeError;
 
 /// The configuration struct used for
 /// parsing and storing the duration and multiplier.
@@ -11,7 +11,7 @@ pub struct TimeConfig {
 }
 
 impl TimeConfig {
-    pub fn new(duration: &str, multiplier_user: &str) -> Result<TimeConfig, TrimsecError> {
+    pub fn new(duration: &str, multiplier_user: &str) -> Result<TimeConfig, TrimsecTimeError> {
         // format conversion
         let duration_tuple = parse_duration(duration)?;
         let multiplier_value = parse_multiplier(multiplier_user)?;
@@ -26,7 +26,7 @@ impl TimeConfig {
 
     /// Calculate how much time has been saved by using a multiplier.
     /// Returns a tuple with the new duration, saved time, and the number of splits.
-    pub fn trim(&self) -> Result<(f64, f64, i64), TrimsecError> {
+    pub fn trim(&self) -> Result<(f64, f64, i64), TrimsecTimeError> {
         let old_duration = self.duration;
         let multiplier = self.multiplier;
 
@@ -38,7 +38,7 @@ impl TimeConfig {
 }
 
 /// Parse the multiplier string and return the multiplier value as a float.
-fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
+fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecTimeError> {
     let multiplier = if let Some(stripped) = multiplier_user.strip_suffix('x') {
         stripped
     } else {
@@ -47,10 +47,10 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TrimsecError> {
 
     let multiplier_value: f64 = multiplier
         .parse()
-        .map_err(|_| TrimsecError::InvalidMultiplierFormat)?;
+        .map_err(|_| TrimsecTimeError::InvalidMultiplierFormat)?;
 
     if !(1.0..100.0).contains(&multiplier_value) {
-        Err(TrimsecError::MultiplierOutOfRange)
+        Err(TrimsecTimeError::MultiplierOutOfRange)
     } else {
         Ok(multiplier_value)
     }
@@ -85,7 +85,7 @@ pub fn parse_time(time: f64) -> String {
 }
 
 /// Function to pass the duration string and return the total seconds.
-pub fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecError> {
+pub fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecTimeError> {
     let mut total_seconds = 0f64;
     let mut splits = 0;
 
@@ -101,20 +101,20 @@ pub fn parse_duration(duration: &str) -> Result<(f64, i64), TrimsecError> {
             } else {
                 let number: f64 = current_number
                     .parse()
-                    .map_err(|_| TrimsecError::NegativeDuration)?;
+                    .map_err(|_| TrimsecTimeError::NegativeDuration)?;
                 current_number.clear();
                 part_seconds += match c {
                     's' => number,
                     'm' => number * 60.0,
                     'h' => number * 3600.0,
                     'd' => number * 86400.0,
-                    _ => return Err(TrimsecError::InvalidTimeUnit),
+                    _ => return Err(TrimsecTimeError::InvalidTimeUnit),
                 };
             }
         }
 
         if !current_number.is_empty() {
-            return Err(TrimsecError::InvalidDurationFormat);
+            return Err(TrimsecTimeError::InvalidDurationFormat);
         }
 
         total_seconds += part_seconds;
