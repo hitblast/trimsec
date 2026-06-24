@@ -2,6 +2,8 @@ use anyhow::Result;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
+use crate::errors::TYoutubeError;
+
 #[derive(Debug, Deserialize)]
 struct YTCrudeResponse {
     items: Vec<YTCrudeResponseItem>,
@@ -31,23 +33,27 @@ impl<'a> ApiClientManager<'a> {
         }
     }
 
-    pub fn fetch_duration_from_id(&self, id: &str) -> Result<String> {
-        // sample video link: https://www.youtube.com/watch?v=D4iiKkjGJmU
+    pub fn fetch_duration_from_id(self, id: &str) -> Result<String, TYoutubeError> {
         let url = format!(
             "https://www.googleapis.com/youtube/v3/videos?id={id}&key={}&part=contentDetails",
             self.key
         );
-        let response: YTCrudeResponse = self.client.get(url).send()?.json()?;
+        let response: YTCrudeResponse = self
+            .client
+            .get(url)
+            .send()
+            .map_err(|e| TYoutubeError::Reqwest(e))?
+            .json()
+            .map_err(|e| TYoutubeError::Reqwest(e))?;
 
-        Ok(response
-            .items
-            .first()
-            .unwrap()
-            .content_details
-            .duration
-            .to_owned()
-            .to_lowercase()
-            .trim_start_matches("pt")
-            .to_string())
+        if let Some(item) = response.items.first() {
+            return Ok(item
+                .content_details
+                .duration
+                .trim_start_matches("PT")
+                .to_lowercase());
+        } else {
+            Err(TYoutubeError::ItemNotFound)
+        }
     }
 }
