@@ -42,7 +42,7 @@ $ ts trim 1h30m+2h50m 1.25x
 The above applies for trimming certain YouTube videos as well, we just use the `yt` command, except we replace the `duration` field with a YouTube URL:
 
 ```bash
-$ trimsec yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+$ ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
 ```
 
 ## Installation
