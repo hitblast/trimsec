@@ -18,16 +18,16 @@ struct YTCrudeResponseContentDetails {
     duration: String,
 }
 
-pub struct ApiClientManager {
+pub struct ApiClientManager<'a> {
     client: Client,
-    key: String,
+    key: &'a str,
 }
 
-impl ApiClientManager {
-    pub fn new(key: &str) -> Self {
+impl<'a> ApiClientManager<'a> {
+    pub fn new(key: &'a str) -> Self {
         Self {
             client: Client::new(),
-            key: key.to_owned(),
+            key: key,
         }
     }
 
