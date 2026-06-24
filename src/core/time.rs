@@ -2,8 +2,6 @@ use chrono::{Datelike, TimeZone};
 
 use crate::errors::TTimeError;
 
-/// The configuration struct used for
-/// parsing and storing the duration and multiplier.
 pub struct TimeConfig {
     pub duration: f64,
     pub multiplier: f64,
@@ -12,11 +10,9 @@ pub struct TimeConfig {
 
 impl TimeConfig {
     pub fn new(duration: &str, multiplier_user: &str) -> Result<TimeConfig, TTimeError> {
-        // format conversion
         let duration_tuple = parse_duration(duration)?;
         let multiplier_value = parse_multiplier(multiplier_user)?;
 
-        // return the TimeConfig struct
         Ok(TimeConfig {
             duration: duration_tuple.0,
             multiplier: multiplier_value,
@@ -24,8 +20,6 @@ impl TimeConfig {
         })
     }
 
-    /// Calculate how much time has been saved by using a multiplier.
-    /// Returns a tuple with the new duration, saved time, and the number of splits.
     pub fn trim(&self) -> Result<(f64, f64, i64), TTimeError> {
         let old_duration = self.duration;
         let multiplier = self.multiplier;
@@ -37,7 +31,6 @@ impl TimeConfig {
     }
 }
 
-/// Parse the multiplier string and return the multiplier value as a float.
 fn parse_multiplier(multiplier_user: &str) -> Result<f64, TTimeError> {
     let multiplier = if let Some(stripped) = multiplier_user.strip_suffix('x') {
         stripped
@@ -56,7 +49,6 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TTimeError> {
     }
 }
 
-/// Convert seconds to a human-readable `String`.
 pub fn parse_time(time: f64) -> String {
     let mut time_string = String::new();
 
@@ -84,7 +76,6 @@ pub fn parse_time(time: f64) -> String {
     time_string
 }
 
-/// Function to pass the duration string and return the total seconds.
 pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
     let mut total_seconds = 0f64;
     let mut splits = 0;
@@ -124,7 +115,6 @@ pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
     Ok((total_seconds, splits))
 }
 
-/// Function to check the time efficiency for the current day.
 pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
     let now = chrono::Local::now();
     let end_of_day = chrono::Local
@@ -139,7 +129,6 @@ pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
     }
 }
 
-/// Unit tests.
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -26,7 +26,7 @@ impl Runnable for YtCmd {
         };
 
         let manager = ApiClientManager::new(&key);
-        let id = get_youtube_video_id(self.link);
+        let id = get_youtube_video_id(&self.link);
 
         if let Some(id) = id {
             match manager.fetch_duration_from_id(&id) {
