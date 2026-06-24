@@ -8,13 +8,7 @@ pub fn get_youtube_api_key() -> Option<String> {
 
 #[derive(Debug, Deserialize)]
 pub struct YTResponseDetails {
-    duration: String,
-}
-
-impl YTResponseDetails {
-    pub fn duration(&self) -> &str {
-        self.duration.as_str()
-    }
+    pub duration: String,
 }
 
 pub struct ApiClientManager {
@@ -30,7 +24,8 @@ impl ApiClientManager {
         }
     }
 
-    pub fn get_details(&self, id: &str) -> Result<YTResponseDetails> {
+    pub fn get_details_for_id(&self, id: &str) -> Result<YTResponseDetails> {
+        // sample video link: https://www.youtube.com/watch?v=D4iiKkjGJmU
         let url = format!(
             "https://www.googleapis.com/youtube/v3/videos?id={id}&key={}&part=contentDetails",
             self.key

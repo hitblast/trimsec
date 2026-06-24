@@ -8,7 +8,7 @@ fn main() {
     let args = Args::parse();
 
     // command invocation
-    let result = match &args.command {
+    let result = match args.command {
         Command::Trim(cmd) => cmd.run(),
         Command::Yt(cmd) => cmd.run(),
     };

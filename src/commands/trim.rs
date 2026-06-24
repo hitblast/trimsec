@@ -7,13 +7,13 @@ use anyhow::{Result, bail};
 #[derive(Debug, Default, Args)]
 pub struct TrimCmd {
     /// Duration of the content (e.g. 1h2m1s, 1h1s, 2d49s).
-    duration: String,
+    pub(crate) duration: String,
     /// The speed multiplier (e.g. 1.25x, 1.25).
-    multiplier: String,
+    pub(crate) multiplier: String,
 }
 
 impl Runnable for TrimCmd {
-    fn run(&self) -> Result<()> {
+    fn run(self) -> Result<()> {
         let config = TimeConfig::new(&self.duration, &self.multiplier);
 
         match config {
