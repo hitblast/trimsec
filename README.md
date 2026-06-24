@@ -19,42 +19,23 @@ To calculate saved time, you run the `trim` command as follows:
 
 ```bash
 $ ts trim <duration> <speed>
-```
 
-Here, `<duration>` represents the length of the video you are watching (using
-any combination of `<days>d`, `<hours>h`, `<minutes>m`, and `<seconds>s`), and
-`<speed>` is the speed multiplier; a float that can optionally be
-suffixed with an `x` (for example, both `1.5x` and `1.5` are valid). For
-instance, if you are watching a 1-hour video at 2x speed, execute:
-
-```bash
+# Example:
 $ ts trim 1h 2x
 ```
 
-This command outputs the time you saved by watching the video at 2x speed. You
-can also combine multiple duration indicators and apply floating-point
-multipliers, such as:
+This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
 
 ```bash
 $ ts trim 1h30m 1.5x
+$ ts trim 1.5h30m 1.5x  # equivalent to 2 hours
 ```
 
-For convenience, in some cases you might use floating-point numbers for the
-duration itself. For example:
-
-```bash
-# Equivalent to `2h 1.5x`.
-$ ts trim 1.5h30m 1.5x
-```
-
-If you wish to calculate saved time for multiple durations at once using the
-same speed multiplier, separate the durations with a '+' sign:
+Combine multiple durations like this:
 
 ```bash
 $ ts trim 1h30m+2h50m 1.25x
 ```
-
-To summarize, *any combination of durations and multipliers can be used.*
 
 ### For YouTube videos:
 
