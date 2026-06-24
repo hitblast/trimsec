@@ -1,4 +1,3 @@
-use anyhow::Result;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
