@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Calculate time saved on using speed multipliers."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "1.0.1"
+version = "2.0.0"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
@@ -15,8 +15,25 @@ name = "ts"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.102"
-chrono = "0.4"
+clap = { version = "4", features = ["derive"] }
+clap_complete = "4.5.64"
+anyhow = "1.0.100"
+chrono = "0.4.45"
 reqwest = { version = "0.13.4", features = ["blocking", "json"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
+
+[workspace]
+members = [".", "xtask"]
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+unreachable = "deny"
+must_use_candidate = "warn"
+
+[lints.rust]
+unused_must_use = "deny"
+
+[profile.release]
+lto = "thin"
