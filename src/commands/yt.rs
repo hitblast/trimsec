@@ -29,20 +29,16 @@ impl Runnable for YtCmd {
         let id = get_youtube_id(&self.link);
 
         if let Some(id) = id {
-            if !id.is_playlist {
-                match manager.fetch_duration_from_id(&id.id) {
-                    Ok(duration) => {
-                        let cmd = TrimCmd {
-                            duration,
-                            multiplier: self.multiplier,
-                        };
+            match manager.fetch_duration_from_id(&id) {
+                Ok(duration) => {
+                    let cmd = TrimCmd {
+                        duration,
+                        multiplier: self.multiplier,
+                    };
 
-                        cmd.run()?
-                    }
-                    Err(e) => bail!("failed to fetch details from URL: {e}"),
+                    cmd.run()?
                 }
-            } else {
-                bail!("the code is there, but playlists aren't supported *yet*")
+                Err(e) => bail!("failed to fetch details from URL: {e}"),
             }
         } else {
             bail!(

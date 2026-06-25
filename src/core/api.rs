@@ -1,23 +1,13 @@
 use reqwest::blocking::Client;
-use serde::Deserialize;
 
-use crate::errors::TYoutubeError;
-
-#[derive(Debug, Deserialize)]
-struct YTCrudeResponse {
-    items: Vec<YTCrudeResponseItem>,
-}
-
-#[derive(Debug, Deserialize)]
-struct YTCrudeResponseItem {
-    #[serde(rename = "contentDetails")]
-    content_details: YTCrudeResponseContentDetails,
-}
-
-#[derive(Debug, Deserialize)]
-struct YTCrudeResponseContentDetails {
-    duration: String,
-}
+use crate::{
+    core::{
+        deser::{YTPlaylist, YTVideos},
+        time::{parse_duration, parse_time},
+    },
+    errors::TYoutubeError,
+    youtube_utils::YoutubeId,
+};
 
 pub struct ApiClientManager<'a> {
     client: Client,
@@ -32,12 +22,38 @@ impl<'a> ApiClientManager<'a> {
         }
     }
 
-    pub fn fetch_duration_from_id(self, id: &str) -> Result<String, TYoutubeError> {
+    pub fn fetch_duration_from_id(&self, id: &YoutubeId) -> Result<String, TYoutubeError> {
+        let final_identifier = if id.is_playlist {
+            let url = format!(
+                "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&part=contentDetails",
+                id.id, self.key
+            );
+
+            let response: YTPlaylist = self
+                .client
+                .get(url)
+                .send()
+                .map_err(|e| TYoutubeError::Reqwest(e))?
+                .json()
+                .map_err(|e| TYoutubeError::Reqwest(e))?;
+
+            let ids = response
+                .items
+                .iter()
+                .map(|f| f.content_details.video_id.clone())
+                .collect::<Vec<String>>()
+                .join(",");
+            ids
+        } else {
+            id.id.clone()
+        };
+
         let url = format!(
-            "https://www.googleapis.com/youtube/v3/videos?id={id}&key={}&part=contentDetails",
-            self.key
+            "https://www.googleapis.com/youtube/v3/videos?id={}&key={}&part=contentDetails",
+            final_identifier, self.key
         );
-        let response: YTCrudeResponse = self
+
+        let response: YTVideos = self
             .client
             .get(url)
             .send()
@@ -45,14 +61,24 @@ impl<'a> ApiClientManager<'a> {
             .json()
             .map_err(|e| TYoutubeError::Reqwest(e))?;
 
-        if let Some(item) = response.items.first() {
-            return Ok(item
-                .content_details
-                .duration
-                .trim_start_matches("PT")
-                .to_lowercase());
-        } else {
-            Err(TYoutubeError::ItemNotFound)
-        }
+        let duration_int = response
+            .items
+            .iter()
+            .map(|f| {
+                let (dur, _) = parse_duration(
+                    &f.content_details
+                        .duration
+                        .to_lowercase()
+                        .trim_start_matches("pt"),
+                )
+                .unwrap();
+                dur
+            })
+            .collect::<Vec<f64>>()
+            .iter()
+            .sum();
+        let duration_str = parse_time(duration_int);
+
+        Ok(duration_str)
     }
 }
