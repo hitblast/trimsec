@@ -3,7 +3,7 @@ use clap::Args;
 use crate::{
     commands::{Runnable, trim::TrimCmd},
     core::api::ApiClientManager,
-    youtube_utils::{get_youtube_api_key, get_youtube_video_id},
+    youtube_utils::{get_youtube_api_key, get_youtube_id},
 };
 use anyhow::{Result, bail};
 
@@ -26,10 +26,10 @@ impl Runnable for YtCmd {
         };
 
         let manager = ApiClientManager::new(&key);
-        let id = get_youtube_video_id(&self.link);
+        let id = get_youtube_id(&self.link);
 
         if let Some(id) = id {
-            match manager.fetch_duration_from_id(&id) {
+            match manager.fetch_duration_from_id(&id.id) {
                 Ok(duration) => {
                     let cmd = TrimCmd {
                         duration,

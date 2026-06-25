@@ -7,9 +7,9 @@ use anyhow::{Result, bail};
 #[derive(Debug, Default, Args)]
 pub struct TrimCmd {
     /// Duration of the content (e.g. 1h2m1s, 1h1s, 2d49s).
-    pub(crate) duration: String,
+    pub duration: String,
     /// The speed multiplier (e.g. 1.25x, 1.25).
-    pub(crate) multiplier: String,
+    pub multiplier: String,
 }
 
 impl Runnable for TrimCmd {
