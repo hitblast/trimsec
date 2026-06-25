@@ -29,17 +29,25 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
                 .and_then(|f| f.last())
                 .map(|s| s.to_string())
         } else if parsed_url.path().starts_with("/watch") {
-            parsed_url.query().and_then(|q| {
-                let pointer = if q.contains("list=") {
-                    is_playlist = true;
-                    "list="
-                } else {
-                    "v="
-                };
-
+            let query_search = |q: &str, ptr: &str| {
                 q.split('&')
-                    .find(|p| p.starts_with(pointer))
-                    .map(|p| p.trim_start_matches(pointer).to_string())
+                    .find(|p| p.starts_with(ptr))
+                    .map(|p| p.trim_start_matches(ptr).to_string())
+            };
+
+            parsed_url.query().and_then(|q| {
+                if q.contains("list=") {
+                    let listsearch = query_search(q, "list=");
+
+                    if listsearch.is_none() || listsearch.clone().is_some_and(|f| f.is_empty()) {
+                        query_search(q, "v=")
+                    } else {
+                        is_playlist = true;
+                        listsearch
+                    }
+                } else {
+                    query_search(q, "v=")
+                }
             })
         } else {
             return None;
@@ -97,7 +105,14 @@ mod tests {
         );
         assert_eq!(
             get_youtube_id("https://www.youtube.com/watch?v=rdXw7Ps9vxc&list="),
-            None
+            Some(YoutubeId {
+                id: "rdXw7Ps9vxc".to_string(),
+                is_playlist: false
+            })
+        );
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/watch?v=&list="),
+            None,
         )
     }
 }
