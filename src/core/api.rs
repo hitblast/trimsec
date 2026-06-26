@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use reqwest::blocking::Client;
 
 use crate::{
@@ -30,6 +32,7 @@ impl<'a> ApiClientManager<'a> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
             let mut ids = Vec::new();
+            let mut seen_tokens: HashSet<String> = HashSet::new();
 
             if id.is_playlist {
                 loop {
@@ -56,6 +59,12 @@ impl<'a> ApiClientManager<'a> {
                         .json()
                         .map_err(|e| TYoutubeError::Reqwest(e))?;
 
+                    if let Some(t) = &response.next_page_token
+                        && seen_tokens.contains(t)
+                    {
+                        break;
+                    }
+
                     let current_ids = response
                         .items
                         .into_iter()
@@ -63,10 +72,11 @@ impl<'a> ApiClientManager<'a> {
 
                     ids.extend(current_ids);
 
-                    if response.next_page_token.is_none() {
-                        break;
+                    if let Some(new_tok) = response.next_page_token {
+                        next_tok = Some(new_tok.clone());
+                        seen_tokens.insert(new_tok);
                     } else {
-                        next_tok = response.next_page_token;
+                        break;
                     }
                 }
             } else {
