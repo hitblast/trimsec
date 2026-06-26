@@ -26,9 +26,9 @@ impl<'a> ApiClientManager<'a> {
 
     pub fn fetch_duration_from_id(
         &self,
-        id: YoutubeId,
+        id: &YoutubeId,
         max_items: usize,
-    ) -> Result<String, TYoutubeError> {
+    ) -> Result<(String, usize), TYoutubeError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
             let mut ids = Vec::new();
@@ -80,7 +80,7 @@ impl<'a> ApiClientManager<'a> {
                     }
                 }
             } else {
-                ids.push(id.id);
+                ids.push(id.id.clone());
             }
 
             ids
@@ -123,6 +123,6 @@ impl<'a> ApiClientManager<'a> {
             total_duration += chunk_duration;
         }
 
-        Ok(parse_time(total_duration))
+        Ok((parse_time(total_duration), total_ids.len()))
     }
 }
