@@ -1,12 +1,15 @@
-name: Release Builds
+name: Release CI
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
 
 env:
-  CARGO_TERM_COLOR: always
+  SCCACHE_GHA_ENABLED: "true"
+  SCCACHE_CACHE_SIZE: 2G
+  RUSTC_WRAPPER: "sccache"
 
 jobs:
   build-win:
@@ -16,27 +19,26 @@ jobs:
       FILE_NAME: target/release/trimsec-win-latest.zip
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - run: sccache --show-stats || true
 
       - name: Build
-        run: cargo build --release --verbose --locked
-
-      - name: Run tests
-        run: cargo test --release --verbose --locked
+        run: cargo build --release --quiet --locked
 
       - name: Compress binary
         run: |
           powershell -Command "Compress-Archive -Path target/release/ts.exe -DestinationPath $env:FILE_NAME"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: trimsec-win-latest
-          path: ${{ env.FILE_NAME }}
-          retention-days: 90
-
-      - name: Uplaod compressed binary to release
+      - name: Upload compressed binary to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,27 +54,20 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      FILE_NAME: target/release/trimsec-${{ matrix.os }}.zip
+      FILE_NAME: target/release/trimsec-${{ matrix.os }}.tar.gz
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      - uses: Swatinem/rust-cache@v2
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - run: sccache --show-stats || true
 
       - name: Build
-        run: cargo build --release --verbose --locked
-
-      - name: Run tests
-        run: cargo test --release --verbose --locked
+        run: cargo build --release --quiet --locked
 
       - name: Compress binary
-        run: zip -j ${{ env.FILE_NAME }} target/release/ts
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: trimsec-${{ matrix.os }}
-          path: ${{ env.FILE_NAME }}
-          retention-days: 90
+        run: tar -czf ${{ env.FILE_NAME }} -C target/release ts
 
       - name: Upload compressed binary to release
         uses: svenstaro/upload-release-action@v2
@@ -88,7 +83,24 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
+
+      - uses: Swatinem/rust-cache@v2
+      - uses: mozilla-actions/sccache-action@v0.0.9
+      - run: sccache --show-stats || true
 
       - name: Publish using cargo
         run: cargo publish --token ${{ secrets.CRATES_TOKEN }} --allow-dirty
+
+      - name: Extract latest changelog
+        id: changelog
+        run: |
+          awk '/^### v/ { if (found) exit; found=1 } found' CHANGELOG.md > latest.md
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat latest.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.changelog.outputs.notes }}
