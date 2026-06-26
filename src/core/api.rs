@@ -2,7 +2,7 @@ use reqwest::blocking::Client;
 
 use crate::{
     core::{
-        deser::{YTPlaylist, YTVideos},
+        deser::{YTPlaylistItems, YTVideos},
         time::{parse_duration, parse_time},
     },
     errors::TYoutubeError,
@@ -22,13 +22,21 @@ impl<'a> ApiClientManager<'a> {
         }
     }
 
-    pub fn fetch_duration_from_id(&self, id: YoutubeId) -> Result<String, TYoutubeError> {
+    pub fn fetch_duration_from_id(
+        &self,
+        id: YoutubeId,
+        max_items: usize,
+    ) -> Result<String, TYoutubeError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
             let mut ids = Vec::new();
 
             if id.is_playlist {
                 loop {
+                    if max_items != 0 && ids.len() >= max_items {
+                        break;
+                    }
+
                     let url = format!(
                         "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&maxResults=50&part=contentDetails{}",
                         id.id,
@@ -40,7 +48,7 @@ impl<'a> ApiClientManager<'a> {
                         }
                     );
 
-                    let response: YTPlaylist = self
+                    let response: YTPlaylistItems = self
                         .client
                         .get(url)
                         .send()
@@ -50,8 +58,8 @@ impl<'a> ApiClientManager<'a> {
 
                     let current_ids = response
                         .items
-                        .iter()
-                        .map(|f| f.content_details.video_id.clone());
+                        .into_iter()
+                        .map(|f| f.content_details.video_id);
 
                     ids.extend(current_ids);
 

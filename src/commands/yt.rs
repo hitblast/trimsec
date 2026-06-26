@@ -14,7 +14,13 @@ pub struct YtCmd {
 
     /// The multiplier (e.g. 1.25x, 1.25).
     multiplier: String,
+
+    /// Max items to traverse (applicable for playlists). Defaults to: 500.
+    #[arg(short, long)]
+    max_items: Option<usize>,
 }
+
+const YT_PLAYLIST_MAX_ITEMS: usize = 500;
 
 impl Runnable for YtCmd {
     fn run(self) -> Result<()> {
@@ -29,7 +35,9 @@ impl Runnable for YtCmd {
         let id = get_youtube_id(&self.link);
 
         if let Some(id) = id {
-            match manager.fetch_duration_from_id(id) {
+            match manager
+                .fetch_duration_from_id(id, self.max_items.unwrap_or(YT_PLAYLIST_MAX_ITEMS))
+            {
                 Ok(duration) => {
                     let cmd = TrimCmd {
                         duration,
