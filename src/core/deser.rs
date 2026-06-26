@@ -19,16 +19,18 @@ pub struct YTVideosContentDetails {
 #[derive(Debug, Deserialize)]
 pub struct YTPlaylist {
     pub items: Vec<YTPlaylistItem>,
+    #[serde(rename = "nextPageToken")]
+    pub next_page_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct YTPlaylistItem {
     #[serde(rename = "contentDetails")]
-    pub content_details: YTPlaylistContentDetails,
+    pub content_details: YTPlaylistItemContentDetails,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistContentDetails {
+pub struct YTPlaylistItemContentDetails {
     #[serde(rename = "videoId")]
     pub video_id: String,
 }

@@ -39,10 +39,19 @@ $ ts trim 1h30m+2h50m 1.25x
 
 ### For YouTube videos:
 
+> [!NOTE]
+> **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)** in order to make this feature work. You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
+
 The above applies for trimming certain YouTube videos as well, we just use the `yt` command, except we replace the `duration` field with a YouTube URL:
 
 ```bash
 $ ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+```
+
+You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
+
+```bash
+$ ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
 ```
 
 ## Installation
