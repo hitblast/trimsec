@@ -16,7 +16,7 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
     if let Ok(parsed_url) = Url::parse(link) {
         if !parsed_url
             .host_str()
-            .is_some_and(|f| f == "www.youtube.com" || f == "youtube.com")
+            .is_some_and(|f| f == "www.youtube.com" || f == "youtube.com" || f == "youtu.be")
         {
             return None;
         }
@@ -49,6 +49,8 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
                     query_search(q, "v=")
                 }
             })
+        } else if parsed_url.host_str().is_some_and(|f| f == "youtu.be") {
+            Some(parsed_url.path().trim_start_matches("/").to_string())
         } else {
             return None;
         };
