@@ -113,6 +113,18 @@ mod tests {
             })
         );
         assert_eq!(
+            get_youtube_id("https://youtu.be/sEWIDdQKWgc?si=Ywu5MycwAaZ4cZ3t"),
+            Some(YoutubeId {
+                id: "sEWIDdQKWgc".to_string(),
+                is_playlist: false
+            })
+        );
+        assert_eq!(
+            get_youtube_id("https://youtu.be/?si=Ywu5MycwAaZ4cZ3t"),
+            None,
+        );
+        assert_eq!(get_youtube_id("https://youtu.be/"), None,);
+        assert_eq!(
             get_youtube_id("https://www.youtube.com/watch?v=&list="),
             None,
         )
