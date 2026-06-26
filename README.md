@@ -45,13 +45,19 @@ $ ts trim 1h30m+2h50m 1.25x
 The above applies for trimming certain YouTube videos as well, we just use the `yt` command, except we replace the `duration` field with a YouTube URL:
 
 ```bash
-$ ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+$ ts yt -l https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
 ```
 
 You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
 
 ```bash
-$ ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
+$ ts yt -l "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
+```
+
+As you can see, the link strings are getting quite *big*. You can use the `-c` flag to get the link from the clipboard to solve this:
+
+```bash
+$ ts yt -c -m 1.8x
 ```
 
 ## Installation
