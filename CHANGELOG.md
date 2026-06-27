@@ -2,6 +2,16 @@
 
 Active since v2.0.0.
 
+### v2.2.1
+
+New features:
+
+- Added `--no-clip` (to `ts yt`) for intentionally disabling the clipboard-fetcher.
+
+Changes:
+
+- Improved some error descriptions.
+
 ### v2.2.0
 
 New features:
