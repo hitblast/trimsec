@@ -48,7 +48,7 @@ impl YtCmd {
         } else if let Some(l) = self.link {
             l
         } else {
-            bail!("Could not find YouTube link in arguments. Aborting.")
+            bail!("Link to YouTube object (video/playlist) is required. Aborting.")
         };
 
         let manager = ApiClientManager::new(&key);
