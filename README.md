@@ -54,10 +54,11 @@ You can also throw in a YouTube playlist in (almost) any format you want, and it
 ts yt -l "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
 ```
 
-As you can see, the link strings are getting quite *big*. You can use the `-c` flag to get the link from the clipboard to solve this:
+As you can see, the link strings are getting quite *big*. To solve this, a clipboard-fetcher comes included. Use it by just skipping the link argument:
 
 ```bash
-ts yt -c -m 1.8x
+# reads from clipboard as fallback
+ts yt -m 1.8x
 ```
 
 ## Installation
