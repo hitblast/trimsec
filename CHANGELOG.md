@@ -6,7 +6,7 @@ Active since v2.0.0.
 
 New features:
 
-- Added `--no-clip` (to `ts yt`) for intentionally disabling the clipboard-fetcher.
+- Added `-n`/`--noclip` (to `ts yt`) for intentionally disabling the clipboard-fetcher.
 
 Changes:
 
