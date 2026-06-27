@@ -59,6 +59,9 @@ As you can see, the link strings are getting quite *big*. To solve this, a clipb
 ```bash
 # reads from clipboard as fallback
 ts yt -m 1.8x
+
+# disable clipboard fallback using -n/--no-clip
+ts yt -l "https://youtube.com/..." --noclip -m 1.8x
 ```
 
 For traversing only a certain amount of items in a playlist (starting from the 1st item), use this:

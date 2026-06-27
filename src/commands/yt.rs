@@ -18,9 +18,13 @@ pub struct YtCmd {
     #[arg(short, long)]
     multiplier: String,
 
-    /// Max amount of items to traverse in a playlist. Default: Playlist's total length (unsigned).
+    /// Max amount of items to traverse in a playlist. Default: 0 (uncapped).
     #[arg(long, default_value = "0")]
     max_items: usize,
+
+    /// Disable grabbing links from clipboard.
+    #[arg(short, long)]
+    noclip: bool,
 }
 
 impl YtCmd {
@@ -32,7 +36,7 @@ impl YtCmd {
             ),
         };
 
-        let link = if self.link.is_none() {
+        let link = if self.link.is_none() && !self.noclip {
             let mut c = Clipboard::new()?;
             let l = c.get_text().ok();
 

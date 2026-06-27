@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Calculate time saved on using speed multipliers."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "2.2.0"
+version = "2.2.1"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
