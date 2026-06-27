@@ -15,6 +15,10 @@ Internal changes:
 - Removed the `Runnable` trait as it is not used for dispatch changes at all.
 - Removed yet another `.unwrap()` from the codebase.
 
+Fixes:
+
+- Fixed the usage guide for `ts yt`, *again*.
+
 ### v2.1.1
 
 Fixes:

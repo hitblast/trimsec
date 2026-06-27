@@ -61,6 +61,12 @@ As you can see, the link strings are getting quite *big*. To solve this, a clipb
 ts yt -m 1.8x
 ```
 
+For traversing only a certain amount of items in a playlist (starting from the 1st item), use this:
+
+```bash
+ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
+```
+
 ## Installation
 
 ### Homebrew
