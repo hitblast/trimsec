@@ -2,7 +2,7 @@ use arboard::Clipboard;
 use clap::Args;
 
 use crate::{
-    commands::{Runnable, trim::TrimCmd},
+    commands::trim::TrimCmd,
     core::api::ApiClientManager,
     youtube_utils::{get_youtube_api_key, get_youtube_id},
 };
@@ -25,8 +25,8 @@ pub struct YtCmd {
 
 const YT_PLAYLIST_MAX_ITEMS: usize = 500;
 
-impl Runnable for YtCmd {
-    fn run(self) -> Result<()> {
+impl YtCmd {
+    pub fn run(self) -> Result<()> {
         let key = match get_youtube_api_key() {
             Some(key) => key,
             None => bail!(

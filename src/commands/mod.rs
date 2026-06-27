@@ -1,8 +1,14 @@
+use crate::cli::args::Command;
+use anyhow::Result;
+
 pub mod trim;
 pub mod yt;
 
-use anyhow::Result;
-
-pub trait Runnable {
-    fn run(self) -> Result<()>;
+impl Command {
+    pub fn run(self) -> Result<()> {
+        match self {
+            Command::Trim(trim_cmd) => trim_cmd.run(),
+            Command::Yt(yt_cmd) => yt_cmd.run(),
+        }
+    }
 }

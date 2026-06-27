@@ -1,7 +1,7 @@
 use clap::Args;
 
+use crate::core::time::TimeConfig;
 use crate::formatting::*;
-use crate::{commands::Runnable, core::time::TimeConfig};
 use anyhow::{Result, bail};
 
 #[derive(Debug, Default, Args)]
@@ -12,8 +12,8 @@ pub struct TrimCmd {
     pub multiplier: String,
 }
 
-impl Runnable for TrimCmd {
-    fn run(self) -> Result<()> {
+impl TrimCmd {
+    pub fn run(&self) -> Result<()> {
         let config = TimeConfig::new(&self.duration, &self.multiplier);
 
         match config {
