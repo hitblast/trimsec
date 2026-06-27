@@ -21,6 +21,12 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
             return None;
         }
 
+        let query_search = |q: &str, ptr: &str| {
+            q.split('&')
+                .find(|p| p.starts_with(ptr))
+                .map(|p| p.trim_start_matches(ptr).to_string())
+        };
+
         let id: Option<String> = if parsed_url.path().starts_with("/shorts/")
             || parsed_url.path().starts_with("/embed/")
         {
@@ -29,12 +35,6 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
                 .and_then(|f| f.last())
                 .map(|s| s.to_string())
         } else if parsed_url.path().starts_with("/watch") {
-            let query_search = |q: &str, ptr: &str| {
-                q.split('&')
-                    .find(|p| p.starts_with(ptr))
-                    .map(|p| p.trim_start_matches(ptr).to_string())
-            };
-
             parsed_url.query().and_then(|q| {
                 if q.contains("list=") {
                     let listsearch = query_search(q, "list=");
@@ -49,6 +49,9 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
                     query_search(q, "v=")
                 }
             })
+        } else if parsed_url.path().starts_with("/playlist") {
+            is_playlist = true;
+            parsed_url.query().and_then(|q| query_search(q, "list="))
         } else if parsed_url.host_str().is_some_and(|f| f == "youtu.be") {
             Some(parsed_url.path().trim_start_matches("/").to_string())
         } else {
@@ -94,6 +97,19 @@ mod tests {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
+        );
+        assert_eq!(
+            get_youtube_id(
+                "https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+            ),
+            Some(YoutubeId {
+                id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
+                is_playlist: true
+            })
+        );
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/playlist?list="),
+            None
         );
         assert_eq!(get_youtube_id("https://www.youtube.com/watch?v="), None,);
         assert_eq!(
