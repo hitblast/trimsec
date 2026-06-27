@@ -17,7 +17,7 @@ pub enum Command {
     /// Calculate for YouTube videos.
     #[command(
         visible_alias = "vid",
-        override_usage = "ts yt [URL] -m <MULTIPLIER>\n       ts yt -m <MULTIPLIER>     // For clipboard fallback"
+        override_usage = "ts yt -l [URL] -m <MULTIPLIER>\n       ts yt --link [URL] --multiplier <MULTIPLIER>            // Longer flags\n       ts yt -m <MULTIPLIER>                                   // For clipboard fallback"
     )]
     Yt(YtCmd),
 }

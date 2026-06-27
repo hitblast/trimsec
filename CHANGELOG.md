@@ -2,7 +2,17 @@
 
 Active since v2.0.0.
 
+### v2.1.1
+
+Fixes:
+
+- Fixed usage for `ts yt`.
+
 ### v2.1.0
+
+New features:
+
+- Running `ts yt` with a playlist URL now also outputs the amount of items (from the playlist) which were traversed.
 
 Breaking changes:
 
