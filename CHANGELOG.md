@@ -2,10 +2,16 @@
 
 Active since v2.0.0.
 
-### v2.1.2
+### v2.2.0
+
+New features:
+
+- `max_items` is now limited by an internal limit of maximum items, which is fetched when a playlist is passed as an arguement, so that the user never "overshoots" the length manually.
+- New error variants to clarify better.
 
 Internal changes:
 
+- More code optimizations and stuff.
 - Removed the `Runnable` trait as it is not used for dispatch changes at all.
 - Removed yet another `.unwrap()` from the codebase.
 

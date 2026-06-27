@@ -1961,7 +1961,7 @@ dependencies = [
 
 [[package]]
 name = "trimsec"
-version = "2.1.1"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "arboard",
