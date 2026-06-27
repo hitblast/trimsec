@@ -18,10 +18,6 @@ pub struct YtCmd {
     #[arg(short, long)]
     multiplier: String,
 
-    /// Fetch link from the clipboard.
-    #[arg(short, long)]
-    clip: bool,
-
     /// Max items to traverse (applicable for playlists). Defaults to: 500.
     #[arg(long)]
     max_items: Option<usize>,
@@ -38,11 +34,7 @@ impl Runnable for YtCmd {
             ),
         };
 
-        if self.link.is_some() && self.clip {
-            bail!("-l and -c cannot be used at the same time!")
-        }
-
-        let link = if self.clip {
+        let link = if !self.link.is_some() {
             let mut c = Clipboard::new().unwrap();
             let l = c.get_text().ok();
 
