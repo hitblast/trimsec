@@ -1,5 +1,6 @@
 use reqwest::Url;
 
+#[must_use]
 pub fn get_youtube_api_key() -> Option<String> {
     std::env::var("TRIMSEC_YOUTUBE_KEY").ok()
 }
@@ -10,6 +11,7 @@ pub struct YoutubeId {
     pub is_playlist: bool,
 }
 
+#[must_use]
 pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
     let mut is_playlist = false;
 
@@ -32,7 +34,7 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
         {
             parsed_url
                 .path_segments()
-                .and_then(|f| f.last())
+                .and_then(|mut f| f.next_back())
                 .map(|s| s.to_string())
         } else if parsed_url.path().starts_with("/watch") {
             parsed_url.query().and_then(|q| {
@@ -60,10 +62,8 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
 
         if id == Some("".to_string()) {
             None
-        } else if let Some(id) = id {
-            Some(YoutubeId { id, is_playlist })
         } else {
-            None
+            id.map(|id| YoutubeId { id, is_playlist })
         }
     } else {
         None
@@ -71,6 +71,7 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

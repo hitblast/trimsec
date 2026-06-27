@@ -1,5 +1,7 @@
 use serde::Deserialize;
 
+// videos
+
 #[derive(Debug, Deserialize)]
 pub struct YTVideos {
     pub items: Vec<YTVideosItem>,
@@ -15,6 +17,27 @@ pub struct YTVideosItem {
 pub struct YTVideosContentDetails {
     pub duration: String,
 }
+
+// playlists
+
+#[derive(Debug, Deserialize)]
+pub struct YTPlaylistList {
+    pub items: Vec<YTPlaylistListItem>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct YTPlaylistListItem {
+    #[serde(rename = "contentDetails")]
+    pub content_details: YTPlaylistListItemContentDetails,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct YTPlaylistListItemContentDetails {
+    #[serde(rename = "itemCount")]
+    pub item_count: usize,
+}
+
+// playlistItems
 
 #[derive(Debug, Deserialize)]
 pub struct YTPlaylistItems {

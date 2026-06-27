@@ -49,6 +49,7 @@ fn parse_multiplier(multiplier_user: &str) -> Result<f64, TTimeError> {
     }
 }
 
+#[must_use]
 pub fn parse_time(time: f64) -> String {
     let mut time_string = String::new();
 
@@ -115,6 +116,7 @@ pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
     Ok((total_seconds, splits))
 }
 
+#[must_use]
 pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
     let now = chrono::Local::now();
     let end_of_day = chrono::Local
@@ -130,6 +132,7 @@ pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

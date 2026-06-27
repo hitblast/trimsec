@@ -4,7 +4,7 @@ use reqwest::blocking::Client;
 
 use crate::{
     core::{
-        deser::{YTPlaylistItems, YTVideos},
+        deser::{YTPlaylistItems, YTPlaylistList, YTVideos},
         time::{parse_duration, parse_time},
     },
     errors::TYoutubeError,
@@ -17,17 +17,18 @@ pub struct ApiClientManager<'a> {
 }
 
 impl<'a> ApiClientManager<'a> {
+    #[must_use]
     pub fn new(key: &'a str) -> Self {
         Self {
             client: Client::new(),
-            key: key,
+            key,
         }
     }
 
     pub fn fetch_duration_from_id(
         &self,
         id: &YoutubeId,
-        max_items: usize,
+        given_max: usize,
     ) -> Result<(String, usize), TYoutubeError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
@@ -35,15 +36,46 @@ impl<'a> ApiClientManager<'a> {
             let mut seen_tokens: HashSet<String> = HashSet::new();
 
             if id.is_playlist {
-                loop {
-                    if max_items != 0 && ids.len() >= max_items {
-                        break;
+                let url = format!(
+                    "https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id={}&key={}&maxResults=1",
+                    &id.id, self.key
+                );
+
+                let response: YTPlaylistList = self
+                    .client
+                    .get(url)
+                    .send()
+                    .map_err(TYoutubeError::Reqwest)?
+                    .json()
+                    .map_err(TYoutubeError::Reqwest)?;
+
+                let traversible_items = if let Some(ic) = response.items.first() {
+                    let max_traversible = ic.content_details.item_count;
+
+                    if given_max != 0 {
+                        if given_max > max_traversible {
+                            return Err(TYoutubeError::InvalidMaxSize((
+                                given_max,
+                                max_traversible,
+                            )));
+                        } else {
+                            given_max
+                        }
+                    } else {
+                        max_traversible
                     }
+                } else {
+                    return Err(TYoutubeError::InvalidPlaylist(id.id.clone()));
+                };
+
+                for start in (0..traversible_items).step_by(50) {
+                    let max_results = (traversible_items - start).min(50);
 
                     let url = format!(
-                        "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&maxResults=50&part=contentDetails{}",
-                        id.id,
+                        "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
+                        &id.id,
                         self.key,
+                        max_results,
                         if let Some(ref tok) = next_tok {
                             format!("&pageToken={tok}")
                         } else {
@@ -55,9 +87,9 @@ impl<'a> ApiClientManager<'a> {
                         .client
                         .get(url)
                         .send()
-                        .map_err(|e| TYoutubeError::Reqwest(e))?
+                        .map_err(TYoutubeError::Reqwest)?
                         .json()
-                        .map_err(|e| TYoutubeError::Reqwest(e))?;
+                        .map_err(TYoutubeError::Reqwest)?;
 
                     if let Some(t) = &response.next_page_token
                         && seen_tokens.contains(t)
@@ -99,16 +131,16 @@ impl<'a> ApiClientManager<'a> {
                 .client
                 .get(url)
                 .send()
-                .map_err(|e| TYoutubeError::Reqwest(e))?
+                .map_err(TYoutubeError::Reqwest)?
                 .json()
-                .map_err(|e| TYoutubeError::Reqwest(e))?;
+                .map_err(TYoutubeError::Reqwest)?;
 
             let chunk_duration: f64 = response
                 .items
                 .iter()
                 .map(|f| {
                     let (dur, _) = parse_duration(
-                        &f.content_details
+                        f.content_details
                             .duration
                             .to_lowercase()
                             .trim_start_matches("pt"),

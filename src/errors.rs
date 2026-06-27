@@ -32,6 +32,8 @@ impl Display for TTimeError {
 pub enum TYoutubeError {
     Reqwest(reqwest::Error),
     ItemNotFound,
+    InvalidPlaylist(String),
+    InvalidMaxSize((usize, usize)),
 }
 
 impl Display for TYoutubeError {
@@ -42,6 +44,15 @@ impl Display for TYoutubeError {
             }
             TYoutubeError::ItemNotFound => {
                 write!(f, "Given YouTube video item was not found in API response.")
+            }
+            TYoutubeError::InvalidPlaylist(id) => {
+                write!(f, "Invalid playlist: {id}")
+            }
+            TYoutubeError::InvalidMaxSize((given, max)) => {
+                write!(
+                    f,
+                    "Max items ({given}) is larger than the length of the playlist ({max})."
+                )
             }
         }
     }

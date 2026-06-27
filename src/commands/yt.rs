@@ -18,12 +18,10 @@ pub struct YtCmd {
     #[arg(short, long)]
     multiplier: String,
 
-    /// Max items to traverse (applicable for playlists). Defaults to: 500.
-    #[arg(long)]
-    max_items: Option<usize>,
+    /// Max amount of items to traverse in a playlist. Default: Playlist's total length (unsigned).
+    #[arg(long, default_value = "0")]
+    max_items: usize,
 }
-
-const YT_PLAYLIST_MAX_ITEMS: usize = 500;
 
 impl YtCmd {
     pub fn run(self) -> Result<()> {
@@ -34,7 +32,7 @@ impl YtCmd {
             ),
         };
 
-        let link = if !self.link.is_some() {
+        let link = if self.link.is_none() {
             let mut c = Clipboard::new()?;
             let l = c.get_text().ok();
 
@@ -53,9 +51,7 @@ impl YtCmd {
         let id = get_youtube_id(&link);
 
         if let Some(id) = id {
-            match manager
-                .fetch_duration_from_id(&id, self.max_items.unwrap_or(YT_PLAYLIST_MAX_ITEMS))
-            {
+            match manager.fetch_duration_from_id(&id, self.max_items) {
                 Ok((duration, item_count)) => {
                     let cmd = TrimCmd {
                         duration,
