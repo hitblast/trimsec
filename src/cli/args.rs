@@ -15,6 +15,9 @@ pub enum Command {
     #[command(visible_alias = "t")]
     Trim(TrimCmd),
     /// Calculate for YouTube videos.
-    #[command(visible_alias = "vid")]
+    #[command(
+        visible_alias = "vid",
+        override_usage = "ts yt [URL] -m <MULTIPLIER>\n       ts yt -m <MULTIPLIER>     // For clipboard fallback"
+    )]
     Yt(YtCmd),
 }
