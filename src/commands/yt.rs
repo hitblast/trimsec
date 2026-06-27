@@ -35,7 +35,7 @@ impl YtCmd {
         };
 
         let link = if !self.link.is_some() {
-            let mut c = Clipboard::new().unwrap();
+            let mut c = Clipboard::new()?;
             let l = c.get_text().ok();
 
             if let Some(l) = l {

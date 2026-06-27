@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v2.1.2
+
+Internal changes:
+
+- Removed the `Runnable` trait as it is not used for dispatch changes at all.
+- Removed yet another `.unwrap()` from the codebase.
+
 ### v2.1.1
 
 Fixes:
