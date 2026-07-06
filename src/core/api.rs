@@ -11,6 +11,8 @@ use crate::{
     youtube_utils::YoutubeId,
 };
 
+const YOUTUBE_API_LINK: &str = "https://www.googleapis.com/youtube/v3";
+
 pub struct ApiClientManager<'a> {
     client: Client,
     key: &'a str,
@@ -31,8 +33,8 @@ impl<'a> ApiClientManager<'a> {
         given_max: usize,
     ) -> Result<usize, TYoutubeError> {
         let url = format!(
-            "https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id={}&key={}&maxResults=1",
-            playlist_id, self.key
+            "{}/playlists?part=contentDetails&id={}&key={}&maxResults=1",
+            YOUTUBE_API_LINK, playlist_id, self.key
         );
 
         let response: YTPlaylistList = self
@@ -70,7 +72,8 @@ impl<'a> ApiClientManager<'a> {
         let max_results = (traversible_items - start).min(50);
 
         let url = format!(
-            "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
+            "{}/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
+            YOUTUBE_API_LINK,
             playlist_id,
             self.key,
             max_results,
@@ -145,7 +148,8 @@ impl<'a> ApiClientManager<'a> {
 
     fn fetch_chunk_duration(&self, chunk_ids: &[String]) -> Result<f64, TYoutubeError> {
         let url = format!(
-            "https://www.googleapis.com/youtube/v3/videos?id={}&key={}&part=contentDetails",
+            "{}/videos?id={}&key={}&part=contentDetails",
+            YOUTUBE_API_LINK,
             chunk_ids.join(","),
             self.key
         );
