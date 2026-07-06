@@ -1,22 +1,25 @@
 use arboard::Clipboard;
 use clap::Args;
 
-use crate::{
-    commands::trim::TrimCmd,
-    core::{api::ApiClientManager, time::parse_time},
-    youtube_utils::{get_youtube_api_key, get_youtube_id},
-};
 use anyhow::{Result, bail};
 
+use crate::{
+    core::{
+        api::ApiClientManager,
+        time::{parse_duration, parse_time},
+    },
+    youtube_utils::{get_youtube_api_key, get_youtube_id},
+};
+
 #[derive(Debug, Default, Args)]
-pub struct YtCmd {
+pub struct BudgetCmd {
     /// The URL, or link, for the YouTube video.
     #[arg(short, long)]
     link: Option<String>,
 
-    /// The multiplier (e.g. 1.25x, 1.25).
+    /// The budget duration string. Defaults to: none (the current day).
     #[arg(short, long)]
-    multiplier: String,
+    budget: String,
 
     /// Max amount of items to traverse in a playlist. Default: 0 (uncapped).
     #[arg(long, default_value = "0")]
@@ -25,9 +28,13 @@ pub struct YtCmd {
     /// Disable grabbing links from clipboard.
     #[arg(short, long)]
     noclip: bool,
+
+    /// Chooses the best-fitting video for the duration.
+    #[arg(short, long)]
+    choose: bool,
 }
 
-impl YtCmd {
+impl BudgetCmd {
     pub fn run(self) -> Result<()> {
         let key = match get_youtube_api_key() {
             Some(key) => key,
@@ -56,17 +63,28 @@ impl YtCmd {
 
         if let Some(id) = id {
             match manager.fetch_duration_from_id(&id, self.max_items) {
-                Ok((duration, item_count)) => {
-                    let cmd = TrimCmd {
-                        duration: parse_time(duration),
-                        multiplier: self.multiplier,
-                    };
+                Ok((vid_total_duration, item_count)) => match parse_duration(&self.budget) {
+                    Ok((limit_duration, splits)) => {
+                        if limit_duration > vid_total_duration {
+                            println!(
+                                "Fits in budget!\n\nExtra time left: {}",
+                                parse_time(limit_duration - vid_total_duration)
+                            );
+                        } else if limit_duration < vid_total_duration {
+                            println!(
+                                "Time overrun by {}!",
+                                parse_time(vid_total_duration - limit_duration)
+                            )
+                        } else {
+                            println!("Duration match! Would finish on time.")
+                        }
 
-                    cmd.run()?;
-                    if id.is_playlist {
-                        println!("Trimmed for {item_count} item(s).")
+                        if splits > 1 || item_count > 1 {
+                            println!("(counted for {item_count} videos and {splits} splits)")
+                        }
                     }
-                }
+                    Err(e) => bail!("Failed to parse budget duration: {e}"),
+                },
                 Err(e) => bail!("Failed to fetch details from URL: {e}"),
             }
         } else {
