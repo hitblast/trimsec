@@ -133,7 +133,7 @@ impl<'a> ApiClientManager<'a> {
 
         for chunk_ids in ids.chunks(50) {
             let url = format!(
-                "{API_BASE}/videos?id={}&key={}&part=contentDetails",
+                "{API_BASE}/videos?id={}&key={}&part=snippet,contentDetails",
                 chunk_ids.join(","),
                 self.key
             );

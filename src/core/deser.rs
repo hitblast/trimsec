@@ -9,8 +9,15 @@ pub struct YTVideos {
 
 #[derive(Debug, Deserialize)]
 pub struct YTVideosItem {
+    pub snippet: YTVideoSnippet,
     #[serde(rename = "contentDetails")]
     pub content_details: YTVideosContentDetails,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct YTVideoSnippet {
+    pub title: String,
+    pub description: String,
 }
 
 #[derive(Debug, Deserialize)]
