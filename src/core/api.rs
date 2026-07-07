@@ -11,6 +11,8 @@ use crate::{
     errors::TYoutubeError,
 };
 
+const API_BASE: &str = "https://www.googleapis.com/youtube/v3";
+
 pub struct ApiClientManager<'a> {
     client: Client,
     key: &'a str,
@@ -41,7 +43,7 @@ impl<'a> ApiClientManager<'a> {
 
             if id.is_playlist {
                 let url = format!(
-                    "https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id={}&key={}&maxResults=1",
+                    "{API_BASE}/playlists?part=contentDetails&id={}&key={}&maxResults=1",
                     &id.id, self.key
                 );
 
@@ -76,7 +78,7 @@ impl<'a> ApiClientManager<'a> {
                     let max_results = (traversible_items - start).min(50);
 
                     let url = format!(
-                        "https://www.googleapis.com/youtube/v3/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
+                        "{API_BASE}/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
                         &id.id,
                         self.key,
                         max_results,
@@ -125,12 +127,13 @@ impl<'a> ApiClientManager<'a> {
         Ok(total_ids)
     }
 
+    /// Fetches a single chunk of video items.
     fn fetch_video_items(&self, ids: &[String]) -> Result<Vec<YTVideosItem>, TYoutubeError> {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
         for chunk_ids in ids.chunks(50) {
             let url = format!(
-                "https://www.googleapis.com/youtube/v3/videos?id={}&key={}&part=contentDetails",
+                "{API_BASE}/videos?id={}&key={}&part=contentDetails",
                 chunk_ids.join(","),
                 self.key
             );
@@ -149,6 +152,7 @@ impl<'a> ApiClientManager<'a> {
         Ok(vector)
     }
 
+    /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
     pub fn fetch_duration_from_id(
         &self,
         id: &YoutubeId,
