@@ -39,7 +39,7 @@ impl TrimCmd {
                             return Ok(());
                         }
 
-                        let remaining = crate::core::time::calculate_remaining(new_duration);
+                        let remaining = crate::core::time::time_in_day_after(new_duration);
                         println!(
                             "Time in day left: {} ",
                             if remaining == 0.0 {

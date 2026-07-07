@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::commands::{budget::BudgetCmd, trim::TrimCmd, yt::YtCmd};
+use crate::commands::{fit::FitCmd, trim::TrimCmd, yt::YtCmd};
 
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
@@ -20,6 +20,7 @@ pub enum Command {
         override_usage = "ts yt [-l URL] -m <MULTIPLIER>\n       ts yt [--link URL] --multiplier <MULTIPLIER>            // Longer flags\n       ts yt -m <MULTIPLIER>                                   // For clipboard fallback"
     )]
     Yt(YtCmd),
-    /// Calculate whether a playlist/video could be finished within a certain time.
-    Budget(BudgetCmd),
+    /// Check whether content(s) fit in the day or a given budget of time.
+    #[command(visible_alias = "budget")]
+    Fit(FitCmd),
 }

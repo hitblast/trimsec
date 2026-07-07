@@ -117,15 +117,15 @@ pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
 }
 
 #[must_use]
-pub fn calculate_remaining(trimmed_dur: f64) -> f64 {
+pub fn time_in_day_after(duration: f64) -> f64 {
     let now = chrono::Local::now();
     let end_of_day = chrono::Local
         .with_ymd_and_hms(now.year(), now.month(), now.day(), 23, 59, 59)
         .unwrap();
-    let duration = end_of_day.signed_duration_since(now).num_seconds() as f64;
+    let time_passed = end_of_day.signed_duration_since(now).num_seconds() as f64;
 
-    if duration > trimmed_dur {
-        duration - trimmed_dur
+    if time_passed > duration {
+        time_passed - duration
     } else {
         0.0
     }
