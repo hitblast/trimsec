@@ -4,7 +4,7 @@ use reqwest::blocking::Client;
 
 use crate::{
     core::{
-        deser::{YTPlaylistItems, YTPlaylistList, YTVideos},
+        deser::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
         time::parse_duration,
         youtils::YoutubeId,
     },
@@ -25,11 +25,15 @@ impl<'a> ApiClientManager<'a> {
         }
     }
 
-    pub fn fetch_duration_from_id(
+    /// Returns a vector of IDs from a single YouTube ID.
+    ///
+    /// This is expected to be used in the case where the user passes a "playlist ID"
+    /// and a certain amount of items' identities need to be known.
+    fn fetch_ids_from_id(
         &self,
         id: &YoutubeId,
-        given_max: usize,
-    ) -> Result<(f64, usize), TYoutubeError> {
+        max_items: usize,
+    ) -> Result<Vec<String>, TYoutubeError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
             let mut ids = Vec::new();
@@ -52,14 +56,14 @@ impl<'a> ApiClientManager<'a> {
                 let traversible_items = if let Some(ic) = response.items.first() {
                     let max_traversible = ic.content_details.item_count;
 
-                    if given_max != 0 {
-                        if given_max > max_traversible {
+                    if max_items != 0 {
+                        if max_items > max_traversible {
                             return Err(TYoutubeError::InvalidMaxSize((
-                                given_max,
+                                max_items,
                                 max_traversible,
                             )));
                         } else {
-                            given_max
+                            max_items
                         }
                     } else {
                         max_traversible
@@ -118,16 +122,20 @@ impl<'a> ApiClientManager<'a> {
             ids
         };
 
-        let mut total_duration: f64 = 0.0;
+        Ok(total_ids)
+    }
 
-        for chunk_ids in total_ids.chunks(50) {
+    fn fetch_video_items(&self, ids: &[String]) -> Result<Vec<YTVideosItem>, TYoutubeError> {
+        let mut vector: Vec<YTVideosItem> = Vec::new();
+
+        for chunk_ids in ids.chunks(50) {
             let url = format!(
                 "https://www.googleapis.com/youtube/v3/videos?id={}&key={}&part=contentDetails",
                 chunk_ids.join(","),
                 self.key
             );
 
-            let response: YTVideos = self
+            let mut response: YTVideos = self
                 .client
                 .get(url)
                 .send()
@@ -135,25 +143,35 @@ impl<'a> ApiClientManager<'a> {
                 .json()
                 .map_err(TYoutubeError::Reqwest)?;
 
-            let chunk_duration: f64 = response
-                .items
-                .iter()
-                .map(|f| {
-                    let (dur, _) = parse_duration(
-                        f.content_details
-                            .duration
-                            .to_lowercase()
-                            .trim_start_matches("pt"),
-                    )
-                    .unwrap_or((0.0, 0));
-                    dur
-                })
-                .collect::<Vec<f64>>()
-                .iter()
-                .sum();
-
-            total_duration += chunk_duration;
+            vector.append(&mut response.items);
         }
+
+        Ok(vector)
+    }
+
+    pub fn fetch_duration_from_id(
+        &self,
+        id: &YoutubeId,
+        max_items: usize,
+    ) -> Result<(f64, usize), TYoutubeError> {
+        let total_ids = self.fetch_ids_from_id(id, max_items)?;
+        let fetched_items = self.fetch_video_items(&total_ids)?;
+
+        let total_duration: f64 = fetched_items
+            .iter()
+            .map(|f| {
+                let (dur, _) = parse_duration(
+                    f.content_details
+                        .duration
+                        .to_lowercase()
+                        .trim_start_matches("pt"),
+                )
+                .unwrap_or((0.0, 0));
+                dur
+            })
+            .collect::<Vec<f64>>()
+            .iter()
+            .sum();
 
         Ok((total_duration, total_ids.len()))
     }
