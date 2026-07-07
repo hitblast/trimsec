@@ -3,8 +3,11 @@ use clap::Args;
 
 use crate::{
     commands::trim::TrimCmd,
-    core::{api::ApiClientManager, time::parse_time},
-    youtube_utils::{get_youtube_api_key, get_youtube_id},
+    core::{
+        api::ApiClientManager,
+        time::parse_time,
+        youtils::{get_youtube_api_key, get_youtube_id},
+    },
 };
 use anyhow::{Result, bail};
 

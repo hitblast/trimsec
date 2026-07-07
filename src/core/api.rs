@@ -6,9 +6,9 @@ use crate::{
     core::{
         deser::{YTPlaylistItems, YTPlaylistList, YTVideos},
         time::parse_duration,
+        youtils::YoutubeId,
     },
     errors::TYoutubeError,
-    youtube_utils::YoutubeId,
 };
 
 pub struct ApiClientManager<'a> {

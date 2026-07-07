@@ -3,12 +3,10 @@ use clap::Args;
 
 use anyhow::{Result, bail};
 
-use crate::{
-    core::{
-        api::ApiClientManager,
-        time::{parse_duration, parse_time},
-    },
-    youtube_utils::{get_youtube_api_key, get_youtube_id},
+use crate::core::{
+    api::ApiClientManager,
+    time::{parse_duration, parse_time},
+    youtils::{get_youtube_api_key, get_youtube_id},
 };
 
 #[derive(Debug, Default, Args)]
