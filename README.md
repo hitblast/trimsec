@@ -94,10 +94,10 @@ ts fitcheck [OPTIONS]
 A number of use-cases could be listed as follows:
 
 ```bash
-ts fitcheck  # link grabbed from clipboard; budget is today
-ts fc        # same as above, but shorter
-ts fc --link "https://youtube.com/..."  # link pasted manually; budget is today
-ts fc -l "https://youtube.com/..." -b 2h4m  # shortened param nams; budget is 2 hours and 4 minutes
+ts fitcheck     # link grabbed from clipboard; budget is today
+ts fc           # same as above, but shorter
+ts fc --link "https://youtube.com/..."                     # link pasted manually; budget is today
+ts fc -l "https://youtube.com/..." -b 2h4m                 # shortened param nams; budget is 2 hours and 4 minutes
 ts fc -l "https://youtube.com/playlist?..." --max-items 5  # youtube playlist + item cap
 ```
 
