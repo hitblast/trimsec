@@ -11,6 +11,7 @@ New features:
 Changes:
 
 - `-n` / `--no-clip` is a universal flag now.
+- Internal code changes (reduced duplicate code through the use of `youtils.rs` and `utils.rs` modules).
 
 ### v2.2.1
 

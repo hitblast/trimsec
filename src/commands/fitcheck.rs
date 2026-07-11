@@ -1,4 +1,3 @@
-use arboard::Clipboard;
 use clap::Args;
 
 use anyhow::{Result, bail};
@@ -6,12 +5,13 @@ use anyhow::{Result, bail};
 use crate::core::{
     api::ApiClientManager,
     time::{parse_duration, parse_time, time_in_day_after},
+    utils::choose_or_grab_link,
     youtils::{get_youtube_api_key, get_youtube_id},
 };
 
 #[derive(Debug, Default, Args)]
 pub struct FitcheckCmd {
-    /// The URL, or link, for the YouTube video.
+    /// The URL, or link, for the YouTube video. Defaults to: clipboard input.
     #[arg(short, long)]
     link: Option<String>,
 
@@ -30,27 +30,8 @@ pub struct FitcheckCmd {
 
 impl FitcheckCmd {
     pub fn run(self, no_clip: bool) -> Result<()> {
-        let key = match get_youtube_api_key() {
-            Some(key) => key,
-            None => bail!(
-                "Missing environment variable: TRIMSEC_YOUTUBE_KEY; read README.md for more information."
-            ),
-        };
-
-        let link = if self.link.is_none() && !no_clip {
-            let mut c = Clipboard::new()?;
-            let l = c.get_text().ok();
-
-            if let Some(l) = l {
-                l
-            } else {
-                bail!("No content found in clipboard.")
-            }
-        } else if let Some(l) = self.link {
-            l
-        } else {
-            bail!("Link to YouTube object (video/playlist) is required. Aborting.")
-        };
+        let key = get_youtube_api_key()?;
+        let link = choose_or_grab_link(self.link, no_clip)?;
 
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);

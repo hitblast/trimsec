@@ -1,8 +1,16 @@
+use anyhow::{Result as YoutilsResult, bail};
 use reqwest::Url;
 
 #[must_use]
-pub fn get_youtube_api_key() -> Option<String> {
-    std::env::var("TRIMSEC_YOUTUBE_KEY").ok()
+pub fn get_youtube_api_key() -> YoutilsResult<String> {
+    const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
+    let x = std::env::var(ENV_VAR_NAME).ok();
+
+    if let Some(x) = x {
+        Ok(x)
+    } else {
+        bail!("Missing {ENV_VAR_NAME} environment variable; read README.md to learn more.")
+    }
 }
 
 #[derive(Debug, PartialEq)]
