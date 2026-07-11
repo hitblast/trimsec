@@ -8,6 +8,9 @@
 ## Table of Contents
 
 - [Usage](#usage)
+  - [Enabling YouTube Capabilities](#enabling-youtube-capabilities)
+  - [Basic Trimming](#basic-trimming)
+  - [Fit-Checking](#fit-checking)
 - [Installation](#installation)
 - [License](#license)
 
@@ -80,7 +83,7 @@ For traversing only a certain amount of items in a playlist (starting from the 1
 ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
 ```
 
-### Fit-checking
+### Fit-Checking
 
 This feature can be used to check whether a certain YouTube video/playlist fits in the day, or a given duration. You basically run:
 
