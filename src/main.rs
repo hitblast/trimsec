@@ -4,8 +4,7 @@ use trimsec::cli::Args;
 fn main() {
     let args = Args::parse();
 
-    // command invocation
-    let result = args.command.run();
+    let result = args.command.run(args.no_clip);
 
     if let Err(err) = result {
         eprintln!("{err}");

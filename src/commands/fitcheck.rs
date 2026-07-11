@@ -23,17 +23,13 @@ pub struct FitcheckCmd {
     #[arg(long, default_value = "0")]
     max_items: usize,
 
-    /// Disable grabbing links from clipboard.
-    #[arg(short, long)]
-    noclip: bool,
-
     /// Chooses the best-fitting video for the duration.
     #[arg(short, long)]
     choose: bool,
 }
 
 impl FitcheckCmd {
-    pub fn run(self) -> Result<()> {
+    pub fn run(self, no_clip: bool) -> Result<()> {
         let key = match get_youtube_api_key() {
             Some(key) => key,
             None => bail!(
@@ -41,7 +37,7 @@ impl FitcheckCmd {
             ),
         };
 
-        let link = if self.link.is_none() && !self.noclip {
+        let link = if self.link.is_none() && !no_clip {
             let mut c = Clipboard::new()?;
             let l = c.get_text().ok();
 

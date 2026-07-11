@@ -27,7 +27,7 @@ Steps:
 - You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
   - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
 
-### 1. Basic Trimming
+### Basic Trimming
 
 #### For eyeballed durations:
 
@@ -74,7 +74,7 @@ As you can see, the link strings are getting quite *big*. To solve this, a clipb
 ts yt -m 1.8x
 
 # disable clipboard using -n/--no-clip:
-ts yt -l "https://youtube.com/..." --noclip -m 1.8x
+ts yt -l "https://youtube.com/..." --no-clip -m 1.8x
 ```
 
 For traversing only a certain amount of items in a playlist (starting from the 1st item), use this:
@@ -83,7 +83,7 @@ For traversing only a certain amount of items in a playlist (starting from the 1
 ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
 ```
 
-### 2. Fit-Checking
+### Fit-Checking
 
 This feature can be used to check whether a certain YouTube video/playlist fits in the day, or a given duration. You basically run:
 
@@ -99,6 +99,7 @@ ts fc           # same as above, but shorter
 ts fc --link "https://youtube.com/..."                     # link pasted manually; budget is today
 ts fc -l "https://youtube.com/..." -b 2h4m                 # shortened param nams; budget is 2 hours and 4 minutes
 ts fc -l "https://youtube.com/playlist?..." --max-items 5  # youtube playlist + item cap
+ts fc --link "https://youtube.com/..." --no-clip           # disable clipboard functionalities intentionally
 ```
 
 As you can see by now, most of the parameters and flags are the same as the `trim` command, so it is worthwhile to check both documentations and compare-contrast between what to use and what to not.

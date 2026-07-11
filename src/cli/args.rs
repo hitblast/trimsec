@@ -5,6 +5,10 @@ use crate::commands::{fitcheck::FitcheckCmd, trim::TrimCmd, yt::YtCmd};
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
 pub struct Args {
+    /// Disable grabbing links from clipboard.
+    #[arg(short, long)]
+    pub no_clip: bool,
+
     #[command(subcommand)]
     pub command: Command,
 }

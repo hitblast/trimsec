@@ -2,11 +2,21 @@
 
 Active since v2.0.0.
 
+### v2.3.0
+
+New features:
+
+- Added `ts fitcheck` / `ts fc` (notes included in README.md).
+
+Changes:
+
+- `-n` / `--no-clip` is a universal flag now.
+
 ### v2.2.1
 
 New features:
 
-- Added `-n`/`--noclip` (to `ts yt`) for intentionally disabling the clipboard-fetcher.
+- Added `-n`/`--no-clip` (to `ts yt`) for intentionally disabling the clipboard-fetcher.
 
 Changes:
 

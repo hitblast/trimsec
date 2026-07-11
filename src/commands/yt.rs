@@ -24,14 +24,10 @@ pub struct YtCmd {
     /// Max amount of items to traverse in a playlist. Default: 0 (uncapped).
     #[arg(long, default_value = "0")]
     max_items: usize,
-
-    /// Disable grabbing links from clipboard.
-    #[arg(short, long)]
-    noclip: bool,
 }
 
 impl YtCmd {
-    pub fn run(self) -> Result<()> {
+    pub fn run(self, no_clip: bool) -> Result<()> {
         let key = match get_youtube_api_key() {
             Some(key) => key,
             None => bail!(
@@ -39,7 +35,7 @@ impl YtCmd {
             ),
         };
 
-        let link = if self.link.is_none() && !self.noclip {
+        let link = if self.link.is_none() && !no_clip {
             let mut c = Clipboard::new()?;
             let l = c.get_text().ok();
 
