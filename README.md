@@ -94,12 +94,23 @@ ts fitcheck [OPTIONS]
 A number of use-cases could be listed as follows:
 
 ```bash
-ts fitcheck     # link grabbed from clipboard; budget is today
-ts fc           # same as above, but shorter
-ts fc --link "https://youtube.com/..."                     # link pasted manually; budget is today
-ts fc -l "https://youtube.com/..." -b 2h4m                 # shortened param nams; budget is 2 hours and 4 minutes
-ts fc -l "https://youtube.com/playlist?..." --max-items 5  # youtube playlist + item cap
-ts fc --link "https://youtube.com/..." --no-clip           # disable clipboard functionalities intentionally
+# link grabbed from clipboard; budget is today
+ts fitcheck
+
+# same as above, but shorter
+ts fc
+
+# link pasted manually; budget is today
+ts fc --link "https://youtube.com/..."
+
+# shortened param names; budget is 2 hours and 4 minutes
+ts fc -l "https://youtube.com/..." -b 2h4m
+
+# youtube playlist + item cap
+ts fc -l "https://youtube.com/playlist?..." --max-items 5
+
+# disable clipboard functionalities intentionally
+ts fc --link "https://youtube.com/..." --no-clip
 ```
 
 As you can see by now, most of the parameters and flags are the same as the `trim` command, so it is worthwhile to check both documentations and compare-contrast between what to use and what to not.
