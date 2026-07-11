@@ -13,7 +13,9 @@
 
 ## Usage
 
-### For basic trimming:
+### Basic Trimming
+
+#### For eyeballed durations:
 
 To calculate saved time, you run the `trim` command as follows:
 
@@ -37,7 +39,7 @@ Combine multiple durations like this:
 ts trim 1h30m+2h50m 1.25x
 ```
 
-### For YouTube videos:
+#### For YouTube videos/playlists:
 
 > [!NOTE]
 > **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)** in order to make this feature work. You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
@@ -69,6 +71,26 @@ For traversing only a certain amount of items in a playlist (starting from the 1
 ```bash
 ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
 ```
+
+### Fit-checking
+
+This feature can be used to check whether a certain YouTube video/playlist fits in the day, or a given duration. You basically run:
+
+```bash
+ts fitcheck [OPTIONS]
+```
+
+A number of use-cases could be listed as follows:
+
+```bash
+ts fitcheck  # link grabbed from clipboard; budget is today
+ts fc        # same as above, but shorter
+ts fc --link "https://youtube.com/..."  # link pasted manually; budget is today
+ts fc -l "https://youtube.com/..." -b 2h4m  # shortened param nams; budget is 2 hours and 4 minutes
+ts fc -l "https://youtube.com/playlist?..." --max-items 5  # youtube playlist + item cap
+```
+
+As you can see by now, most of the parameters and flags are the same as the `trim` command, so it is worthwhile to check both documentations and compare-contrast between what to use and what to not.
 
 ## Installation
 

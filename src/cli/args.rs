@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::commands::{fit::FitCmd, trim::TrimCmd, yt::YtCmd};
+use crate::commands::{fitcheck::FitcheckCmd, trim::TrimCmd, yt::YtCmd};
 
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
@@ -21,6 +21,6 @@ pub enum Command {
     )]
     Yt(YtCmd),
     /// Check whether content(s) fit in the day or a given budget of time.
-    #[command(visible_alias = "budget")]
-    Fit(FitCmd),
+    #[command(visible_alias = "fc")]
+    Fitcheck(FitcheckCmd),
 }

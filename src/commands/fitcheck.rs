@@ -10,7 +10,7 @@ use crate::core::{
 };
 
 #[derive(Debug, Default, Args)]
-pub struct FitCmd {
+pub struct FitcheckCmd {
     /// The URL, or link, for the YouTube video.
     #[arg(short, long)]
     link: Option<String>,
@@ -32,7 +32,7 @@ pub struct FitCmd {
     choose: bool,
 }
 
-impl FitCmd {
+impl FitcheckCmd {
     pub fn run(self) -> Result<()> {
         let key = match get_youtube_api_key() {
             Some(key) => key,
