@@ -1,64 +1,56 @@
-use clap::Args;
-
 use crate::core::time::TimeConfig;
 use crate::formatting::*;
-use anyhow::{Result, bail};
+use anyhow::Result;
+use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct TrimCmd {
     /// Duration of the content (e.g. 1h2m1s, 1h1s, 2d49s).
     pub duration: String,
+
     /// The speed multiplier (e.g. 1.25x, 1.25).
     pub multiplier: String,
 }
 
 impl TrimCmd {
     pub fn run(&self) -> Result<()> {
-        let config = TimeConfig::new(&self.duration, &self.multiplier);
+        let cfg = TimeConfig::new(&self.duration, &self.multiplier)
+            .map_err(|e| anyhow::anyhow!("time configuration error: {e}"))?;
 
-        match config {
-            Ok(cfg) => {
-                let trimmed = cfg.trim();
+        let (new_duration, time_saved, splits) =
+            cfg.trim().map_err(|e| anyhow::anyhow!("trim error: {e}"))?;
 
-                match trimmed {
-                    Ok((new_duration, time_saved, splits)) => {
-                        if time_saved > 0.0 {
-                            let parsed = crate::core::time::parse_time(new_duration);
-
-                            let message = format!(
-                                "\nFinishes in: {} ",
-                                if splits > 1 {
-                                    format!("{parsed} (all {splits} durations)")
-                                } else {
-                                    parsed
-                                }
-                            );
-                            println!("{}", message);
-                        } else {
-                            println!("No time saved. Would finish in linear time.");
-                            return Ok(());
-                        }
-
-                        let remaining = crate::core::time::time_in_day_after(new_duration);
-                        println!(
-                            "Time in day left: {} ",
-                            if remaining == 0.0 {
-                                "0s".to_string()
-                            } else {
-                                crate::core::time::parse_time(remaining)
-                            }
-                        );
-
-                        if time_saved > 0.0 {
-                            let parsed = crate::core::time::parse_time(time_saved);
-                            println!("{GREEN}{BOLD}Saved {parsed}!{RESET}\n");
-                        }
-                    }
-                    Err(e) => bail!("trim error: {e}"),
-                }
-            }
-            Err(e) => bail!("time configuration error: {e}"),
+        if time_saved <= 0.0 {
+            println!("No time saved. Would finish in linear time.");
+            return Ok(());
         }
+
+        let parsed = crate::core::time::parse_time(new_duration);
+        let remaining = crate::core::time::time_in_day_after(new_duration);
+        let saved = crate::core::time::parse_time(time_saved);
+
+        let message = [
+            format!(
+                "\nFinishes in: {} ",
+                if splits > 1 {
+                    format!("{parsed} (all {splits} durations)")
+                } else {
+                    parsed
+                }
+            ),
+            format!(
+                "Time in day left: {} ",
+                if remaining == 0.0 {
+                    "0s".to_string()
+                } else {
+                    crate::core::time::parse_time(remaining)
+                }
+            ),
+            format!("{GREEN}{BOLD}Saved {saved}!{RESET}\n"),
+        ]
+        .join("\n");
+
+        println!("{message}");
         Ok(())
     }
 }
