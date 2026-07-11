@@ -13,6 +13,17 @@
 
 ## Usage
 
+### Enabling YouTube Capabilities
+
+> [!NOTE]
+> This section is only needed if you're going to be passing in YouTube playlists/videos as arguments.
+
+Steps:
+
+- **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)**.
+- You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
+  - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
+
 ### Basic Trimming
 
 #### For eyeballed durations:
@@ -41,10 +52,7 @@ ts trim 1h30m+2h50m 1.25x
 
 #### For YouTube videos/playlists:
 
-> [!NOTE]
-> **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)** in order to make this feature work. You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
-
-The above applies for trimming certain YouTube videos as well, we just use the `yt` command, except we replace the `duration` field with a YouTube URL:
+Instead of using the `trim` command, you'll be using the `yt` command:
 
 ```bash
 ts yt -l https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
@@ -59,10 +67,10 @@ ts yt -l "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxi
 As you can see, the link strings are getting quite *big*. To solve this, a clipboard-fetcher comes included. Use it by just skipping the link argument:
 
 ```bash
-# reads from clipboard as fallback
+# reads from clipboard
 ts yt -m 1.8x
 
-# disable clipboard fallback using -n/--no-clip
+# disable clipboard using -n/--no-clip:
 ts yt -l "https://youtube.com/..." --noclip -m 1.8x
 ```
 
@@ -97,8 +105,7 @@ As you can see by now, most of the parameters and flags are the same as the `tri
 ### Homebrew
 
 ```bash
-brew tap hitblast/tap
-brew trust hitblast/tap
+brew tap hitblast/tap && brew trust hitblast/tap
 brew install trimsec
 ```
 
