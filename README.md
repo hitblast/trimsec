@@ -27,7 +27,7 @@ Steps:
 - You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
   - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
 
-### Basic Trimming
+### 1. Basic Trimming
 
 #### For eyeballed durations:
 
