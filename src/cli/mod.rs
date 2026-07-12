@@ -1,4 +1,4 @@
 pub mod args;
-pub mod atomic;
+pub mod flags;
 
 pub use args::Args;

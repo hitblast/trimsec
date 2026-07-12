@@ -1,9 +1,11 @@
 use clap::Args;
 
 use crate::{
-    commands::trim::TrimCmd,
+    cli::flags::Flags,
+    commands::{Runnable, trim::TrimCmd},
     core::{
         api::ApiClientManager,
+        style::Style,
         time::parse_time,
         utils::choose_or_grab_link,
         youtils::{get_youtube_api_key, get_youtube_id},
@@ -26,10 +28,10 @@ pub struct YtCmd {
     max_items: usize,
 }
 
-impl YtCmd {
-    pub fn run(self, no_clip: bool) -> Result<()> {
+impl Runnable for YtCmd {
+    fn run(self, flags: &Flags, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, no_clip)?;
+        let link = choose_or_grab_link(self.link, flags.no_clip)?;
 
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);
@@ -42,7 +44,7 @@ impl YtCmd {
                         multiplier: self.multiplier,
                     };
 
-                    cmd.run()?;
+                    cmd.run(flags, style)?;
                     if id.is_playlist {
                         println!("Trimmed for {item_count} item(s).")
                     }

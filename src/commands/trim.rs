@@ -1,5 +1,8 @@
-use crate::core::time::TimeConfig;
-use crate::formatting::*;
+use crate::{
+    cli::flags::Flags,
+    commands::Runnable,
+    core::{style::Style, time::TimeConfig},
+};
 use anyhow::Result;
 use clap::Args;
 
@@ -12,13 +15,13 @@ pub struct TrimCmd {
     pub multiplier: String,
 }
 
-impl TrimCmd {
-    pub fn run(&self) -> Result<()> {
+impl Runnable for TrimCmd {
+    fn run(self, _: &Flags, style: &Style) -> Result<()> {
         let cfg = TimeConfig::new(&self.duration, &self.multiplier)
-            .map_err(|e| anyhow::anyhow!("time configuration error: {e}"))?;
+            .map_err(|e| anyhow::anyhow!("Time configuration error: {e}"))?;
 
         let (new_duration, time_saved, splits) =
-            cfg.trim().map_err(|e| anyhow::anyhow!("trim error: {e}"))?;
+            cfg.trim().map_err(|e| anyhow::anyhow!("Trim error: {e}"))?;
 
         if time_saved <= 0.0 {
             println!("No time saved. Would finish in linear time.");
@@ -46,7 +49,10 @@ impl TrimCmd {
                     crate::core::time::parse_time(remaining)
                 }
             ),
-            format!("{GREEN}{BOLD}Saved {saved}!{RESET}\n"),
+            format!(
+                "{}{}Saved {saved}!{}\n",
+                style.green, style.bold, style.reset
+            ),
         ]
         .join("\n");
 

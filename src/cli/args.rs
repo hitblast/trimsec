@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::commands::{fitcheck::FitcheckCmd, trim::TrimCmd, yt::YtCmd};
 
@@ -9,8 +9,19 @@ pub struct Args {
     #[arg(short, long)]
     pub no_clip: bool,
 
+    // Selects the color mode.
+    #[arg(long, value_enum, default_value_t = ColorMode::Auto)]
+    pub color: ColorMode,
+
     #[command(subcommand)]
     pub command: Command,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum ColorMode {
+    Always,
+    Auto,
+    Never,
 }
 
 #[derive(Subcommand, Debug)]

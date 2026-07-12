@@ -1,8 +1,13 @@
-use crate::core::{
-    api::ApiClientManager,
-    time::{parse_duration, parse_time, time_in_day_after},
-    utils::choose_or_grab_link,
-    youtils::{get_youtube_api_key, get_youtube_id},
+use crate::{
+    cli::flags::Flags,
+    commands::Runnable,
+    core::{
+        api::ApiClientManager,
+        style::Style,
+        time::{parse_duration, parse_time, time_in_day_after},
+        utils::choose_or_grab_link,
+        youtils::{get_youtube_api_key, get_youtube_id},
+    },
 };
 use anyhow::{Result, bail};
 use clap::Args;
@@ -26,10 +31,10 @@ pub struct FitcheckCmd {
     choose: bool,
 }
 
-impl FitcheckCmd {
-    pub fn run(self, no_clip: bool) -> Result<()> {
+impl Runnable for FitcheckCmd {
+    fn run(self, flags: &Flags, _: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, no_clip)?;
+        let link = choose_or_grab_link(self.link, flags.no_clip)?;
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);
 
