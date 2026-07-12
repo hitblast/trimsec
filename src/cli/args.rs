@@ -6,11 +6,11 @@ use crate::commands::{fitcheck::FitcheckCmd, trim::TrimCmd, yt::YtCmd};
 #[command(name = "trimsec", version, about)]
 pub struct Args {
     /// Disable grabbing links from clipboard.
-    #[arg(short, long)]
+    #[arg(short, long, global = true)]
     pub no_clip: bool,
 
     // Selects the color mode.
-    #[arg(long, value_enum, default_value_t = ColorMode::Auto)]
+    #[arg(long, value_enum, default_value_t = ColorMode::Auto, global = true)]
     pub color: ColorMode,
 
     #[command(subcommand)]
