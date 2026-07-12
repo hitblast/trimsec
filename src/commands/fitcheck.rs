@@ -14,15 +14,15 @@ use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct FitcheckCmd {
-    /// The URL, or link, for the YouTube video. Defaults to: clipboard input.
+    /// The URL, or link, for the YouTube video. By default uses the clipboard input.
     #[arg(short, long)]
     link: Option<String>,
 
-    /// The budget duration string. Defaults to: none (the current day).
+    /// The budget duration string. By default uses the remaining time for the day.
     #[arg(short, long)]
     budget: Option<String>,
 
-    /// Max amount of items to traverse in a playlist. Default: 0 (uncapped).
+    /// Max amount of items to traverse in a playlist.
     #[arg(long, default_value = "0")]
     max_items: usize,
 

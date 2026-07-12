@@ -1,16 +1,29 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH trimsec 1  "trimsec 2.2.1" 
+.TH trimsec 1  "trimsec 2.3.0" 
 .SH NAME
 trimsec \- Calculate time saved on using speed multipliers.
 .SH SYNOPSIS
-\fBtrimsec\fR [\fB\-n\fR|\fB\-\-no\-clip\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+\fBtrimsec\fR [\fB\-n\fR|\fB\-\-no\-clip\fR] [\fB\-\-color\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
 .SH DESCRIPTION
 Calculate time saved on using speed multipliers.
 .SH OPTIONS
 .TP
 \fB\-n\fR, \fB\-\-no\-clip\fR
 Disable grabbing links from clipboard
+.TP
+\fB\-\-color\fR \fI<COLOR>\fR [default: auto]
+
+.br
+\fIPossible values:\fR
+.RS 14
+.IP \(bu 2
+always
+.IP \(bu 2
+auto
+.IP \(bu 2
+never
+.RE
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help
@@ -31,4 +44,4 @@ Check whether content(s) fit in the day or a given budget of time
 trimsec\-help(1)
 Print this message or the help of the given subcommand(s)
 .SH VERSION
-v2.2.1
+v2.3.0

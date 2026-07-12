@@ -23,7 +23,7 @@ pub struct YtCmd {
     #[arg(short, long)]
     multiplier: String,
 
-    /// Max amount of items to traverse in a playlist. Default: 0 (uncapped).
+    /// Max amount of items to traverse in a playlist (if one is passed). Defaults to the total length of the playlist.
     #[arg(long, default_value = "0")]
     max_items: usize,
 }
