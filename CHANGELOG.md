@@ -9,6 +9,8 @@ New features:
 - Added `ts fitcheck` / `ts fc` (notes included in README.md).
 - [ ] Add: `ts list` (lists all YouTube contents to stdin)
 - Added support for a `.trimsecrc` file which receives a TOML file as input (for later use in settings + storing the API key).
+- Added a new, global `--color` value enum.
+- trimsec now obeys the `NO_COLOR` standard.
 
 Changes:
 
