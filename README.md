@@ -24,12 +24,12 @@
 Steps:
 
 - **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)**.
-- You must set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
-  - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
-- Or, create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
+- Create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
   ```toml
   api_key = "YOUR_API_KEY_HERE"
   ```
+- Or, set it as `TRIMSEC_YOUTUBE_KEY` in your environment.
+  - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
 
 ### 1. Basic Trimming
 
