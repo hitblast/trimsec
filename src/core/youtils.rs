@@ -17,9 +17,6 @@ pub fn get_youtube_api_key() -> YoutilsResult<String> {
                 Ok(cfg) => Ok(cfg.api_key().to_string()),
                 Err(e) => {
                     match e {
-                        crate::errors::TConfigError::PathReadFailure(e) => {
-                            bail!("Failed to read config: {e}")
-                        }
                         crate::errors::TConfigError::ParseFailed(p) => {
                             bail!("Failed to parse .trimsecrc file at path: {p:?}")
                         }

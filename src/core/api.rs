@@ -51,9 +51,9 @@ impl<'a> ApiClientManager<'a> {
                     .client
                     .get(url)
                     .send()
-                    .map_err(TYoutubeError::Reqwest)?
+                    .map_err(|_| TYoutubeError::Reqwest)?
                     .json()
-                    .map_err(TYoutubeError::Reqwest)?;
+                    .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
                 let traversible_items = if let Some(ic) = response.items.first() {
                     let max_traversible = ic.content_details.item_count;
@@ -93,9 +93,9 @@ impl<'a> ApiClientManager<'a> {
                         .client
                         .get(url)
                         .send()
-                        .map_err(TYoutubeError::Reqwest)?
+                        .map_err(|_| TYoutubeError::Reqwest)?
                         .json()
-                        .map_err(TYoutubeError::Reqwest)?;
+                        .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
                     if let Some(t) = &response.next_page_token
                         && seen_tokens.contains(t)
@@ -142,9 +142,9 @@ impl<'a> ApiClientManager<'a> {
                 .client
                 .get(url)
                 .send()
-                .map_err(TYoutubeError::Reqwest)?
+                .map_err(|_| TYoutubeError::Reqwest)?
                 .json()
-                .map_err(TYoutubeError::Reqwest)?;
+                .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
             vector.append(&mut response.items);
         }

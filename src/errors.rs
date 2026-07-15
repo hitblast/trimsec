@@ -47,7 +47,8 @@ impl Display for TTimeError {
 
 #[derive(Debug)]
 pub enum TYoutubeError {
-    Reqwest(reqwest::Error),
+    Reqwest,
+    ResponseBodyParseFailure,
     ItemNotFound,
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
@@ -56,8 +57,11 @@ pub enum TYoutubeError {
 impl Display for TYoutubeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TYoutubeError::Reqwest(error) => {
-                write!(f, "error invoking reqwest functions: {error}")
+            TYoutubeError::Reqwest => {
+                write!(
+                    f,
+                    "error performing request (check YouTube API key and internet connection)."
+                )
             }
             TYoutubeError::ItemNotFound => {
                 write!(f, "given YouTube video item was not found in API response.")
@@ -71,6 +75,7 @@ impl Display for TYoutubeError {
                     "max items ({given}) is larger than the length of the playlist ({max})."
                 )
             }
+            TYoutubeError::ResponseBodyParseFailure => write!(f, "failed to parse response body."),
         }
     }
 }
