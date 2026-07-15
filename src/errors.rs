@@ -1,4 +1,21 @@
-use std::fmt::Display;
+use std::{fmt::Display, path::PathBuf};
+
+#[derive(Debug)]
+pub enum TConfigError {
+    PathReadFailure(String),
+    NonexistentPath(String),
+    ParseFailed(PathBuf),
+}
+
+impl Display for TConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TConfigError::PathReadFailure(e) => write!(f, "failed to read path to string: {e}"),
+            TConfigError::NonexistentPath(e) => write!(f, "failed to fetch config path: {e}"),
+            TConfigError::ParseFailed(p) => write!(f, "could not parse file at path: {p:?}"),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum TTimeError {
@@ -14,15 +31,15 @@ impl Display for TTimeError {
         match self {
             Self::InvalidTimeUnit => write!(
                 f,
-                "Specify duration in seconds (s), minutes (m), hours (h), or days (d)"
+                "specify duration in seconds (s), minutes (m), hours (h), or days (d)"
             ),
-            Self::InvalidDurationFormat => write!(f, "Invalid duration format!"),
-            Self::NegativeDuration => write!(f, "Duration must be a positive value."),
+            Self::InvalidDurationFormat => write!(f, "invalid duration format!"),
+            Self::NegativeDuration => write!(f, "duration must be a positive value."),
             Self::InvalidMultiplierFormat => {
-                write!(f, "Multiplier must be a positive float.")
+                write!(f, "multiplier must be a positive float.")
             }
             Self::MultiplierOutOfRange => {
-                write!(f, "Multiplier must be greater than 1x and less than 100x.")
+                write!(f, "multiplier must be greater than 1x and less than 100x.")
             }
         }
     }
@@ -40,18 +57,18 @@ impl Display for TYoutubeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             TYoutubeError::Reqwest(error) => {
-                write!(f, "Error invoking reqwest functions: {error}")
+                write!(f, "error invoking reqwest functions: {error}")
             }
             TYoutubeError::ItemNotFound => {
-                write!(f, "Given YouTube video item was not found in API response.")
+                write!(f, "given YouTube video item was not found in API response.")
             }
             TYoutubeError::InvalidPlaylist(id) => {
-                write!(f, "Invalid playlist: {id}")
+                write!(f, "invalid playlist: {id}")
             }
             TYoutubeError::InvalidMaxSize((given, max)) => {
                 write!(
                     f,
-                    "Max items ({given}) is larger than the length of the playlist ({max})."
+                    "max items ({given}) is larger than the length of the playlist ({max})."
                 )
             }
         }

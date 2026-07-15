@@ -1,15 +1,36 @@
 use anyhow::{Result as YoutilsResult, bail};
 use reqwest::Url;
 
+use crate::core::config::Config;
+
 #[must_use]
 pub fn get_youtube_api_key() -> YoutilsResult<String> {
     const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
     let x = std::env::var(ENV_VAR_NAME).ok();
 
-    if let Some(x) = x {
-        Ok(x)
-    } else {
-        bail!("Missing {ENV_VAR_NAME} environment variable; read README.md to learn more.")
+    match x {
+        Some(x) => Ok(x),
+        None => {
+            let cfg_res = Config::load();
+
+            match cfg_res {
+                Ok(cfg) => Ok(cfg.api_key().to_string()),
+                Err(e) => {
+                    match e {
+                        crate::errors::TConfigError::PathReadFailure(e) => {
+                            bail!("Failed to read config: {e}")
+                        }
+                        crate::errors::TConfigError::ParseFailed(p) => {
+                            bail!("Failed to parse .trimsecrc file at path: {p:?}")
+                        }
+                        _ => {}
+                    }
+                    bail!(
+                        "Missing {ENV_VAR_NAME} environment variable or .trimsecrc file in $HOME; read README.md to learn more."
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::{Result, bail};
 use arboard::Clipboard;
 
@@ -18,4 +20,14 @@ pub fn choose_or_grab_link(link: Option<String>, no_clip: bool) -> Result<String
     };
 
     Ok(link)
+}
+
+pub fn get_rc_filepath() -> Result<PathBuf> {
+    let home = dirs::home_dir();
+
+    if let Some(h) = home {
+        Ok(h.join(".trimsecrc").to_path_buf())
+    } else {
+        bail!("Could not determine HOME directory.")
+    }
 }
