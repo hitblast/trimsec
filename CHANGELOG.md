@@ -14,7 +14,7 @@ New features:
 
 Changes:
 
-- [ ] Running `trim` (or `yt`, which uses `trim` underneath) should no longer view the "Time in day left: <x>s" string, if there's no time left at all (`0s`).
+- Running `trim` (or `yt`, which uses `trim` underneath) should no longer view the "Time in day left: <x>s" string, if there's no time left at all (`0s`).
 - `-n` / `--no-clip` is a universal flag now.
 - Reduced `println!()` calls across commands without hampering the output.
 - Internal code changes (reduced duplicate code through the use of `youtils.rs` and `utils.rs` modules).

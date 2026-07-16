@@ -41,14 +41,18 @@ impl Runnable for TrimCmd {
                     parsed
                 }
             ),
-            format!(
-                "Time in day left: {} ",
-                if remaining == 0.0 {
-                    "0s".to_string()
-                } else {
-                    crate::core::time::parse_time(remaining)
-                }
-            ),
+            if remaining != 0.0 {
+                format!(
+                    "Time in day left: {} ",
+                    if remaining == 0.0 {
+                        "0s".to_string()
+                    } else {
+                        crate::core::time::parse_time(remaining)
+                    }
+                )
+            } else {
+                "Cannot finish today".to_string()
+            },
             format!(
                 "{}{}Saved {saved}!{}\n",
                 style.green, style.bold, style.reset
