@@ -14,7 +14,12 @@ use clap::Args;
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
     /// The link to the YouTube playlist.
+    #[arg(short, long)]
     pub link: Option<String>,
+
+    /// The maximum amount of items to list from the given playlist.
+    #[arg(long, default_value = "0")]
+    pub max_items: usize,
 }
 
 impl Runnable for ListCmd {
@@ -34,7 +39,7 @@ impl Runnable for ListCmd {
         };
 
         let ids = manager
-            .fetch_ids_from_id(&id, 0)
+            .fetch_ids_from_id(&id, self.max_items)
             .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;
         let videos = manager
             .fetch_video_items(&ids)
