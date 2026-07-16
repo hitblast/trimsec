@@ -31,7 +31,7 @@ impl<'a> ApiClientManager<'a> {
     ///
     /// This is expected to be used in the case where the user passes a "playlist ID"
     /// and a certain amount of items' identities need to be known.
-    fn fetch_ids_from_id(
+    pub fn fetch_ids_from_id(
         &self,
         id: &YoutubeId,
         max_items: usize,
@@ -128,7 +128,7 @@ impl<'a> ApiClientManager<'a> {
     }
 
     /// Fetches a single chunk of video items.
-    fn fetch_video_items(&self, ids: &[String]) -> Result<Vec<YTVideosItem>, TYoutubeError> {
+    pub fn fetch_video_items(&self, ids: &[String]) -> Result<Vec<YTVideosItem>, TYoutubeError> {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
         for chunk_ids in ids.chunks(50) {

@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
-use crate::commands::{fitcheck::FitcheckCmd, trim::TrimCmd, yt::YtCmd};
+use crate::commands::{fitcheck::FitcheckCmd, list::ListCmd, trim::TrimCmd, yt::YtCmd};
 
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
@@ -38,4 +38,6 @@ pub enum Command {
     /// Check whether content(s) fit in the day or a given budget of time.
     #[command(visible_alias = "fc")]
     Fitcheck(FitcheckCmd),
+    /// Lists all entries in a YouTube playlist.
+    List(ListCmd),
 }
