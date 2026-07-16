@@ -11,6 +11,7 @@
   - [Enabling YouTube Capabilities](#enabling-youtube-capabilities)
   - [Basic Trimming](#basic-trimming)
   - [Fit-Checking](#fit-checking)
+  - [Utility Commands](#utility-commands)
 - [Installation](#installation)
 - [License](#license)
 
@@ -118,6 +119,19 @@ ts fc --link "https://youtube.com/..." --no-clip
 ```
 
 As you can see by now, most of the parameters and flags are the same as the `trim` command, so it is worthwhile to check both documentations and compare-contrast between what to use and what to not.
+
+### Utility Commands
+
+> [!NOTE]
+> More such commands will be added with the following releases, as these are proportional to ideas coming in.
+
+- For listing the contents in a YouTube playlist:
+
+```bash
+ts list -l "https://youtube.com/..."
+ts list                   # grabs from clipboard
+ts list --max-items 5     # only traverses 5 items
+```
 
 ## Installation
 
