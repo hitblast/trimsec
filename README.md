@@ -20,7 +20,7 @@
 
 trimsec helps you plan your content consumption. It includes utility functions such as duration-trimming (AKA calculating how much time you'd have in hand _after_ you've watched a video with a multiplier), playlist and video-trimming (same stuff but for YouTube), and other commands. It is still a work-in-progress project, and more commands are already planned!
 
-It is oriented towards terminal-headed academic nerds (pun intended).
+It is oriented towards terminal-headed academic nerds (pun intended) who can't seem to get a grasp of their syllabus until the last night before the exam, when they already have hundreds of videos to cover. Theoretically impossible to cover - trimsec makes it easier.
 
 ## Usage
 
