@@ -7,6 +7,7 @@
 
 ## Table of Contents
 
+- [Overview](#overview)
 - [Usage](#usage)
   - [Enabling YouTube Capabilities](#enabling-youtube-capabilities)
   - [Basic Trimming](#basic-trimming)
@@ -14,6 +15,12 @@
   - [Utility Commands](#utility-commands)
 - [Installation](#installation)
 - [License](#license)
+
+## Overview
+
+trimsec helps you plan your content consumption. It includes utility functions such as duration-trimming (AKA calculating how much time you'd have in hand _after_ you've watched a video with a multiplier), playlist and video-trimming (same stuff but for YouTube), and other commands. It is still a work-in-progress project, and more commands are already planned!
+
+It is oriented towards terminal-headed academic nerds (pun intended).
 
 ## Usage
 
