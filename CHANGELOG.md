@@ -2,6 +2,21 @@
 
 Active since v2.0.0.
 
+### v2.4.0
+
+New features:
+
+- [ ] Add Google OAuth support and make manual API key-entering auxiliary.
+- New aliases for commands:
+  - `yt` -> changed from `vid` to `y`
+  - `list` -> `ls`
+
+Changes:
+
+- Removed `--choose` flag from `ts fitcheck`.
+- Replaced the global `--no-clip` argument with `clip`, and made all `link` arguments across the command palette required (unless `clip` is present).
+- The CLI `--link` argument, for commands that include it, is prioritized internally over the clipboard (when `--clip` is passed). Although one of them will get cancelled out anyway, this is more of a _redundancy_ change.
+
 ### v2.3.0
 
 New features:

@@ -15,8 +15,8 @@ pub mod trim;
 pub mod yt;
 
 impl Command {
-    pub fn run(self, no_clip: bool, color: ColorMode) -> Result<()> {
-        let flags = Flags { no_clip };
+    pub fn run(self, clip: bool, color: ColorMode) -> Result<()> {
+        let flags = Flags { clip };
 
         let defbool = env::var("NO_COLOR").ok().is_some();
 

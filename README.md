@@ -60,7 +60,7 @@ ts trim 1h30m+2h50m 1.25x
 
 #### For YouTube videos/playlists:
 
-Instead of using the `trim` command, you'll be using the `yt` command:
+Instead of using the `trim` command, you'll be using the `yt` (or `y`) command:
 
 ```bash
 ts yt -l https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
@@ -72,17 +72,14 @@ You can also throw in a YouTube playlist in (almost) any format you want, and it
 ts yt -l "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
 ```
 
-As you can see, the link strings are getting quite _big_. To solve this, a clipboard-fetcher comes included. Use it by just skipping the link argument:
+As you can see, the link strings are getting quite _big_. To solve this, a clipboard-fetcher comes included.
 
 ```bash
 # reads from clipboard
-ts yt -m 1.8x
-
-# disable clipboard using -n/--no-clip:
-ts yt -l "https://youtube.com/..." --no-clip -m 1.8x
+ts yt -m 1.8x --clip
 ```
 
-For traversing only a certain amount of items in a playlist (starting from the 1st item), use this:
+For traversing only a _certain amount_ of items in a playlist (starting from the 1st item), use this:
 
 ```bash
 ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
@@ -100,10 +97,10 @@ A number of use-cases could be listed as follows:
 
 ```bash
 # link grabbed from clipboard; budget is today
-ts fitcheck
+ts fitcheck --clip
 
 # same as above, but shorter
-ts fc
+ts fc --clip
 
 # link pasted manually; budget is today
 ts fc --link "https://youtube.com/..."
@@ -129,8 +126,8 @@ As you can see by now, most of the parameters and flags are the same as the `tri
 
 ```bash
 ts list -l "https://youtube.com/..."
-ts list                   # grabs from clipboard
-ts list --max-items 5     # only traverses 5 items
+ts ls --clip            # shorter; grabs from clipboard
+ts ls --max-items 5     # only traverses 5 items
 ```
 
 ## Installation

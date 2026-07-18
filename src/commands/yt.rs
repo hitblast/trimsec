@@ -16,7 +16,7 @@ use anyhow::{Result, bail};
 #[derive(Debug, Default, Args)]
 pub struct YtCmd {
     /// The URL, or link, for the YouTube video.
-    #[arg(short, long)]
+    #[arg(short, long, required_unless_present = "clip")]
     link: Option<String>,
 
     /// The multiplier (e.g. 1.25x, 1.25).
@@ -31,7 +31,7 @@ pub struct YtCmd {
 impl Runnable for YtCmd {
     fn run(self, flags: &Flags, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, flags.no_clip)?;
+        let link = choose_or_grab_link(self.link, flags.clip)?;
 
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);

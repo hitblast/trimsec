@@ -14,8 +14,8 @@ use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct FitcheckCmd {
-    /// The URL, or link, for the YouTube video. By default uses the clipboard input.
-    #[arg(short, long)]
+    /// The URL, or link, for the YouTube video.
+    #[arg(short, long, required_unless_present = "clip")]
     link: Option<String>,
 
     /// The budget duration string. By default uses the remaining time for the day.
@@ -25,16 +25,12 @@ pub struct FitcheckCmd {
     /// Max amount of items to traverse in a playlist.
     #[arg(long, default_value = "0")]
     max_items: usize,
-
-    /// Chooses the best-fitting video for the duration.
-    #[arg(short, long)]
-    choose: bool,
 }
 
 impl Runnable for FitcheckCmd {
     fn run(self, flags: &Flags, _: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, flags.no_clip)?;
+        let link = choose_or_grab_link(self.link, flags.clip)?;
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);
 

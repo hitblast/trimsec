@@ -14,7 +14,7 @@ use clap::Args;
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
     /// The link to the YouTube playlist.
-    #[arg(short, long)]
+    #[arg(short, long, required_unless_present = "clip")]
     pub link: Option<String>,
 
     /// The maximum amount of items to list from the given playlist.
@@ -24,7 +24,7 @@ pub struct ListCmd {
 
 impl Runnable for ListCmd {
     fn run(self, flags: &Flags, _: &Style) -> Result<()> {
-        let link = choose_or_grab_link(self.link, flags.no_clip)?;
+        let link = choose_or_grab_link(self.link, flags.clip)?;
         let key = get_youtube_api_key()?;
 
         let manager = ApiClientManager::new(&key);
