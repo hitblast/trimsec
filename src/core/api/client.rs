@@ -4,7 +4,7 @@ use reqwest::blocking::Client;
 
 use crate::{
     core::{
-        deser::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
+        api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
         time::parse_duration,
         youtils::YoutubeId,
     },
