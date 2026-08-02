@@ -6,14 +6,14 @@ Active since v2.0.0.
 
 New features:
 
-- [ ] Add `set` group of commands for a bunch of settings.
-  - [ ] Following this change, add more _configurable_ settings to the `.trimsecrc` configuration schema.
+- Added a new `key`command to set the API key easily.
 - Added new aliases for a handful of commands:
   - `yt` -> changed from `vid` to `y`
   - `list` -> `ls`
 
 Changes:
 
+- Unknown fields are now prohibited in the config file.
 - Removed `--choose` flag from `ts fitcheck`.
 - Replaced the global `--no-clip` argument with `clip`, and made all `link` arguments across the command palette required (unless `clip` is present).
 - The CLI `--link` argument, for commands that include it, is prioritized internally over the clipboard (when `--clip` is passed). Although one of them will get cancelled out anyway, this is more of a _redundancy_ change.
