@@ -8,7 +8,6 @@ New features:
 
 - [ ] Add `set` group of commands for a bunch of settings.
   - [ ] Following this change, add more _configurable_ settings to the `.trimsecrc` configuration schema.
-- [ ] Add Google OAuth support and make manual API key-entering auxiliary.
 - Added new aliases for a handful of commands:
   - `yt` -> changed from `vid` to `y`
   - `list` -> `ls`
