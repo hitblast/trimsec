@@ -14,7 +14,12 @@ pub fn get_youtube_api_key() -> YoutilsResult<String> {
             let cfg_res = Config::load();
 
             match cfg_res {
-                Ok(cfg) => Ok(cfg.api_key().to_string()),
+                Ok(cfg) => match cfg.api_key() {
+                    Some(k) => Ok(k.to_string()),
+                    None => bail!(
+                        "API key not found in config! Please add it using the `login` command."
+                    ),
+                },
                 Err(e) => {
                     match e {
                         crate::errors::TConfigError::ParseFailed(p) => {

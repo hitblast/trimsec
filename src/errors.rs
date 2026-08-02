@@ -5,6 +5,8 @@ pub enum TConfigError {
     PathReadFailure(String),
     NonexistentPath(String),
     ParseFailed(PathBuf),
+    SerializingFailed(String),
+    SaveFailed(String),
 }
 
 impl Display for TConfigError {
@@ -13,6 +15,8 @@ impl Display for TConfigError {
             TConfigError::PathReadFailure(e) => write!(f, "failed to read path to string: {e}"),
             TConfigError::NonexistentPath(e) => write!(f, "failed to fetch config path: {e}"),
             TConfigError::ParseFailed(p) => write!(f, "could not parse file at path: {p:?}"),
+            TConfigError::SerializingFailed(e) => write!(f, "could not serialize config: {e}"),
+            TConfigError::SaveFailed(p) => write!(f, "could not save file to path: {p:?}"),
         }
     }
 }

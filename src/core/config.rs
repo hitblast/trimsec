@@ -1,12 +1,18 @@
-use std::fs;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{core::utils::get_rc_filepath, errors::TConfigError};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
-    api_key: String,
+    api_key: Option<String>,
+    #[serde(skip)]
+    path: PathBuf,
 }
 
 impl Config {
@@ -17,7 +23,10 @@ impl Config {
 
                 match data {
                     Ok(data) => match toml::from_str::<Self>(&data) {
-                        Ok(cfg) => Ok(cfg),
+                        Ok(mut cfg) => {
+                            cfg.path = p;
+                            Ok(cfg)
+                        }
                         Err(_) => Err(TConfigError::ParseFailed(p)),
                     },
                     Err(e) => return Err(TConfigError::PathReadFailure(e.to_string())),
@@ -27,7 +36,19 @@ impl Config {
         }
     }
 
-    pub fn api_key(&self) -> &str {
-        self.api_key.as_ref()
+    fn save(&self) -> Result<(), TConfigError> {
+        let data =
+            toml::to_string(&self).map_err(|e| TConfigError::SerializingFailed(e.to_string()))?;
+        fs::write(self.path(), data).map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
+
+        Ok(())
+    }
+
+    pub fn api_key(&self) -> Option<&str> {
+        self.api_key.as_deref()
+    }
+
+    pub fn path(&self) -> &Path {
+        self.path.as_ref()
     }
 }

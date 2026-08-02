@@ -11,6 +11,7 @@ use anyhow::Result;
 
 pub mod fitcheck;
 pub mod list;
+pub mod login;
 pub mod trim;
 pub mod yt;
 
