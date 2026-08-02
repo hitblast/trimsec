@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
-use crate::commands::{fitcheck::FitcheckCmd, list::ListCmd, trim::TrimCmd, yt::YtCmd};
+use crate::commands::{
+    fitcheck::FitcheckCmd, key::KeyCmd, list::ListCmd, trim::TrimCmd, yt::YtCmd,
+};
 
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
@@ -38,4 +40,7 @@ pub enum Command {
     /// Lists all entries in a YouTube playlist.
     #[command(visible_alias = "ls")]
     List(ListCmd),
+    /// Sets the key for the YouTube Data API.
+    #[command(visible_alias = "login")]
+    Key(KeyCmd),
 }

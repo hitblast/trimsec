@@ -6,7 +6,7 @@ use crate::{
         style::Style,
         time::{parse_duration, parse_time, time_in_day_after},
         utils::choose_or_grab_link,
-        youtils::{get_youtube_api_key, get_youtube_id},
+        youtils::get_youtube_id,
     },
 };
 use anyhow::{Result, bail};
@@ -29,7 +29,7 @@ pub struct FitcheckCmd {
 
 impl Runnable for FitcheckCmd {
     fn run(self, flags: &Flags, _: &Style) -> Result<()> {
-        let key = get_youtube_api_key()?;
+        let key = "test";
         let link = choose_or_grab_link(self.link, flags.clip)?;
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);

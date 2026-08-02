@@ -10,8 +10,8 @@ use crate::{
 use anyhow::Result;
 
 pub mod fitcheck;
+pub mod key;
 pub mod list;
-pub mod login;
 pub mod trim;
 pub mod yt;
 
@@ -36,6 +36,7 @@ impl Command {
             Command::Trim(trim_cmd) => trim_cmd.run(&flags, &style),
             Command::Yt(yt_cmd) => yt_cmd.run(&flags, &style),
             Command::List(list_cmd) => list_cmd.run(&flags, &style),
+            Command::Key(key_cmd) => key_cmd.run(&flags, &style),
         }
     }
 }

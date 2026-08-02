@@ -36,10 +36,16 @@ impl Config {
         }
     }
 
+    pub fn update_write_key(&mut self, new_key: String) -> Result<(), TConfigError> {
+        self.api_key = Some(new_key);
+        self.save()?;
+        Ok(())
+    }
+
     fn save(&self) -> Result<(), TConfigError> {
         let data =
             toml::to_string(&self).map_err(|e| TConfigError::SerializingFailed(e.to_string()))?;
-        fs::write(self.path(), data).map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
+        fs::write(&self.path, data).map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
 
         Ok(())
     }
