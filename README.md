@@ -54,23 +54,20 @@ Steps:
 To calculate saved time, you run the `trim` command as follows:
 
 ```bash
-ts trim <duration> <speed>
-
-# Example:
-ts trim 1h 2x
+ts trim 1h -m 2x
 ```
 
 This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
 
 ```bash
-ts trim 1h30m 1.5x
-ts trim 1.5h30m 1.5x  # equivalent to 2 hours
+ts trim 1h30m -m 1.5x
+ts trim 1.5h30m -m 1.5x  # equivalent to 2 hours
 ```
 
 Combine multiple durations like this:
 
 ```bash
-ts trim 1h30m+2h50m 1.25x
+ts trim 1h30m+2h50m -m 1.25x
 ```
 
 #### For YouTube videos/playlists:
@@ -78,59 +75,44 @@ ts trim 1h30m+2h50m 1.25x
 Instead of using the `trim` command, you'll be using the `yt` (or `y`) command:
 
 ```bash
-ts yt -l https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
+ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
 ```
 
 You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
 
 ```bash
-ts yt -l "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
+ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
 ```
 
-As you can see, the link strings are getting quite _big_. To solve this, a clipboard-fetcher comes included.
+As you can see, the link strings are getting quite _big_. To solve this, you can instead, grab the link from the clipboard:
 
 ```bash
-# reads from clipboard
 ts yt -m 1.8x --clip
 ```
 
 For traversing only a _certain amount_ of items in a playlist (starting from the 1st item), use this:
 
 ```bash
-ts yt --max-items 7 -l "SOME_PLAYLIST_URL" -m 1.8x
+ts yt --max-items 7 "https://youtube.com/..." -m 1.8x
 ```
 
 ### Fit-Checking
 
-This feature can be used to check whether a certain YouTube video/playlist fits in the day, or a given duration. You basically run:
-
-```bash
-ts fitcheck [OPTIONS]
-```
-
-A number of use-cases could be listed as follows:
+You can check whether a particular YouTube content fits in a given budget of time like as follows:
 
 ```bash
 # link grabbed from clipboard; budget is today
-ts fitcheck --clip
-
-# same as above, but shorter
-ts fc --clip
+ts fits --clip
 
 # link pasted manually; budget is today
-ts fc --link "https://youtube.com/..."
+ts fits "https://youtube.com/..."
 
 # shortened param names; budget is 2 hours and 4 minutes
-ts fc -l "https://youtube.com/..." -b 2h4m
+ts fits "https://youtube.com/..." -b 2h4m
 
 # youtube playlist + item cap
-ts fc -l "https://youtube.com/playlist?..." --max-items 5
-
-# disable clipboard functionalities intentionally
-ts fc --link "https://youtube.com/..." --no-clip
+ts fits "https://youtube.com/playlist?..." --max-items 5
 ```
-
-As you can see by now, most of the parameters and flags are the same as the `trim` command, so it is worthwhile to check both documentations and compare-contrast between what to use and what to not.
 
 ### Utility Commands
 
@@ -140,9 +122,9 @@ As you can see by now, most of the parameters and flags are the same as the `tri
 - For listing the contents in a YouTube playlist:
 
 ```bash
-ts list -l "https://youtube.com/..."
+ts list "https://youtube.com/..."
 ts ls --clip            # shorter; grabs from clipboard
-ts ls --max-items 5     # only traverses 5 items
+ts ls --clip --max-items 5     # only traverses 5 items
 ```
 
 ## Installation

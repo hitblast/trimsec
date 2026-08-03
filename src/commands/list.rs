@@ -14,12 +14,12 @@ use clap::Args;
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
     /// The link to the YouTube playlist.
-    #[arg(short, long, required_unless_present = "clip")]
-    pub link: Option<String>,
+    #[arg(required_unless_present = "clip")]
+    link: Option<String>,
 
     /// The maximum amount of items to list from the given playlist.
-    #[arg(long, default_value = "0")]
-    pub max_items: usize,
+    #[arg(visible_alias = "max", long, default_value = "0")]
+    max_items: usize,
 }
 
 impl Runnable for ListCmd {

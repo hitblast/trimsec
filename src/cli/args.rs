@@ -1,13 +1,11 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
-use crate::commands::{
-    fitcheck::FitcheckCmd, key::KeyCmd, list::ListCmd, trim::TrimCmd, yt::YtCmd,
-};
+use crate::commands::{fits::FitsCmd, key::KeyCmd, list::ListCmd, trim::TrimCmd, yt::YtCmd};
 
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
 pub struct Args {
-    /// Use clipboard if applicable (e.g. for link).
+    /// Use clipboard if applicable (e.g. for grabbing a link).
     #[arg(short, long, global = true)]
     pub clip: bool,
 
@@ -29,18 +27,14 @@ pub enum ColorMode {
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// Calculate basic duration with multipliers.
-    #[command(visible_alias = "t")]
     Trim(TrimCmd),
     /// Calculate for YouTube videos.
-    #[command(visible_alias = "y")]
     Yt(YtCmd),
     /// Check whether content(s) fit in the day or a given budget of time.
-    #[command(visible_alias = "fc")]
-    Fitcheck(FitcheckCmd),
+    Fits(FitsCmd),
     /// Lists all entries in a YouTube playlist.
     #[command(visible_alias = "ls")]
     List(ListCmd),
     /// Sets the key for the YouTube Data API.
-    #[command(visible_alias = "login")]
     Key(KeyCmd),
 }

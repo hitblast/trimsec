@@ -16,7 +16,7 @@ use anyhow::{Result, bail};
 #[derive(Debug, Default, Args)]
 pub struct YtCmd {
     /// The URL, or link, for the YouTube video.
-    #[arg(short, long, required_unless_present = "clip")]
+    #[arg(required_unless_present = "clip")]
     link: Option<String>,
 
     /// The multiplier (e.g. 1.25x, 1.25).
@@ -24,7 +24,7 @@ pub struct YtCmd {
     multiplier: String,
 
     /// Max amount of items to traverse in a playlist (if one is passed). Defaults to the total length of the playlist.
-    #[arg(long, default_value = "0")]
+    #[arg(visible_alias = "max", long, default_value = "0")]
     max_items: usize,
 }
 

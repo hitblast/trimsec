@@ -47,10 +47,12 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
     let mut is_playlist = false;
 
     if let Ok(parsed_url) = Url::parse(link) {
-        if !parsed_url
-            .host_str()
-            .is_some_and(|f| f == "www.youtube.com" || f == "youtube.com" || f == "youtu.be")
-        {
+        if !parsed_url.host_str().is_some_and(|f| {
+            f == "www.youtube.com"
+                || f == "youtube.com"
+                || f == "youtu.be"
+                || f == "music.youtube.com"
+        }) {
             return None;
         }
 

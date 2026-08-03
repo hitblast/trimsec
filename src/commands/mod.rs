@@ -9,7 +9,7 @@ use crate::{
 };
 use anyhow::Result;
 
-pub mod fitcheck;
+pub mod fits;
 pub mod key;
 pub mod list;
 pub mod trim;
@@ -17,9 +17,8 @@ pub mod yt;
 
 impl Command {
     pub fn run(self, clip: bool, color: ColorMode) -> Result<()> {
-        let flags = Flags { clip };
-
         let defbool = env::var("NO_COLOR").ok().is_some();
+        let flags = Flags { clip };
 
         let style = Style::new(if defbool {
             false
@@ -32,7 +31,7 @@ impl Command {
         });
 
         match self {
-            Command::Fitcheck(fitcheck_cmd) => fitcheck_cmd.run(&flags, &style),
+            Command::Fits(fits_cmd) => fits_cmd.run(&flags, &style),
             Command::Trim(trim_cmd) => trim_cmd.run(&flags, &style),
             Command::Yt(yt_cmd) => yt_cmd.run(&flags, &style),
             Command::List(list_cmd) => list_cmd.run(&flags, &style),

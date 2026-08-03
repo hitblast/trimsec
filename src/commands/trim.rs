@@ -51,7 +51,7 @@ impl Runnable for TrimCmd {
                     }
                 )
             } else {
-                "Cannot finish today".to_string()
+                "Cannot finish today.".to_string()
             },
             format!(
                 "{}{}Saved {saved}!{}\n",

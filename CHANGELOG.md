@@ -2,6 +2,23 @@
 
 Active since v2.0.0.
 
+### v2.5.0
+
+New features:
+
+- Add support for `music.youtube.com` URLs.
+- Added `ts key --show`.
+
+Breaking changes:
+
+- Primary arguments are now positional by design.
+- Changed the `fitcheck` command to `fits`.
+
+Bug fixes:
+
+- Fixed `ts fitcheck` (now `fits`) not working at all.
+- Overridden some usage for some commands to fix some issues caused by the new positional arguments.
+
 ### v2.4.0
 
 New features:

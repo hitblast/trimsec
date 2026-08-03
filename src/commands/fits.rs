@@ -6,16 +6,16 @@ use crate::{
         style::Style,
         time::{parse_duration, parse_time, time_in_day_after},
         utils::choose_or_grab_link,
-        youtils::get_youtube_id,
+        youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
 use anyhow::{Result, bail};
 use clap::Args;
 
 #[derive(Debug, Default, Args)]
-pub struct FitcheckCmd {
+pub struct FitsCmd {
     /// The URL, or link, for the YouTube video.
-    #[arg(short, long, required_unless_present = "clip")]
+    #[arg(required_unless_present = "clip")]
     link: Option<String>,
 
     /// The budget duration string. By default uses the remaining time for the day.
@@ -27,9 +27,9 @@ pub struct FitcheckCmd {
     max_items: usize,
 }
 
-impl Runnable for FitcheckCmd {
+impl Runnable for FitsCmd {
     fn run(self, flags: &Flags, _: &Style) -> Result<()> {
-        let key = "test";
+        let key = get_youtube_api_key()?;
         let link = choose_or_grab_link(self.link, flags.clip)?;
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&link);

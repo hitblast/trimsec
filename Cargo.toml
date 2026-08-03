@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Speed up durations, save time, and plan your content intake."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "2.4.0"
+version = "2.5.0"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
