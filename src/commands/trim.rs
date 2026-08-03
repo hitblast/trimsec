@@ -12,6 +12,7 @@ pub struct TrimCmd {
     pub duration: String,
 
     /// The speed multiplier (e.g. 1.25x, 1.25).
+    #[arg(short, long)]
     pub multiplier: String,
 }
 

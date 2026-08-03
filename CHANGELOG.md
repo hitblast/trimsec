@@ -12,6 +12,7 @@ New features:
 Breaking changes:
 
 - Primary arguments are now positional by design.
+- `ts trim` now accepts the multiplier as a keyword-only `multiplier` argument to keep it unified across commands.
 - Changed the `fitcheck` command to `fits`.
 
 Bug fixes:
