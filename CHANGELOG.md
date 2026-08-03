@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v2.5.1
 
+New features:
+
+- Added: `ts path`
+
 Internal changes:
 
 - Improvements to the styling API have been made.

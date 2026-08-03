@@ -10,6 +10,7 @@ use anyhow::Result;
 pub mod fits;
 pub mod key;
 pub mod list;
+pub mod path;
 pub mod trim;
 pub mod yt;
 
@@ -24,6 +25,7 @@ impl Command {
             Command::Yt(yt_cmd) => yt_cmd.run(&flags, &style),
             Command::List(list_cmd) => list_cmd.run(&flags, &style),
             Command::Key(key_cmd) => key_cmd.run(&flags, &style),
+            Command::Path(path_cmd) => path_cmd.run(&flags, &style),
         }
     }
 }

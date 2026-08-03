@@ -38,13 +38,15 @@ Steps:
   ts key <YOUR_API_KEY>
   ```
 
-  - (Alternative 1) Create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
+  - Opt 1: Create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
 
     ```toml
     api_key = "YOUR_API_KEY_HERE"
     ```
 
-  - (Alternative 2) Set it using the `TRIMSEC_YOUTUBE_KEY` environment variable.
+    You may easily get the running location of the path using: `ts path`
+
+  - Opt 2: Set it using the `TRIMSEC_YOUTUBE_KEY` environment variable.
     - A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
 
 ### 1. Basic Trimming
