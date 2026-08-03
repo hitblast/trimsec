@@ -22,7 +22,7 @@ pub fn choose_or_grab_link(link: Option<String>, clip: bool) -> Result<String> {
     Ok(link)
 }
 
-pub fn get_rc_filepath() -> Result<PathBuf> {
+pub fn get_config_path() -> Result<PathBuf> {
     let home = dirs::home_dir();
 
     if let Some(h) = home {

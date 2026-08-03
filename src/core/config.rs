@@ -5,7 +5,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{core::utils::get_rc_filepath, errors::TConfigError};
+use crate::{core::utils::get_config_path, errors::TConfigError};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -17,7 +17,7 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Result<Self, TConfigError> {
-        match get_rc_filepath() {
+        match get_config_path() {
             Ok(p) => {
                 let data = fs::read_to_string(&p);
 
