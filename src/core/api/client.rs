@@ -29,9 +29,9 @@ impl<'a> ApiClientManager<'a> {
 
     /// Returns a vector of IDs from a single YouTube ID.
     ///
-    /// This is expected to be used in the case where the user passes a "playlist ID"
-    /// and a certain amount of items' identities need to be known.
-    pub fn fetch_ids_from_id(
+    /// This is expected to be used for fetching the contents of a playlist (or "video IDs"). If the [`YoutubeId`] object
+    /// is not a playlist, then a vector would be returned with the ID that was originally passed in.
+    pub fn expand_id(
         &self,
         id: &YoutubeId,
         max_items: usize,
@@ -158,7 +158,7 @@ impl<'a> ApiClientManager<'a> {
         id: &YoutubeId,
         max_items: usize,
     ) -> Result<(f64, usize), TYoutubeError> {
-        let total_ids = self.fetch_ids_from_id(id, max_items)?;
+        let total_ids = self.expand_id(id, max_items)?;
         let fetched_items = self.fetch_video_items(&total_ids)?;
 
         let total_duration: f64 = fetched_items

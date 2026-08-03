@@ -39,7 +39,7 @@ impl Runnable for ListCmd {
         };
 
         let ids = manager
-            .fetch_ids_from_id(&id, self.max_items)
+            .expand_id(&id, self.max_items)
             .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;
         let videos = manager
             .fetch_video_items(&ids)
