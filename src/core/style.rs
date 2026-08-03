@@ -4,9 +4,11 @@ use crate::cli::args::ColorMode;
 
 pub struct Style {
     red: &'static str,
+    boldred: String,
     reset: &'static str,
     bold: &'static str,
     green: &'static str,
+    boldgreen: String,
 }
 
 impl Style {
@@ -30,30 +32,47 @@ impl Style {
     pub fn red(&self) -> &str {
         self.red
     }
+    pub fn boldred(&self) -> &str {
+        &self.boldred
+    }
     pub fn reset(&self) -> &str {
         self.reset
     }
     pub fn green(&self) -> &str {
         self.green
     }
+    pub fn boldgreen(&self) -> &str {
+        &self.boldgreen
+    }
     pub fn bold(&self) -> &str {
         self.bold
     }
 
     fn new(colors: bool) -> Self {
+        let red = "\u{001b}[31m";
+        let bold = "\u{001b}[1m";
+        let boldred = red.to_owned() + bold;
+        let green = "\u{001b}[32m";
+        let boldgreen = green.to_owned() + bold;
+        let reset = "\u{001b}[0m";
+
         if colors {
             Self {
-                red: "\u{001b}[31m",
-                reset: "\u{001b}[0m",
-                bold: "\u{001b}[1m",
-                green: "\u{001b}[32m",
+                red,
+                boldred,
+                reset,
+                bold,
+                green,
+                boldgreen,
             }
         } else {
             Self {
                 red: "",
+                boldred: "".to_string(),
                 reset: "",
                 bold: "",
                 green: "",
+                boldgreen: "".to_string(),
             }
         }
     }

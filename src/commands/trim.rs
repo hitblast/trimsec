@@ -54,12 +54,7 @@ impl Runnable for TrimCmd {
             } else {
                 "Cannot finish today.".to_string()
             },
-            format!(
-                "{}{}Saved {saved}!{}\n",
-                style.green(),
-                style.bold(),
-                style.reset()
-            ),
+            format!("{}Saved {saved}!{}\n", style.boldgreen(), style.reset()),
         ]
         .join("\n");
 

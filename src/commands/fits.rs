@@ -28,7 +28,7 @@ pub struct FitsCmd {
 }
 
 impl Runnable for FitsCmd {
-    fn run(self, flags: &Flags, _: &Style) -> Result<()> {
+    fn run(self, flags: &Flags, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
         let link = choose_or_grab_link(self.link, flags.clip)?;
         let manager = ApiClientManager::new(&key);
@@ -44,40 +44,48 @@ impl Runnable for FitsCmd {
             .fetch_duration_from_id(&id, self.max_items)
             .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?;
 
-        let message = if let Some(b) = &self.budget {
-            let (limit_duration, splits) = parse_duration(b)
-                .map_err(|e| anyhow::anyhow!("Failed to parse budget duration: {e}"))?;
+        let message = {
+            let status = if let Some(b) = &self.budget {
+                let (limit_duration, _) = parse_duration(b)
+                    .map_err(|e| anyhow::anyhow!("Failed to parse budget duration: {e}"))?;
 
-            let mut lines = vec![if limit_duration > vid_total_duration {
-                format!(
-                    "Fits in budget!\n\nExtra time left: {}",
-                    parse_time(limit_duration - vid_total_duration)
-                )
-            } else if limit_duration < vid_total_duration {
-                format!(
-                    "Time overrun by {}!",
-                    parse_time(vid_total_duration - limit_duration)
-                )
+                if limit_duration > vid_total_duration {
+                    format!(
+                        "{}Fits in budget!{}\n\nExtra time left: {}",
+                        style.boldgreen(),
+                        style.reset(),
+                        parse_time(limit_duration - vid_total_duration)
+                    )
+                } else if limit_duration < vid_total_duration {
+                    format!(
+                        "{}Time overrun by {}!{}",
+                        style.boldred(),
+                        parse_time(vid_total_duration - limit_duration),
+                        style.reset()
+                    )
+                } else {
+                    "Duration match! Would finish on time.".to_string()
+                }
             } else {
-                "Duration match! Would finish on time.".to_string()
-            }];
+                let time_left = time_in_day_after(vid_total_duration);
 
-            if splits > 1 || item_count > 1 {
-                lines.push(format!("(counted {item_count} videos and {splits} splits)"));
-            }
-            lines.join("\n")
-        } else {
-            let time_left = time_in_day_after(vid_total_duration);
-            let mut lines = vec![if time_left != 0.0 {
-                format!(
-                    "Fits in day!\n\nTime left afterwards: {}",
-                    parse_time(time_left)
-                )
-            } else {
-                "Content does not fit in the day.".to_string()
-            }];
-            lines.push(format!("(counted {item_count} videos)"));
-            lines.join("\n")
+                if time_left != 0.0 {
+                    format!(
+                        "{}Fits in day!{}\n\nTime left afterwards: {}",
+                        style.boldgreen(),
+                        style.reset(),
+                        parse_time(time_left)
+                    )
+                } else {
+                    format!(
+                        "{}Content does not fit in the day.{}",
+                        style.boldred(),
+                        style.reset()
+                    )
+                }
+            };
+
+            format!("\n{status}\n(counted {item_count} videos)\n")
         };
 
         println!("{message}");
