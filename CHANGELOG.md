@@ -8,6 +8,10 @@ New features:
 
 - Added: `ts path`
 
+Changes:
+
+- The layout for `ts fits` now matches that of `ts trim` or `ts yt`.
+
 Internal changes:
 
 - Improvements to the styling API have been made.
