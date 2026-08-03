@@ -39,7 +39,7 @@ impl Runnable for KeyCmd {
                     is_playlist: false,
                 };
                 if let Err(_) = client.fetch_duration_from_id(&id, 1) {
-                    bail!("{}Invalid API key passed!{}", style.red, style.reset)
+                    bail!("{}Invalid API key passed!{}", style.red(), style.reset())
                 }
             }
 

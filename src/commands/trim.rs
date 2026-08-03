@@ -56,7 +56,9 @@ impl Runnable for TrimCmd {
             },
             format!(
                 "{}{}Saved {saved}!{}\n",
-                style.green, style.bold, style.reset
+                style.green(),
+                style.bold(),
+                style.reset()
             ),
         ]
         .join("\n");

@@ -1,5 +1,3 @@
-use std::env;
-
 use crate::{
     cli::{
         args::{ColorMode, Command},
@@ -17,18 +15,8 @@ pub mod yt;
 
 impl Command {
     pub fn run(self, clip: bool, color: ColorMode) -> Result<()> {
-        let defbool = env::var("NO_COLOR").ok().is_some();
+        let style = Style::determine(color);
         let flags = Flags { clip };
-
-        let style = Style::new(if defbool {
-            false
-        } else {
-            match color {
-                ColorMode::Always => true,
-                ColorMode::Auto => supports_color::on(supports_color::Stream::Stdout).is_some(),
-                ColorMode::Never => false,
-            }
-        });
 
         match self {
             Command::Fits(fits_cmd) => fits_cmd.run(&flags, &style),
