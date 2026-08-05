@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::commands::{
-    fits::FitsCmd, key::KeyCmd, list::ListCmd, path::PathCmd, trim::TrimCmd, yt::YtCmd,
+    fits::FitsCmd, key_set::KeySetCmd, key_show::KeyShowCmd, list::ListCmd, path::PathCmd,
+    trim::TrimCmd, yt::YtCmd,
 };
 
 #[derive(Parser)]
@@ -37,8 +38,19 @@ pub enum Command {
     /// Lists all entries in a YouTube playlist.
     #[command(visible_alias = "ls")]
     List(ListCmd),
-    /// Sets the key for the YouTube Data API.
-    Key(KeyCmd),
+    /// Command group for managing the Google Cloud Console API key.
+    Key {
+        #[command(subcommand)]
+        command: KeySubcmd,
+    },
     /// Shows the path of the configuration file.
     Path(PathCmd),
+}
+
+#[derive(Subcommand, Debug)]
+pub enum KeySubcmd {
+    /// Shows the API key that is in use, if any.
+    Show(KeyShowCmd),
+    /// Sets the current API key.
+    Set(KeySetCmd),
 }

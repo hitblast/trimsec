@@ -2,6 +2,14 @@
 
 Active since v2.0.0.
 
+### v2.5.2
+
+New features:
+
+- Divided the previous `ts key` command into a command "group":
+  - `ts key set` now sets the API key.
+  - `ts key show` _shows_ the existing API key (if any, otherwise shows "not set").
+
 ### v2.5.1
 
 New features:

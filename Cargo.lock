@@ -2071,7 +2071,7 @@ dependencies = [
 
 [[package]]
 name = "trimsec"
-version = "2.5.1"
+version = "2.5.2"
 dependencies = [
  "anyhow",
  "arboard",
