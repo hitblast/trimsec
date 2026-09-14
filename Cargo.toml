@@ -19,13 +19,13 @@ clap = { version = "4", features = ["derive"] }
 clap_complete = "4.6.7"
 anyhow = "1.0.103"
 chrono = "0.4.45"
-reqwest = { version = "0.13.4", features = ["blocking", "json", "native-tls"] }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.150"
 arboard = "3.6.1"
 dirs = "6.0.0"
 supports-color = "3.0.2"
 toml = "1.1.3"
+ureq = { version = "3.4.2", features = ["json"] }
+url = "2.5.8"
 
 [workspace]
 members = [".", "xtask"]

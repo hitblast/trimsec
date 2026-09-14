@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use reqwest::blocking::Client;
+use ureq::Agent;
 
 use crate::{
     core::{
@@ -14,7 +14,7 @@ use crate::{
 const API_BASE: &str = "https://www.googleapis.com/youtube/v3";
 
 pub struct ApiClientManager<'a> {
-    client: Client,
+    client: Agent,
     key: &'a str,
 }
 
@@ -22,7 +22,7 @@ impl<'a> ApiClientManager<'a> {
     #[must_use]
     pub fn new(key: &'a str) -> Self {
         Self {
-            client: Client::new(),
+            client: Agent::new_with_defaults(),
             key,
         }
     }
@@ -50,9 +50,10 @@ impl<'a> ApiClientManager<'a> {
                 let response: YTPlaylistList = self
                     .client
                     .get(url)
-                    .send()
-                    .map_err(|_| TYoutubeError::Reqwest)?
-                    .json()
+                    .call()
+                    .map_err(|e| TYoutubeError::UreqError(e))?
+                    .body_mut()
+                    .read_json()
                     .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
                 let traversible_items = if let Some(ic) = response.items.first() {
@@ -92,9 +93,10 @@ impl<'a> ApiClientManager<'a> {
                     let response: YTPlaylistItems = self
                         .client
                         .get(url)
-                        .send()
-                        .map_err(|_| TYoutubeError::Reqwest)?
-                        .json()
+                        .call()
+                        .map_err(|e| TYoutubeError::UreqError(e))?
+                        .body_mut()
+                        .read_json()
                         .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
                     if let Some(t) = &response.next_page_token
@@ -141,9 +143,10 @@ impl<'a> ApiClientManager<'a> {
             let mut response: YTVideos = self
                 .client
                 .get(url)
-                .send()
-                .map_err(|_| TYoutubeError::Reqwest)?
-                .json()
+                .call()
+                .map_err(|e| TYoutubeError::UreqError(e))?
+                .body_mut()
+                .read_json()
                 .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
 
             vector.append(&mut response.items);

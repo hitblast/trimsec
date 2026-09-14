@@ -1,5 +1,5 @@
 use anyhow::{Result as YoutilsResult, bail};
-use reqwest::Url;
+use url::Url;
 
 use crate::core::config::Config;
 

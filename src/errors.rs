@@ -51,7 +51,7 @@ impl Display for TTimeError {
 
 #[derive(Debug)]
 pub enum TYoutubeError {
-    Reqwest,
+    UreqError(ureq::Error),
     ResponseBodyParseFailure,
     ItemNotFound,
     InvalidPlaylist(String),
@@ -61,11 +61,8 @@ pub enum TYoutubeError {
 impl Display for TYoutubeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TYoutubeError::Reqwest => {
-                write!(
-                    f,
-                    "error performing request (check YouTube API key and internet connection)."
-                )
+            TYoutubeError::UreqError(e) => {
+                write!(f, "error performing request: {e}.")
             }
             TYoutubeError::ItemNotFound => {
                 write!(f, "given YouTube video item was not found in API response.")
