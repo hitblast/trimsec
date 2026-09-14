@@ -9,6 +9,8 @@ New features:
 - Divided the previous `ts key` command into a command "group":
   - `ts key set` now sets the API key.
   - `ts key show` _shows_ the existing API key (if any, otherwise shows "not set").
+- Used the `ureq` and `url` crates respectively for HTTP requests and URL parsing, and removed `reqwest` from the dependency tree.
+- Also removed `serde_json` from the dependency tree as no longer needed (`ureq` has built-in JSON parsing via the `json` feature).
 
 ### v2.5.1
 
