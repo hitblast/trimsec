@@ -24,10 +24,7 @@ impl Runnable for KeySetCmd {
             println!("Testing key... (use --no-check to skip)");
             let client = ApiClientManager::new(&self.api_key);
 
-            let id = YoutubeId {
-                id: "dQw4w9WgXcQ".to_string(),
-                is_playlist: false,
-            };
+            let id = YoutubeId::new("dQw4w9WgXcQ".to_string(), false);
             if let Err(_) = client.fetch_duration_from_id(&id, 1) {
                 bail!("{}Invalid API key passed!{}", style.red(), style.reset())
             }

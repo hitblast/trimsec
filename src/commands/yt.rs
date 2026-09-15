@@ -38,15 +38,15 @@ impl Runnable for YtCmd {
 
         if let Some(id) = id {
             match manager.fetch_duration_from_id(&id, self.max_items) {
-                Ok((duration, item_count)) => {
+                Ok(dur) => {
                     let cmd = TrimCmd {
-                        duration: parse_time(duration),
+                        duration: parse_time(dur.seconds()),
                         multiplier: self.multiplier,
                     };
 
                     cmd.run(flags, style)?;
-                    if id.is_playlist {
-                        println!("Trimmed for {item_count} item(s).")
+                    if id.is_playlist() {
+                        println!("Trimmed for {} item(s).", dur.splits())
                     }
                 }
                 Err(e) => bail!("Failed to fetch details from URL: {e}"),

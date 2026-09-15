@@ -5,7 +5,7 @@ use ureq::Agent;
 use crate::{
     core::{
         api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
-        time::parse_duration,
+        time::{TDuration, parse_duration},
         youtils::YoutubeId,
     },
     errors::TYoutubeError,
@@ -41,10 +41,11 @@ impl<'a> ApiClientManager<'a> {
             let mut ids = Vec::new();
             let mut seen_tokens: HashSet<String> = HashSet::new();
 
-            if id.is_playlist {
+            if id.is_playlist() {
                 let url = format!(
                     "{API_BASE}/playlists?part=contentDetails&id={}&key={}&maxResults=1",
-                    &id.id, self.key
+                    &id.id(),
+                    self.key
                 );
 
                 let response: YTPlaylistList = self
@@ -72,7 +73,7 @@ impl<'a> ApiClientManager<'a> {
                         max_traversible
                     }
                 } else {
-                    return Err(TYoutubeError::InvalidPlaylist(id.id.clone()));
+                    return Err(TYoutubeError::InvalidPlaylist(id.id().to_string()));
                 };
 
                 for start in (0..traversible_items).step_by(50) {
@@ -80,7 +81,7 @@ impl<'a> ApiClientManager<'a> {
 
                     let url = format!(
                         "{API_BASE}/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
-                        &id.id,
+                        &id.id(),
                         self.key,
                         max_results,
                         if let Some(ref tok) = next_tok {
@@ -120,7 +121,7 @@ impl<'a> ApiClientManager<'a> {
                     }
                 }
             } else {
-                ids.push(id.id.clone());
+                ids.push(id.id().to_string());
             }
 
             ids
@@ -160,26 +161,26 @@ impl<'a> ApiClientManager<'a> {
         &self,
         id: &YoutubeId,
         max_items: usize,
-    ) -> Result<(f64, usize), TYoutubeError> {
+    ) -> Result<TDuration, TYoutubeError> {
         let total_ids = self.expand_id(id, max_items)?;
         let fetched_items = self.fetch_video_items(&total_ids)?;
 
-        let total_duration: f64 = fetched_items
-            .iter()
+        let total_duration: TDuration = fetched_items
+            .into_iter()
             .map(|f| {
-                let (dur, _) = parse_duration(
+                let dur = parse_duration(
                     f.content_details
                         .duration
                         .to_lowercase()
                         .trim_start_matches("pt"),
                 )
-                .unwrap_or((0.0, 0));
+                .unwrap_or_default();
                 dur
             })
-            .collect::<Vec<f64>>()
-            .iter()
+            .collect::<Vec<TDuration>>()
+            .into_iter()
             .sum();
 
-        Ok((total_duration, total_ids.len()))
+        Ok(total_duration)
     }
 }

@@ -38,8 +38,21 @@ pub fn get_youtube_api_key() -> YoutilsResult<String> {
 
 #[derive(Debug, PartialEq)]
 pub struct YoutubeId {
-    pub id: String,
-    pub is_playlist: bool,
+    id: String,
+    is_playlist: bool,
+}
+
+impl YoutubeId {
+    pub fn new(id: String, is_playlist: bool) -> Self {
+        Self { id, is_playlist }
+    }
+
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+    pub fn is_playlist(&self) -> bool {
+        self.is_playlist
+    }
 }
 
 #[must_use]

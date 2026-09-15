@@ -1,34 +1,17 @@
+use std::{iter::Sum, ops::Sub};
+
 use chrono::{Datelike, TimeZone};
 
 use crate::errors::TTimeError;
 
-pub struct TimeConfig {
-    pub duration: f64,
-    pub multiplier: f64,
-    pub splits: i64,
-}
+pub fn trim(duration: &str, multiplier: &str) -> Result<(f64, f64, u64), TTimeError> {
+    let dur = parse_duration(duration)?;
+    let multiplier_value = parse_multiplier(multiplier)?;
 
-impl TimeConfig {
-    pub fn new(duration: &str, multiplier_user: &str) -> Result<TimeConfig, TTimeError> {
-        let duration_tuple = parse_duration(duration)?;
-        let multiplier_value = parse_multiplier(multiplier_user)?;
+    let new_duration = dur.seconds() / multiplier_value;
+    let saved_time = dur.seconds() - new_duration;
 
-        Ok(TimeConfig {
-            duration: duration_tuple.0,
-            multiplier: multiplier_value,
-            splits: duration_tuple.1,
-        })
-    }
-
-    pub fn trim(&self) -> Result<(f64, f64, i64), TTimeError> {
-        let old_duration = self.duration;
-        let multiplier = self.multiplier;
-
-        let new_duration = old_duration / multiplier;
-        let saved_time = old_duration - new_duration;
-
-        Ok((new_duration, saved_time, self.splits))
-    }
+    Ok((new_duration, saved_time, dur.splits()))
 }
 
 fn parse_multiplier(multiplier_user: &str) -> Result<f64, TTimeError> {
@@ -77,8 +60,63 @@ pub fn parse_time(time: f64) -> String {
     time_string
 }
 
-pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
-    let mut total_seconds = 0f64;
+#[derive(PartialEq, Debug, PartialOrd, Default)]
+pub struct TDuration {
+    seconds: f64,
+    splits: u64,
+}
+
+impl TDuration {
+    pub fn seconds(&self) -> f64 {
+        self.seconds
+    }
+    pub fn splits(&self) -> u64 {
+        self.splits
+    }
+}
+
+impl Sub for &TDuration {
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.seconds - rhs.seconds
+    }
+
+    type Output = f64;
+}
+
+impl From<(f64, u64)> for TDuration {
+    fn from(value: (f64, u64)) -> Self {
+        TDuration {
+            seconds: value.0,
+            splits: value.1,
+        }
+    }
+}
+
+impl Sum for TDuration {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(
+            TDuration {
+                seconds: 0.0,
+                splits: 0,
+            },
+            |x, y| TDuration {
+                seconds: x.seconds + y.seconds,
+                splits: x.splits + y.splits,
+            },
+        )
+    }
+}
+
+impl Eq for TDuration {}
+
+impl Ord for TDuration {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.seconds.total_cmp(&other.seconds)
+    }
+}
+
+pub fn parse_duration(duration: &str) -> Result<TDuration, TTimeError> {
+    let mut seconds = 0f64;
     let mut splits = 0;
 
     for part in duration.split('+') {
@@ -109,11 +147,11 @@ pub fn parse_duration(duration: &str) -> Result<(f64, i64), TTimeError> {
             return Err(TTimeError::InvalidDurationFormat);
         }
 
-        total_seconds += part_seconds;
+        seconds += part_seconds;
         splits += 1;
     }
 
-    Ok((total_seconds, splits))
+    Ok(TDuration { seconds, splits })
 }
 
 #[must_use]
@@ -138,14 +176,14 @@ mod tests {
 
     #[test]
     fn test_parse_duration() {
-        assert_eq!(parse_duration("1s").unwrap(), (1.0, 1));
-        assert_eq!(parse_duration("1m").unwrap(), (60.0, 1));
-        assert_eq!(parse_duration("1h").unwrap(), (3600.0, 1));
-        assert_eq!(parse_duration("1d").unwrap(), (86400.0, 1));
-        assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061.0, 1));
-        assert_eq!(parse_duration("1h+1m+1s").unwrap(), (3661.0, 3));
-        assert_eq!(parse_duration("1.5h").unwrap(), (5400.0, 1));
-        assert_eq!(parse_duration("1.5h+30m").unwrap(), (7200.0, 2));
+        assert_eq!(parse_duration("1s").unwrap(), (1.0, 1).into());
+        assert_eq!(parse_duration("1m").unwrap(), (60.0, 1).into());
+        assert_eq!(parse_duration("1h").unwrap(), (3600.0, 1).into());
+        assert_eq!(parse_duration("1d").unwrap(), (86400.0, 1).into());
+        assert_eq!(parse_duration("1d1h1m1s").unwrap(), (90061.0, 1).into());
+        assert_eq!(parse_duration("1h+1m+1s").unwrap(), (3661.0, 3).into());
+        assert_eq!(parse_duration("1.5h").unwrap(), (5400.0, 1).into());
+        assert_eq!(parse_duration("1.5h+30m").unwrap(), (7200.0, 2).into());
         assert!(parse_duration("1x").is_err());
         assert!(parse_duration("1").is_err());
     }
@@ -160,30 +198,16 @@ mod tests {
     }
 
     #[test]
-    fn test_config_new() {
-        assert!(TimeConfig::new("1s", "2x").is_ok());
-        assert!(TimeConfig::new("1m", "1.5x").is_ok());
-        assert!(TimeConfig::new("1h", "1.25x").is_ok());
-        assert!(TimeConfig::new("1d", "2x").is_ok());
-        assert!(TimeConfig::new("1d1h1m1s", "2x").is_ok());
-        assert!(TimeConfig::new("1.5h", "2x").is_ok());
-        assert!(TimeConfig::new("1.5h+30m", "2x").is_ok());
-        assert!(TimeConfig::new("1x", "2x").is_err());
-        assert!(TimeConfig::new("1", "2x").is_err());
+    fn test_parse_multiplier() {
+        assert_eq!(parse_multiplier("1x").unwrap(), 1.0);
+        assert_eq!(parse_multiplier("2.5x").unwrap(), 2.5);
+        assert_eq!(parse_multiplier("2.5").unwrap(), 2.5);
+        assert!(parse_multiplier("2.5d").is_err());
     }
 
     #[test]
     fn test_trim() {
-        let config = TimeConfig::new("1d", "2x").unwrap();
-        assert_eq!(config.trim().unwrap(), (43200.0, 43200.0, 1));
-    }
-
-    #[test]
-    fn test_run() {
-        let config = TimeConfig::new("1d", "2x").unwrap();
-        let result = config.trim().unwrap();
-        assert_eq!(parse_time(result.0), "12h");
-        assert_eq!(parse_time(result.1), "12h");
-        assert_eq!(result.2, 1);
+        let trimmed = trim("1d", "2x").unwrap();
+        assert_eq!(trimmed, (43200.0, 43200.0, 1));
     }
 }

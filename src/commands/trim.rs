@@ -1,7 +1,7 @@
 use crate::{
     cli::flags::Flags,
     commands::Runnable,
-    core::{style::Style, time::TimeConfig},
+    core::{style::Style, time::trim},
 };
 use anyhow::Result;
 use clap::Args;
@@ -18,11 +18,8 @@ pub struct TrimCmd {
 
 impl Runnable for TrimCmd {
     fn run(self, _: &Flags, style: &Style) -> Result<()> {
-        let cfg = TimeConfig::new(&self.duration, &self.multiplier)
-            .map_err(|e| anyhow::anyhow!("Time configuration error: {e}"))?;
-
-        let (new_duration, time_saved, splits) =
-            cfg.trim().map_err(|e| anyhow::anyhow!("Trim error: {e}"))?;
+        let (new_duration, time_saved, splits) = trim(&self.duration, &self.multiplier)
+            .map_err(|e| anyhow::anyhow!("Trim error: {e}"))?;
 
         if time_saved <= 0.0 {
             println!("No time saved. Would finish in linear time.");

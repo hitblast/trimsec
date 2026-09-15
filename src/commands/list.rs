@@ -30,7 +30,7 @@ impl Runnable for ListCmd {
         let manager = ApiClientManager::new(&key);
         let id = match get_youtube_id(&link) {
             Some(id) => {
-                if !id.is_playlist {
+                if !id.is_playlist() {
                     bail!("Not a valid YouTube playlist ID!")
                 }
                 id

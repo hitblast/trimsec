@@ -35,7 +35,7 @@ Steps:
 - Run the following command. Make sure to replace `<YOUR_API_KEY>` with your actual API key:
 
   ```bash
-  ts key <YOUR_API_KEY>
+  ts key set <YOUR_API_KEY>
   ```
 
   - Opt 1: Create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
