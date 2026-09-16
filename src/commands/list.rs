@@ -4,7 +4,6 @@ use crate::{
     core::{
         api::ApiClientManager,
         style::Style,
-        utils::choose_or_grab_link,
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -14,21 +13,19 @@ use clap::Args;
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
     /// The link to the YouTube playlist.
-    #[arg(required_unless_present = "clip")]
-    link: Option<String>,
+    link: String,
 
     /// The maximum amount of items to list from the given playlist.
-    #[arg(visible_alias = "max", long, default_value = "0")]
+    #[arg(short, long, visible_alias = "max", long, default_value = "0")]
     max_items: usize,
 }
 
 impl Runnable for ListCmd {
-    fn run(self, flags: &Flags, _: &Style) -> Result<()> {
-        let link = choose_or_grab_link(self.link, flags.clip)?;
+    fn run(self, _: &Flags, _: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
 
         let manager = ApiClientManager::new(&key);
-        let id = match get_youtube_id(&link) {
+        let id = match get_youtube_id(&self.link) {
             Some(id) => {
                 if !id.is_playlist() {
                     bail!("Not a valid YouTube playlist ID!")

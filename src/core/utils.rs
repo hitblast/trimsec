@@ -1,26 +1,6 @@
 use std::path::PathBuf;
 
 use anyhow::{Result, bail};
-use arboard::Clipboard;
-
-pub fn choose_or_grab_link(link: Option<String>, clip: bool) -> Result<String> {
-    let link = if let Some(l) = link {
-        l
-    } else if clip {
-        let mut c = Clipboard::new()?;
-        let l = c.get_text().ok();
-
-        if let Some(l) = l {
-            l
-        } else {
-            bail!("No content found in clipboard.")
-        }
-    } else {
-        bail!("Link to YouTube object (video/playlist) is required. Aborting.")
-    };
-
-    Ok(link)
-}
 
 pub fn get_config_path() -> Result<PathBuf> {
     let home = dirs::home_dir();

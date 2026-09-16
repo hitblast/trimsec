@@ -6,6 +6,9 @@ Active since v2.0.0.
 
 Changes:
 
+- Removed clipboard functionality. Users can just paste it.
+- Removed the global `--clip` flag.
+- Prioritized using positional arguments instead of keyword arguments for all commands.
 - Changed the internal output type for a lot of functions from `(f64, i64)` to a new `TDuration` type, which holds `seconds()` as an f64 value and `splits()` as an `u64`.
 
 ### v2.5.2

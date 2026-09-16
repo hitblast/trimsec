@@ -7,7 +7,6 @@ use crate::{
         api::ApiClientManager,
         style::Style,
         time::parse_time,
-        utils::choose_or_grab_link,
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -16,11 +15,9 @@ use anyhow::{Result, bail};
 #[derive(Debug, Default, Args)]
 pub struct YtCmd {
     /// The URL, or link, for the YouTube video.
-    #[arg(required_unless_present = "clip")]
-    link: Option<String>,
+    link: String,
 
     /// The multiplier (e.g. 1.25x, 1.25).
-    #[arg(short, long)]
     multiplier: String,
 
     /// Max amount of items to traverse in a playlist (if one is passed). Defaults to the total length of the playlist.
@@ -31,10 +28,9 @@ pub struct YtCmd {
 impl Runnable for YtCmd {
     fn run(self, flags: &Flags, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, flags.clip)?;
 
         let manager = ApiClientManager::new(&key);
-        let id = get_youtube_id(&link);
+        let id = get_youtube_id(&self.link);
 
         if let Some(id) = id {
             match manager.fetch_duration_from_id(&id, self.max_items) {

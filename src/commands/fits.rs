@@ -5,7 +5,6 @@ use crate::{
         api::ApiClientManager,
         style::Style,
         time::{parse_duration, parse_time, time_in_day_after},
-        utils::choose_or_grab_link,
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -15,11 +14,9 @@ use clap::Args;
 #[derive(Debug, Default, Args)]
 pub struct FitsCmd {
     /// The URL, or link, for the YouTube video.
-    #[arg(required_unless_present = "clip")]
-    link: Option<String>,
+    link: String,
 
     /// The budget duration string. By default uses the remaining time for the day.
-    #[arg(short, long)]
     budget: Option<String>,
 
     /// Max amount of items to traverse in a playlist.
@@ -28,11 +25,10 @@ pub struct FitsCmd {
 }
 
 impl Runnable for FitsCmd {
-    fn run(self, flags: &Flags, style: &Style) -> Result<()> {
+    fn run(self, _: &Flags, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let link = choose_or_grab_link(self.link, flags.clip)?;
         let manager = ApiClientManager::new(&key);
-        let id = get_youtube_id(&link);
+        let id = get_youtube_id(&self.link);
 
         let Some(id) = id else {
             bail!(
