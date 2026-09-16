@@ -24,33 +24,9 @@ It is oriented towards terminal-headed academic nerds (pun intended) who can't s
 
 ## Usage
 
-### _**(Optional)** Enabling YouTube Capabilities_
-
-> [!NOTE]
-> This section is only needed if you're going to be passing in YouTube playlists/videos as arguments.
-
-Steps:
-
-- **Get your API key for the YouTube Data API (v3) from the [Google Cloud Console](https://console.cloud.google.com/)**.
-- Run the following command. Make sure to replace `<YOUR_API_KEY>` with your actual API key:
-
-  ```bash
-  ts key set <YOUR_API_KEY>
-  ```
-
-  - Opt 1: Create a new `.trimsecrc` file at your `$HOME` (on Windows: `C:\Users\<USERNAME>`) directory with this structure:
-
-    ```toml
-    api_key = "YOUR_API_KEY_HERE"
-    ```
-
-    You may easily get the running location of the path using: `ts path`
-
-  - Opt 2: Set it using the `TRIMSEC_YOUTUBE_KEY` environment variable. A good choice is to use [direnv](https://github.com/direnv/direnv) and create a `.envrc` file in your `$HOME`, then run `direnv allow` in your home directory from the terminal to set it as an isolated environment variable, although beware that the variable won't be available in any other directories.
-
 ### 1. Basic Trimming
 
-#### For eyeballed durations:
+#### For string-durations:
 
 To calculate saved time, you run the `trim` command as follows:
 
@@ -72,6 +48,13 @@ ts trim 1h30m+2h50m 1.25x
 ```
 
 #### For YouTube videos/playlists:
+
+> [!NOTE]
+> You must set your [Google Cloud Console](https://console.cloud.google.com/) API key first for the **YouTube Data API (v3)**:
+>
+> ```bash
+> ts key set <API_KEY_HERE>
+> ```
 
 In place of the duration from before, now you just paste the YouTube video URL:
 
@@ -108,10 +91,7 @@ ts fit "https://youtube.com/playlist?..." --max-items 5
 
 ### Utility Commands
 
-> [!NOTE]
-> More such commands will be added with the following releases, as these are proportional to ideas coming in.
-
-- For listing the contents in a YouTube playlist:
+- 1. For listing the contents in a YouTube playlist:
 
 ```bash
 ts list <PLAYLIST_URL>

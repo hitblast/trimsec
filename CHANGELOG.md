@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v2.7.2
+
+Changes:
+
+- The `trim` command now skips processing altogether if the `multiplier` that's passed in turns out to be `1.0`.
+- Made some parity changes towards all the `max_items` arguments across all commands.
+
 ### v2.7.1
 
 Bug fixes:
