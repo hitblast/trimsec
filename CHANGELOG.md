@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v2.7.1
+
+Bug fixes:
+
+- Fixed a bug which led to the trimming logic falling apart internally while executing the `TrimCmd::yt_fallback` function if the `trim` command was executed with `--max-items`, as `TrimCmd::run` used to stop if the passed content was a duration and _also_ had a nonzero `max_items` at the same time.
+
 ### v2.7.0
 
 New additions:

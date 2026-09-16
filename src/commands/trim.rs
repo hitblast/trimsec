@@ -34,6 +34,7 @@ impl TrimCmd {
             match manager.fetch_duration_from_id(&id, self.max_items) {
                 Ok(dur) => {
                     self.content = dur.to_string();
+                    self.max_items = 0;
                     self.run(style)?;
 
                     if id.is_playlist() {
