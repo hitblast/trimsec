@@ -2,9 +2,6 @@
 
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
-> [!NOTE]
-> Want a very simple, basic version of it? Try [trimsec.c](https://gist.github.com/hitblast/3898c05bc13385507a0c37db3b19608e).
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -90,7 +87,7 @@ ts fit "https://youtube.com/playlist?..." --max-items 5
 
 ### Utility Commands
 
-- 1. For listing the contents in a YouTube playlist:
+- For listing the contents in a YouTube playlist:
 
 ```bash
 ts list <PLAYLIST_URL>
@@ -98,7 +95,7 @@ ts list <PLAYLIST_URL>
 
 ## Installation
 
-### Homebrew
+- Using [Homebrew](https://brew.sh):
 
 ```bash
 brew tap hitblast/tap
@@ -106,19 +103,19 @@ brew tap hitblast/tap
 brew install trimsec
 ```
 
-### cargo
+- Using `cargo`:
 
 ```bash
 cargo install trimsec
 ```
 
-### mise
+- Using [mise](https://github.com/jdx/mise):
 
 ```bash
 mise use -g cargo:trimsec
 ```
 
-### Prebuilt Binaries
+- Or,
 
 Get platform-based binaries here: https://github.com/hitblast/trimsec/releases
 
