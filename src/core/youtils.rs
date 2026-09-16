@@ -22,7 +22,7 @@ pub fn get_youtube_api_key() -> YoutilsResult<String> {
                 },
                 Err(e) => {
                     match e {
-                        crate::errors::TConfigError::ParseFailed(p) => {
+                        crate::errors::TConfigError::DeserializingFailed(p) => {
                             bail!("Failed to parse .trimsecrc file at path: {p:?}")
                         }
                         _ => {}

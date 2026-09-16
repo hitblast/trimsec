@@ -17,7 +17,13 @@ pub struct KeySetCmd {
 
 impl Runnable for KeySetCmd {
     fn run(self, style: &Style) -> Result<()> {
-        let mut config = Config::load().map_err(|e| anyhow::anyhow!(e.to_string()))?;
+        let mut config =
+            Config::load().map_err(|e| anyhow::anyhow!("config error: {}", e.to_string()))?;
+
+        if config.api_key().is_some_and(|f| f == self.api_key) {
+            println!("Key is already installed.");
+            return Ok(());
+        }
 
         if !self.no_check {
             println!("Testing key... (use --no-check to skip)");

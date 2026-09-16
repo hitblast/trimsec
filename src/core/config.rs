@@ -17,22 +17,28 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Result<Self, TConfigError> {
-        match get_config_path() {
-            Ok(p) => {
-                let data = fs::read_to_string(&p);
+        let Ok(p) = get_config_path() else {
+            return Err(TConfigError::UnavailableConfigPath);
+        };
 
-                match data {
-                    Ok(data) => match toml::from_str::<Self>(&data) {
-                        Ok(mut cfg) => {
-                            cfg.path = p;
-                            Ok(cfg)
-                        }
-                        Err(_) => Err(TConfigError::ParseFailed(p)),
-                    },
-                    Err(e) => return Err(TConfigError::PathReadFailure(e.to_string())),
+        if !p.try_exists().unwrap_or(false) {
+            let parent = p.parent().ok_or(TConfigError::InvalidParentPath)?;
+            fs::create_dir_all(parent)
+                .map_err(|e| TConfigError::DirectoryCreationFailure(e.to_string()))?;
+            fs::write(&p, "").map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
+        }
+
+        let data = fs::read_to_string(&p);
+
+        match data {
+            Ok(data) => match toml::from_str::<Self>(&data) {
+                Ok(mut cfg) => {
+                    cfg.path = p;
+                    Ok(cfg)
                 }
-            }
-            Err(e) => return Err(TConfigError::NonexistentPath(e.to_string())),
+                Err(_) => Err(TConfigError::DeserializingFailed(p)),
+            },
+            Err(e) => Err(TConfigError::ConfigReadFailure(e.to_string())),
         }
     }
 

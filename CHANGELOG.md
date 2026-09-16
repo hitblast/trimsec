@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v2.6.0
 
+Bug fixes:
+
+- Fixed a bug in `key set` and the general config-loading sequence to always ensure a fresh config file (create a new one if the file did not exist already).
+
 New additions:
 
 - Changed command `fits` to `fit`.

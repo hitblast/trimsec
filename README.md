@@ -55,20 +55,20 @@ Steps:
 To calculate saved time, you run the `trim` command as follows:
 
 ```bash
-ts trim 1h -m 2x
+ts trim 1h 2x
 ```
 
 This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
 
 ```bash
-ts trim 1h30m -m 1.5x
-ts trim 1.5h30m -m 1.5x  # equivalent to 2 hours
+ts trim 1h30m 1.5x
+ts trim 1.5h30m 1.5x  # equivalent to 2 hours
 ```
 
 Combine multiple durations like this:
 
 ```bash
-ts trim 1h30m+2h50m -m 1.25x
+ts trim 1h30m+2h50m 1.25x
 ```
 
 #### For YouTube videos/playlists:
@@ -76,25 +76,17 @@ ts trim 1h30m+2h50m -m 1.25x
 Instead of using the `trim` command, you'll be using the `yt` (or `y`) command:
 
 ```bash
-ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU -m 1.25x
+ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
 ```
 
 You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
 
 ```bash
-ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" -m 1.8x
+ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
 ```
 
-As you can see, the link strings are getting quite _big_. To solve this, you can instead, grab the link from the clipboard:
-
 ```bash
-ts yt -m 1.8x --clip
-```
-
-For traversing only a _certain amount_ of items in a playlist (starting from the 1st item), use this:
-
-```bash
-ts yt --max-items 7 "https://youtube.com/..." -m 1.8x
+ts yt <LINK> --max-items 7 1.8x
 ```
 
 ### Fit-Checking
