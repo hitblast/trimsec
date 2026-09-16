@@ -119,6 +119,7 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_id_splitter() {

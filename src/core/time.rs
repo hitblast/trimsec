@@ -214,6 +214,7 @@ pub fn time_in_day_after(duration: f64) -> f64 {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_parse_duration() {
