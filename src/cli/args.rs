@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::commands::{
     fit::FitCmd, key_set::KeySetCmd, key_show::KeyShowCmd, list::ListCmd, path::PathCmd,
-    trim::TrimCmd, yt::YtCmd,
+    trim::TrimCmd,
 };
 
 #[derive(Parser)]
@@ -25,11 +25,9 @@ pub enum ColorMode {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Calculate basic duration with multipliers.
+    /// Calculate content length with multipliers.
     #[command(visible_alias = "cut")]
     Trim(TrimCmd),
-    /// Calculate for YouTube videos.
-    Yt(YtCmd),
     /// Check whether content(s) fit in the day or a given budget of time.
     Fit(FitCmd),
     /// Lists all entries in a YouTube playlist.
