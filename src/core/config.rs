@@ -23,8 +23,12 @@ impl Config {
 
         if !p.try_exists().unwrap_or(false) {
             let parent = p.parent().ok_or(TConfigError::InvalidParentPath)?;
-            fs::create_dir_all(parent)
-                .map_err(|e| TConfigError::DirectoryCreationFailure(e.to_string()))?;
+
+            if !parent.try_exists().unwrap_or(false) {
+                fs::create_dir_all(parent)
+                    .map_err(|e| TConfigError::DirectoryCreationFailure(e.to_string()))?;
+            }
+
             fs::write(&p, "").map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
         }
 
