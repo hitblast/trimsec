@@ -120,7 +120,8 @@ ts list <PLAYLIST_URL>
 ### Homebrew
 
 ```bash
-brew tap hitblast/tap && brew trust hitblast/tap
+brew tap hitblast/tap
+# Optional (if Homebrew does not trust the tap): brew trust hitblast/tap
 brew install trimsec
 ```
 
