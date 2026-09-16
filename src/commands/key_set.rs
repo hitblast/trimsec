@@ -1,5 +1,4 @@
 use crate::{
-    cli::flags::Flags,
     commands::Runnable,
     core::{api::ApiClientManager, config::Config, style::Style, youtils::YoutubeId},
 };
@@ -17,7 +16,7 @@ pub struct KeySetCmd {
 }
 
 impl Runnable for KeySetCmd {
-    fn run(self, _flags: &Flags, style: &Style) -> Result<()> {
+    fn run(self, style: &Style) -> Result<()> {
         let mut config = Config::load().map_err(|e| anyhow::anyhow!(e.to_string()))?;
 
         if !self.no_check {

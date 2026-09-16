@@ -1,7 +1,6 @@
 use clap::Args;
 
 use crate::{
-    cli::flags::Flags,
     commands::{Runnable, trim::TrimCmd},
     core::{
         api::ApiClientManager,
@@ -26,7 +25,7 @@ pub struct YtCmd {
 }
 
 impl Runnable for YtCmd {
-    fn run(self, flags: &Flags, style: &Style) -> Result<()> {
+    fn run(self, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
 
         let manager = ApiClientManager::new(&key);
@@ -40,7 +39,7 @@ impl Runnable for YtCmd {
                         multiplier: self.multiplier,
                     };
 
-                    cmd.run(flags, style)?;
+                    cmd.run(style)?;
                     if id.is_playlist() {
                         println!("Trimmed for {} item(s).", dur.splits())
                     }

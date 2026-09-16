@@ -1,5 +1,4 @@
 use crate::{
-    cli::flags::Flags,
     commands::Runnable,
     core::{style::Style, time::trim},
 };
@@ -17,7 +16,7 @@ pub struct TrimCmd {
 }
 
 impl Runnable for TrimCmd {
-    fn run(self, _: &Flags, style: &Style) -> Result<()> {
+    fn run(self, style: &Style) -> Result<()> {
         let (new_duration, time_saved, splits) = trim(&self.duration, &self.multiplier)
             .map_err(|e| anyhow::anyhow!("Trim error: {e}"))?;
 

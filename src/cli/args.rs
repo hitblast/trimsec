@@ -8,10 +8,6 @@ use crate::commands::{
 #[derive(Parser)]
 #[command(name = "trimsec", version, about)]
 pub struct Args {
-    /// Use clipboard if applicable (e.g. for grabbing a link).
-    #[arg(short, long, global = true)]
-    pub clip: bool,
-
     // Selects the color mode.
     #[arg(long, value_enum, default_value_t = ColorMode::Auto, global = true)]
     pub color: ColorMode,

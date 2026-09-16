@@ -1,5 +1,4 @@
 use crate::{
-    cli::flags::Flags,
     commands::Runnable,
     core::{
         api::ApiClientManager,
@@ -21,7 +20,7 @@ pub struct ListCmd {
 }
 
 impl Runnable for ListCmd {
-    fn run(self, _: &Flags, _: &Style) -> Result<()> {
+    fn run(self, _: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
 
         let manager = ApiClientManager::new(&key);

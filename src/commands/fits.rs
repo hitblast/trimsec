@@ -1,5 +1,4 @@
 use crate::{
-    cli::flags::Flags,
     commands::Runnable,
     core::{
         api::ApiClientManager,
@@ -25,7 +24,7 @@ pub struct FitsCmd {
 }
 
 impl Runnable for FitsCmd {
-    fn run(self, _: &Flags, style: &Style) -> Result<()> {
+    fn run(self, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
         let manager = ApiClientManager::new(&key);
         let id = get_youtube_id(&self.link);
