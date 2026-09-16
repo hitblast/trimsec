@@ -86,7 +86,7 @@ ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMS
 ```
 
 ```bash
-ts yt <LINK> --max-items 7 1.8x
+ts yt <PLAYLIST_URL> --max-items 7 1.8x
 ```
 
 ### Fit-Checking
@@ -112,9 +112,7 @@ ts fit "https://youtube.com/playlist?..." --max-items 5
 - For listing the contents in a YouTube playlist:
 
 ```bash
-ts list "https://youtube.com/..."
-ts ls --clip            # shorter; grabs from clipboard
-ts ls --clip --max-items 5     # only traverses 5 items
+ts list <PLAYLIST_URL>
 ```
 
 ## Installation
