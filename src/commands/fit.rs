@@ -3,7 +3,7 @@ use crate::{
     core::{
         api::ApiClientManager,
         style::Style,
-        time::{parse_duration, parse_time, time_in_day_after},
+        time::{TDuration, ToStringTime, time_in_day_after},
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -41,7 +41,7 @@ impl Runnable for FitCmd {
 
         let message = {
             let status = if let Some(b) = &self.budget {
-                let limit_duration = parse_duration(b)
+                let limit_duration = TDuration::parse_str(b)
                     .map_err(|e| anyhow::anyhow!("Failed to parse budget duration: {e}"))?;
 
                 if limit_duration > vid_total_duration {
@@ -49,13 +49,13 @@ impl Runnable for FitCmd {
                         "{}Fits in budget!{}\n\nExtra time left: {}",
                         style.boldgreen(),
                         style.reset(),
-                        parse_time(&limit_duration - &vid_total_duration)
+                        &limit_duration - &vid_total_duration
                     )
                 } else if limit_duration < vid_total_duration {
                     format!(
                         "{}Time overrun by {}!{}",
                         style.boldred(),
-                        parse_time(&vid_total_duration - &limit_duration),
+                        &vid_total_duration - &limit_duration,
                         style.reset()
                     )
                 } else {
@@ -69,7 +69,7 @@ impl Runnable for FitCmd {
                         "{}Fits in day!{}\n\nTime left afterwards: {}",
                         style.boldgreen(),
                         style.reset(),
-                        parse_time(time_left)
+                        time_left.to_string_duration()
                     )
                 } else {
                     format!(

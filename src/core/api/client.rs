@@ -5,7 +5,7 @@ use ureq::Agent;
 use crate::{
     core::{
         api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
-        time::{TDuration, parse_duration},
+        time::TDuration,
         youtils::YoutubeId,
     },
     errors::TYoutubeError,
@@ -168,7 +168,7 @@ impl<'a> ApiClientManager<'a> {
         let total_duration: TDuration = fetched_items
             .into_iter()
             .map(|f| {
-                let dur = parse_duration(
+                let dur = TDuration::parse_str(
                     f.content_details
                         .duration
                         .to_lowercase()

@@ -5,7 +5,7 @@ use crate::{
     core::{
         api::ApiClientManager,
         style::Style,
-        time::parse_time,
+        time::ToStringTime,
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -35,7 +35,7 @@ impl Runnable for YtCmd {
             match manager.fetch_duration_from_id(&id, self.max_items) {
                 Ok(dur) => {
                     let cmd = TrimCmd {
-                        duration: parse_time(dur.seconds()),
+                        duration: dur.seconds().to_string_duration(),
                         multiplier: self.multiplier,
                     };
 

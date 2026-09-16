@@ -2,6 +2,14 @@
 
 Active since v2.0.0.
 
+### v2.7.0
+
+New additions:
+
+- Added a new `cut` alias for the `trim` command.
+- Both the `yt` and `trim` commands are now combined into one `trim` command.
+- The internal API has been improved drastically, with trait implementations for various default data types for conversation, as well as syntactical sugar for displaying durations, and more.
+
 ### v2.6.0
 
 Bug fixes:

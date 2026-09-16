@@ -1,8 +1,11 @@
 use crate::{
     commands::Runnable,
-    core::{style::Style, time::trim},
+    core::{
+        style::Style,
+        time::{TDuration, ToStringTime},
+    },
 };
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use clap::Args;
 
 #[derive(Debug, Default, Args)]
@@ -17,25 +20,28 @@ pub struct TrimCmd {
 
 impl Runnable for TrimCmd {
     fn run(self, style: &Style) -> Result<()> {
-        let (new_duration, time_saved, splits) = trim(&self.duration, &self.multiplier)
-            .map_err(|e| anyhow::anyhow!("Trim error: {e}"))?;
+        let mut duration: TDuration = TDuration::parse_str(&self.duration)
+            .map_err(|e| anyhow::anyhow!("parse error: {e}"))?;
 
-        if time_saved <= 0.0 {
+        duration
+            .trim(&self.multiplier)
+            .map_err(|e| anyhow!("trim error: {e}"))?;
+
+        if duration.saved_time() <= 0.0 {
             println!("No time saved. Would finish in linear time.");
             return Ok(());
         }
 
-        let parsed = crate::core::time::parse_time(new_duration);
-        let remaining = crate::core::time::time_in_day_after(new_duration);
-        let saved = crate::core::time::parse_time(time_saved);
+        let remaining = crate::core::time::time_in_day_after(duration.seconds());
+        let saved = duration.saved_time().to_string_duration();
 
         let message = [
             format!(
                 "\nFinishes in: {} ",
-                if splits > 1 {
-                    format!("{parsed} (all {splits} durations)")
+                if duration.splits() > 1 {
+                    format!("{duration} (all {} durations)", duration.splits())
                 } else {
-                    parsed
+                    duration.to_string()
                 }
             ),
             if remaining != 0.0 {
@@ -44,7 +50,7 @@ impl Runnable for TrimCmd {
                     if remaining == 0.0 {
                         "0s".to_string()
                     } else {
-                        crate::core::time::parse_time(remaining)
+                        remaining.to_string_duration()
                     }
                 )
             } else {

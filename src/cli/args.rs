@@ -26,6 +26,7 @@ pub enum ColorMode {
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// Calculate basic duration with multipliers.
+    #[command(visible_alias = "cut")]
     Trim(TrimCmd),
     /// Calculate for YouTube videos.
     Yt(YtCmd),
