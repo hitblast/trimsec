@@ -11,7 +11,7 @@ use anyhow::{Result, bail};
 use clap::Args;
 
 #[derive(Debug, Default, Args)]
-pub struct FitsCmd {
+pub struct FitCmd {
     /// The URL, or link, for the YouTube video.
     link: String,
 
@@ -23,7 +23,7 @@ pub struct FitsCmd {
     max_items: usize,
 }
 
-impl Runnable for FitsCmd {
+impl Runnable for FitCmd {
     fn run(self, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
         let manager = ApiClientManager::new(&key);

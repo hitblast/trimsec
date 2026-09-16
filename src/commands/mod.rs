@@ -4,7 +4,7 @@ use crate::{
 };
 use anyhow::Result;
 
-pub mod fits;
+pub mod fit;
 pub mod key_set;
 pub mod key_show;
 pub mod list;
@@ -17,7 +17,7 @@ impl Command {
         let style = Style::determine(color);
 
         match self {
-            Command::Fits(fits_cmd) => fits_cmd.run(&style),
+            Command::Fit(fits_cmd) => fits_cmd.run(&style),
             Command::Trim(trim_cmd) => trim_cmd.run(&style),
             Command::Yt(yt_cmd) => yt_cmd.run(&style),
             Command::List(list_cmd) => list_cmd.run(&style),

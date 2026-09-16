@@ -102,17 +102,14 @@ ts yt --max-items 7 "https://youtube.com/..." -m 1.8x
 You can check whether a particular YouTube content fits in a given budget of time like as follows:
 
 ```bash
-# link grabbed from clipboard; budget is today
-ts fits --clip
-
-# link pasted manually; budget is today
-ts fits "https://youtube.com/..."
+# budget is today
+ts fit "https://youtube.com/..."
 
 # shortened param names; budget is 2 hours and 4 minutes
-ts fits "https://youtube.com/..." -b 2h4m
+ts fit "https://youtube.com/..." -b 2h4m
 
 # youtube playlist + item cap
-ts fits "https://youtube.com/playlist?..." --max-items 5
+ts fit "https://youtube.com/playlist?..." --max-items 5
 ```
 
 ### Utility Commands

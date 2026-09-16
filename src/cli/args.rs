@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::commands::{
-    fits::FitsCmd, key_set::KeySetCmd, key_show::KeyShowCmd, list::ListCmd, path::PathCmd,
+    fit::FitCmd, key_set::KeySetCmd, key_show::KeyShowCmd, list::ListCmd, path::PathCmd,
     trim::TrimCmd, yt::YtCmd,
 };
 
@@ -30,7 +30,7 @@ pub enum Command {
     /// Calculate for YouTube videos.
     Yt(YtCmd),
     /// Check whether content(s) fit in the day or a given budget of time.
-    Fits(FitsCmd),
+    Fit(FitCmd),
     /// Lists all entries in a YouTube playlist.
     #[command(visible_alias = "ls")]
     List(ListCmd),

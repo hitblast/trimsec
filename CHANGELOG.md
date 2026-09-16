@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v2.6.0
 
+New additions:
+
+- Changed command `fits` to `fit`.
+
 Changes:
 
 - Removed clipboard functionality. Users can just paste it.
