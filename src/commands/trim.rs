@@ -3,7 +3,7 @@ use crate::{
     core::{
         api::ApiClientManager,
         style::Style,
-        time::{TDuration, ToStringTime},
+        time::{TDuration, ToStringTime, parse_multiplier},
         youtils::{get_youtube_api_key, get_youtube_id},
     },
 };
@@ -55,6 +55,14 @@ impl TrimCmd {
 
 impl Runnable for TrimCmd {
     fn run(self, style: &Style) -> Result<()> {
+        let multiplier = parse_multiplier(&self.multiplier)
+            .map_err(|e| anyhow!("multiplier parse failed: {e}"))?;
+
+        if multiplier == 1.0 {
+            println!("Would finish in linear time as used a multiplier of 1x.");
+            return Ok(());
+        }
+
         let parse_attempt = TDuration::parse_str(&self.content);
 
         if let Ok(mut dur) = parse_attempt {
@@ -62,13 +70,7 @@ impl Runnable for TrimCmd {
                 bail!("--max-items can only be passed with a YouTube playlist URL.")
             }
 
-            dur.trim(&self.multiplier)
-                .map_err(|e| anyhow!("trim error: {e}"))?;
-
-            if dur.saved_time() <= 0.0 {
-                println!("No time saved. Would finish in linear time.");
-                return Ok(());
-            }
+            dur.trim(multiplier);
 
             let remaining = crate::core::time::time_in_day_after(dur.seconds());
             let saved = dur.saved_time().to_string_duration();

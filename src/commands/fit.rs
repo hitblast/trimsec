@@ -19,7 +19,7 @@ pub struct FitCmd {
     budget: Option<String>,
 
     /// Max amount of items to traverse in a playlist.
-    #[arg(long, default_value = "0")]
+    #[arg(short, long, visible_alias = "max", default_value = "0")]
     max_items: usize,
 }
 
@@ -31,7 +31,7 @@ impl Runnable for FitCmd {
 
         let Some(id) = id else {
             bail!(
-                "Not a valid YouTube URL! Only videos/embeds/shorts URLs are supported in the `yt` command."
+                "Not a valid YouTube URL! Only videos/embeds/shorts URLs are supported in the `fit` command."
             )
         };
 

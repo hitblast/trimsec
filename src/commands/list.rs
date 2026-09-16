@@ -15,7 +15,7 @@ pub struct ListCmd {
     link: String,
 
     /// The maximum amount of items to list from the given playlist.
-    #[arg(short, long, visible_alias = "max", long, default_value = "0")]
+    #[arg(short, long, visible_alias = "max", default_value = "0")]
     max_items: usize,
 }
 

@@ -3,21 +3,21 @@ use std::{fmt::Display, iter::Sum, ops::Sub};
 
 use crate::errors::TTimeError;
 
-fn parse_multiplier(multiplier_user: &str) -> Result<f64, TTimeError> {
-    let multiplier = if let Some(stripped) = multiplier_user.strip_suffix('x') {
+pub fn parse_multiplier(multiplier: &str) -> Result<f64, TTimeError> {
+    let multiplier = if let Some(stripped) = multiplier.strip_suffix('x') {
         stripped
     } else {
-        multiplier_user
+        multiplier
     };
 
-    let multiplier_value: f64 = multiplier
+    let mult_value: f64 = multiplier
         .parse()
         .map_err(|_| TTimeError::InvalidMultiplierFormat)?;
 
-    if !(1.0..100.0).contains(&multiplier_value) {
+    if !(1.0..100.0).contains(&mult_value) {
         Err(TTimeError::MultiplierOutOfRange)
     } else {
-        Ok(multiplier_value)
+        Ok(mult_value)
     }
 }
 
@@ -39,14 +39,10 @@ impl TDuration {
         self.saved_time
     }
 
-    pub fn trim(&mut self, multiplier: &str) -> Result<(), TTimeError> {
-        let multiplier_value = parse_multiplier(multiplier)?;
-
+    pub fn trim(&mut self, multiplier: f64) {
         let old = self.seconds();
-        self.seconds = old / multiplier_value;
+        self.seconds = old / multiplier;
         self.saved_time += old - self.seconds();
-
-        Ok(())
     }
 
     pub fn parse_str(duration_str: &str) -> Result<Self, TTimeError> {
@@ -254,7 +250,7 @@ mod tests {
     #[test]
     fn test_trim() {
         let mut duration = TDuration::parse_str("1d").unwrap();
-        duration.trim("2x").unwrap();
+        duration.trim(2.0);
 
         assert_eq!(
             duration,
