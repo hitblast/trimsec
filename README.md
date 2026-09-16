@@ -9,7 +9,6 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Enabling YouTube Capabilities](#enabling-youtube-capabilities)
   - [Basic Trimming](#basic-trimming)
   - [Fit-Checking](#fit-checking)
   - [Utility Commands](#utility-commands)
