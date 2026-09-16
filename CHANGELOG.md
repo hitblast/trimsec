@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v2.7.3
 
+Changes:
+
+- Added `fits` as an alias for the `fit` (previously `fits`) command.
+
 Internal changes:
 
 - `crate::core::api::client`:

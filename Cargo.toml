@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Plan your content intake."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "2.7.3"
+version = "2.8.0"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
@@ -16,7 +16,6 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-clap_complete = "4.6.11"
 anyhow = "1.0.104"
 chrono = "0.4.45"
 serde = { version = "1.0.229", features = ["derive"] }
@@ -25,6 +24,9 @@ supports-color = "3.0.2"
 toml = "1.1.6"
 ureq = { version = "3.4.2", features = ["json"] }
 url = "2.5.8"
+
+[dev-dependencies]
+clap_complete = "4.6.11"
 
 [workspace]
 members = [".", "xtask"]
