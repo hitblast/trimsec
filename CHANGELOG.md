@@ -2,11 +2,12 @@
 
 Active since v2.0.0.
 
-### v2.7.3
+### v2.8.0
 
 Changes:
 
 - Added `fits` as an alias for the `fit` (previously `fits`) command.
+- Removed `clap_complete` from the regular dependency tree.
 
 Internal changes:
 
