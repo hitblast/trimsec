@@ -73,22 +73,22 @@ ts trim 1h30m+2h50m 1.25x
 
 #### For YouTube videos/playlists:
 
-Instead of using the `trim` command, you'll be using the `yt` (or `y`) command:
+In place of the duration from before, now you just paste the YouTube video URL:
 
 ```bash
-ts yt https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+ts trim https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
 ```
 
 You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
 
 ```bash
-ts yt "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
+ts trim "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
 ```
 
 For calculating based on the data of only a few items in the playlist, use:
 
 ```bash
-ts yt <PLAYLIST_URL> --max-items 7 1.8x
+ts trim <PLAYLIST_URL> --max-items 7 1.8x
 ```
 
 ### Fit-Checking
