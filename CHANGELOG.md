@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v2.6.0
+
+Changes:
+
+- Changed the internal output type for a lot of functions from `(f64, i64)` to a new `TDuration` type, which holds `seconds()` as an f64 value and `splits()` as an `u64`.
+
 ### v2.5.2
 
 New features:
