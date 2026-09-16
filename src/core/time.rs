@@ -21,20 +21,34 @@ pub fn parse_multiplier(multiplier: &str) -> Result<f64, TTimeError> {
     }
 }
 
-#[derive(PartialEq, Debug, PartialOrd, Default)]
+#[derive(PartialEq, Debug, Default)]
 pub struct TDuration {
     seconds: f64,
     saved_time: f64,
     splits: u64,
 }
 
+impl Ord for TDuration {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.seconds.total_cmp(&other.seconds)
+    }
+}
+impl PartialOrd for TDuration {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl TDuration {
+    #[must_use]
     pub fn seconds(&self) -> f64 {
         self.seconds
     }
+    #[must_use]
     pub fn splits(&self) -> u64 {
         self.splits
     }
+    #[must_use]
     pub fn saved_time(&self) -> f64 {
         self.saved_time
     }
@@ -180,12 +194,6 @@ impl Sum for TDuration {
 }
 
 impl Eq for TDuration {}
-
-impl Ord for TDuration {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.seconds.total_cmp(&other.seconds)
-    }
-}
 
 #[must_use]
 pub fn time_in_day_after(duration: f64) -> f64 {

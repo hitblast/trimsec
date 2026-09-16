@@ -1,7 +1,7 @@
 use crate::{
     commands::Runnable,
     core::{
-        api::ApiClientManager,
+        api::ApiClient,
         style::Style,
         time::{TDuration, ToStringTime, parse_multiplier},
         youtils::{get_youtube_api_key, get_youtube_id},
@@ -27,7 +27,7 @@ impl TrimCmd {
     fn yt_fallback(mut self, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
 
-        let manager = ApiClientManager::new(&key);
+        let manager = ApiClient::new(&key);
         let id = get_youtube_id(&self.content);
 
         if let Some(id) = id {

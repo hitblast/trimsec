@@ -1,3 +1,3 @@
 mod client;
-pub use client::ApiClientManager;
+pub use client::ApiClient;
 mod types;

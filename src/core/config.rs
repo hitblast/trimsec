@@ -60,10 +60,12 @@ impl Config {
         Ok(())
     }
 
+    #[must_use]
     pub fn api_key(&self) -> Option<&str> {
         self.api_key.as_deref()
     }
 
+    #[must_use]
     pub fn path(&self) -> &Path {
         self.path.as_ref()
     }

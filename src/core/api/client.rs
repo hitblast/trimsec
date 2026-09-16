@@ -11,14 +11,22 @@ use crate::{
     errors::TYoutubeError,
 };
 
-const API_BASE: &str = "https://www.googleapis.com/youtube/v3";
+macro_rules! gen_url {
+    ($x:ident, $y:expr) => {
+        static $x: &'static str = concat!("https://www.googleapis.com/youtube/v3", $y);
+    };
+}
 
-pub struct ApiClientManager<'a> {
+gen_url!(PLAYLISTS_URL, "/playlists");
+gen_url!(PLAYLISTITEMS_URL, "/playlistItems");
+gen_url!(VIDEOS_URL, "/videos");
+
+pub struct ApiClient<'a> {
     client: Agent,
     key: &'a str,
 }
 
-impl<'a> ApiClientManager<'a> {
+impl<'a> ApiClient<'a> {
     #[must_use]
     pub fn new(key: &'a str) -> Self {
         Self {
@@ -42,17 +50,17 @@ impl<'a> ApiClientManager<'a> {
             let mut seen_tokens: HashSet<String> = HashSet::new();
 
             if id.is_playlist() {
-                let url = format!(
-                    "{API_BASE}/playlists?part=contentDetails&id={}&key={}&maxResults=1",
-                    &id.id(),
-                    self.key
-                );
-
                 let response: YTPlaylistList = self
                     .client
-                    .get(url)
+                    .get(PLAYLISTS_URL)
+                    .query_pairs([
+                        ("part", "contentDetails"),
+                        ("id", id.id()),
+                        ("key", self.key),
+                        ("maxResults", "1"),
+                    ])
                     .call()
-                    .map_err(|e| TYoutubeError::UreqError(e))?
+                    .map_err(TYoutubeError::UreqError)?
                     .body_mut()
                     .read_json()
                     .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
@@ -77,25 +85,25 @@ impl<'a> ApiClientManager<'a> {
                 };
 
                 for start in (0..traversible_items).step_by(50) {
-                    let max_results = (traversible_items - start).min(50);
+                    let max_results = (traversible_items - start).min(50).to_string();
 
-                    let url = format!(
-                        "{API_BASE}/playlistItems?playlistId={}&key={}&maxResults={}&part=contentDetails{}",
-                        &id.id(),
-                        self.key,
-                        max_results,
-                        if let Some(ref tok) = next_tok {
-                            format!("&pageToken={tok}")
-                        } else {
-                            "".to_string()
-                        }
-                    );
+                    let mut query_pairs = Vec::from([
+                        ("playlistId", id.id()),
+                        ("key", self.key),
+                        ("maxResults", &max_results),
+                        ("part", "contentDetails"),
+                    ]);
+
+                    if let Some(ref tok) = next_tok {
+                        query_pairs.push(("pageToken", tok))
+                    };
 
                     let response: YTPlaylistItems = self
                         .client
-                        .get(url)
+                        .get(PLAYLISTITEMS_URL)
+                        .query_pairs(query_pairs)
                         .call()
-                        .map_err(|e| TYoutubeError::UreqError(e))?
+                        .map_err(TYoutubeError::UreqError)?
                         .body_mut()
                         .read_json()
                         .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
@@ -135,17 +143,16 @@ impl<'a> ApiClientManager<'a> {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
         for chunk_ids in ids.chunks(50) {
-            let url = format!(
-                "{API_BASE}/videos?id={}&key={}&part=snippet,contentDetails",
-                chunk_ids.join(","),
-                self.key
-            );
-
             let mut response: YTVideos = self
                 .client
-                .get(url)
+                .get(VIDEOS_URL)
+                .query_pairs([
+                    ("id", chunk_ids.join(",").as_str()),
+                    ("key", self.key),
+                    ("part", "snippet,contentDetails"),
+                ])
                 .call()
-                .map_err(|e| TYoutubeError::UreqError(e))?
+                .map_err(TYoutubeError::UreqError)?
                 .body_mut()
                 .read_json()
                 .map_err(|_| TYoutubeError::ResponseBodyParseFailure)?;
@@ -168,14 +175,13 @@ impl<'a> ApiClientManager<'a> {
         let total_duration: TDuration = fetched_items
             .into_iter()
             .map(|f| {
-                let dur = TDuration::parse_str(
+                TDuration::parse_str(
                     f.content_details
                         .duration
                         .to_lowercase()
                         .trim_start_matches("pt"),
                 )
-                .unwrap_or_default();
-                dur
+                .unwrap_or_default()
             })
             .collect::<Vec<TDuration>>()
             .into_iter()

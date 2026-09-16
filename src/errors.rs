@@ -62,6 +62,7 @@ impl Display for TTimeError {
 #[derive(Debug)]
 pub enum TYoutubeError {
     UreqError(ureq::Error),
+    RequestUriParseError(String),
     ResponseBodyParseFailure,
     ItemNotFound,
     InvalidPlaylist(String),
@@ -73,6 +74,9 @@ impl Display for TYoutubeError {
         match self {
             TYoutubeError::UreqError(e) => {
                 write!(f, "error performing request: {e}.")
+            }
+            TYoutubeError::RequestUriParseError(e) => {
+                write!(f, "error parsing request Uri: {e}")
             }
             TYoutubeError::ItemNotFound => {
                 write!(f, "given YouTube video item was not found in API response.")

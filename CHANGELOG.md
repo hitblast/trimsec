@@ -2,6 +2,17 @@
 
 Active since v2.0.0.
 
+### v2.7.3
+
+Internal changes:
+
+- `crate::core::api::client`:
+  - URLs are now formed using a new `gen_url!()` macro and via the `.query_pairs()` method of `ureq`'s `RequestBuilder` struct.
+- `crate::core::time`:
+  - `TDuration` now manually implements `PartialOrd` instead of using the derive implementation.
+- Fixed some `clippy` warnings.
+- Changed the names of some internal datatypes.
+
 ### v2.7.2
 
 Changes:

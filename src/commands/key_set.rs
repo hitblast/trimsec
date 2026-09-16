@@ -1,6 +1,6 @@
 use crate::{
     commands::Runnable,
-    core::{api::ApiClientManager, config::Config, style::Style, youtils::YoutubeId},
+    core::{api::ApiClient, config::Config, style::Style, youtils::YoutubeId},
 };
 use anyhow::{Result, bail};
 use clap::Args;
@@ -17,8 +17,7 @@ pub struct KeySetCmd {
 
 impl Runnable for KeySetCmd {
     fn run(self, style: &Style) -> Result<()> {
-        let mut config =
-            Config::load().map_err(|e| anyhow::anyhow!("config error: {}", e.to_string()))?;
+        let mut config = Config::load().map_err(|e| anyhow::anyhow!("config error: {}", e))?;
 
         if config.api_key().is_some_and(|f| f == self.api_key) {
             println!("Key is already installed.");
@@ -27,10 +26,11 @@ impl Runnable for KeySetCmd {
 
         if !self.no_check {
             println!("Testing key... (use --no-check to skip)");
-            let client = ApiClientManager::new(&self.api_key);
+            let client = ApiClient::new(&self.api_key);
 
             let id = YoutubeId::new("dQw4w9WgXcQ".to_string(), false);
-            if let Err(_) = client.fetch_duration_from_id(&id, 1) {
+
+            if client.fetch_duration_from_id(&id, 1).is_err() {
                 bail!("{}Invalid API key passed!{}", style.red(), style.reset())
             }
         }

@@ -1,7 +1,7 @@
 use crate::{
     commands::Runnable,
     core::{
-        api::ApiClientManager,
+        api::ApiClient,
         style::Style,
         youtils::{get_youtube_api_key, get_youtube_id},
     },
@@ -23,7 +23,7 @@ impl Runnable for ListCmd {
     fn run(self, _: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
 
-        let manager = ApiClientManager::new(&key);
+        let manager = ApiClient::new(&key);
         let id = match get_youtube_id(&self.link) {
             Some(id) => {
                 if !id.is_playlist() {

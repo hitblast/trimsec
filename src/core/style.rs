@@ -13,10 +13,13 @@ pub struct Style {
 
 impl Style {
     /// Determines the color palette for trimsec.
+    #[must_use]
     pub fn determine(color_mode: ColorMode) -> Self {
         let defbool = env::var("NO_COLOR").ok().is_some();
 
-        let style = Style::new(if defbool {
+        
+
+        Style::new(if defbool {
             false
         } else {
             match color_mode {
@@ -24,26 +27,30 @@ impl Style {
                 ColorMode::Auto => supports_color::on(supports_color::Stream::Stdout).is_some(),
                 ColorMode::Never => false,
             }
-        });
-
-        style
+        })
     }
 
+    #[must_use]
     pub fn red(&self) -> &str {
         self.red
     }
+    #[must_use]
     pub fn boldred(&self) -> &str {
         &self.boldred
     }
+    #[must_use]
     pub fn reset(&self) -> &str {
         self.reset
     }
+    #[must_use]
     pub fn green(&self) -> &str {
         self.green
     }
+    #[must_use]
     pub fn boldgreen(&self) -> &str {
         &self.boldgreen
     }
+    #[must_use]
     pub fn bold(&self) -> &str {
         self.bold
     }

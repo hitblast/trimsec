@@ -3,7 +3,6 @@ use url::Url;
 
 use crate::core::config::Config;
 
-#[must_use]
 pub fn get_youtube_api_key() -> YoutilsResult<String> {
     const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
     let x = std::env::var(ENV_VAR_NAME).ok();
@@ -21,11 +20,8 @@ pub fn get_youtube_api_key() -> YoutilsResult<String> {
                     ),
                 },
                 Err(e) => {
-                    match e {
-                        crate::errors::TConfigError::DeserializingFailed(p) => {
-                            bail!("Failed to parse .trimsecrc file at path: {p:?}")
-                        }
-                        _ => {}
+                    if let crate::errors::TConfigError::DeserializingFailed(p) = e {
+                        bail!("Failed to parse .trimsecrc file at path: {p:?}")
                     }
                     bail!(
                         "Missing {ENV_VAR_NAME} environment variable or .trimsecrc file in $HOME; read README.md to learn more."
@@ -43,13 +39,16 @@ pub struct YoutubeId {
 }
 
 impl YoutubeId {
+    #[must_use]
     pub fn new(id: String, is_playlist: bool) -> Self {
         Self { id, is_playlist }
     }
 
+    #[must_use]
     pub fn id(&self) -> &str {
         &self.id
     }
+    #[must_use]
     pub fn is_playlist(&self) -> bool {
         self.is_playlist
     }

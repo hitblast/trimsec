@@ -1,7 +1,7 @@
 use crate::{
     commands::Runnable,
     core::{
-        api::ApiClientManager,
+        api::ApiClient,
         style::Style,
         time::{TDuration, ToStringTime, time_in_day_after},
         youtils::{get_youtube_api_key, get_youtube_id},
@@ -26,7 +26,7 @@ pub struct FitCmd {
 impl Runnable for FitCmd {
     fn run(self, style: &Style) -> Result<()> {
         let key = get_youtube_api_key()?;
-        let manager = ApiClientManager::new(&key);
+        let manager = ApiClient::new(&key);
         let id = get_youtube_id(&self.link);
 
         let Some(id) = id else {
