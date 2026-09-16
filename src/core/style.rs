@@ -17,8 +17,6 @@ impl Style {
     pub fn determine(color_mode: ColorMode) -> Self {
         let defbool = env::var("NO_COLOR").ok().is_some();
 
-        
-
         Style::new(if defbool {
             false
         } else {
