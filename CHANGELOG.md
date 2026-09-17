@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v2.9.0
+
+New features:
+
+- Configuration options have been added (a new `[options]` table in .trimsecrc):
+  - `default_multiplier`: The default multiplier to use for trimming operations.
+
 ### v2.8.0
 
 New features:
