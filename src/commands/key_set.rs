@@ -1,6 +1,6 @@
 use crate::{
-    commands::Runnable,
-    core::{api::ApiClient, config::Config, style::Style, youtils::YoutubeId},
+    commands::Ctx,
+    core::{api::ApiClient, youtils::YoutubeId},
 };
 use anyhow::{Result, bail};
 use clap::Args;
@@ -15,11 +15,11 @@ pub struct KeySetCmd {
     no_check: bool,
 }
 
-impl Runnable for KeySetCmd {
-    fn run(self, style: &Style) -> Result<()> {
-        let mut config = Config::load().map_err(|e| anyhow::anyhow!("config error: {}", e))?;
+impl KeySetCmd {
+    pub fn run(self, ctx: &mut Ctx) -> Result<()> {
+        let cfg = ctx.config()?;
 
-        if config.api_key().is_some_and(|f| f == self.api_key) {
+        if cfg.api_key().is_some_and(|f| f == self.api_key) {
             println!("Key is already installed.");
             return Ok(());
         }
@@ -31,12 +31,15 @@ impl Runnable for KeySetCmd {
             let id = YoutubeId::new("dQw4w9WgXcQ".to_string(), false);
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
-                bail!("{}Invalid API key passed!{}", style.red(), style.reset())
+                bail!(
+                    "{}Invalid API key passed!{}",
+                    ctx.style.red(),
+                    ctx.style.reset()
+                )
             }
         }
 
-        config
-            .update_write_key(self.api_key)
+        cfg.update_write_key(self.api_key)
             .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         println!("Key added successfully.");
 

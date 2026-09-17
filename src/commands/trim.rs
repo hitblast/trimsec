@@ -1,10 +1,9 @@
 use crate::{
-    commands::Runnable,
+    commands::{Ctx, Runnable},
     core::{
         api::ApiClient,
-        style::Style,
         time::{TDuration, ToStringTime, parse_multiplier},
-        youtils::{get_youtube_api_key, get_youtube_id},
+        youtils::{decide_youtube_key, get_youtube_id},
     },
 };
 use anyhow::{Result, anyhow, bail};
@@ -24,8 +23,8 @@ pub struct TrimCmd {
 }
 
 impl TrimCmd {
-    fn yt_fallback(mut self, style: &Style) -> Result<()> {
-        let key = get_youtube_api_key()?;
+    fn yt_fallback(mut self, ctx: &mut Ctx) -> Result<()> {
+        let key = decide_youtube_key(ctx.config()?)?;
 
         let manager = ApiClient::new(&key);
         let id = get_youtube_id(&self.content);
@@ -35,7 +34,7 @@ impl TrimCmd {
                 Ok(dur) => {
                     self.content = dur.to_string();
                     self.max_items = 0;
-                    self.run(style)?;
+                    self.run(ctx)?;
 
                     if id.is_playlist() {
                         println!("Trimmed for {} item(s).", dur.splits())
@@ -54,7 +53,7 @@ impl TrimCmd {
 }
 
 impl Runnable for TrimCmd {
-    fn run(self, style: &Style) -> Result<()> {
+    fn run(self, ctx: &mut Ctx) -> Result<()> {
         let multiplier = parse_multiplier(&self.multiplier)
             .map_err(|e| anyhow!("multiplier parse failed: {e}"))?;
 
@@ -96,13 +95,17 @@ impl Runnable for TrimCmd {
                 } else {
                     "Cannot finish today.".to_string()
                 },
-                format!("{}Saved {saved}!{}\n", style.boldgreen(), style.reset()),
+                format!(
+                    "{}Saved {saved}!{}\n",
+                    ctx.style.boldgreen(),
+                    ctx.style.reset()
+                ),
             ]
             .join("\n");
 
             println!("{message}");
         } else {
-            return self.yt_fallback(style);
+            return self.yt_fallback(ctx);
         }
 
         Ok(())

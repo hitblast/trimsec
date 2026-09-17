@@ -1,13 +1,20 @@
-use crate::{commands::Runnable, core::config::Config};
+use crate::{
+    commands::{Ctx, Runnable},
+    core::youtils::decide_youtube_key,
+};
 use clap::Args;
 
 #[derive(Args, Debug)]
 pub struct KeyShowCmd;
 
 impl Runnable for KeyShowCmd {
-    fn run(self, _style: &crate::core::style::Style) -> anyhow::Result<()> {
-        let config: Config = Config::load().map_err(|e| anyhow::anyhow!(e.to_string()))?;
-        println!("{}", config.api_key().unwrap_or("not set"));
+    fn run(self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        println!(
+            "{}",
+            decide_youtube_key(ctx.config()?)
+                .as_deref()
+                .unwrap_or("not set")
+        );
         Ok(())
     }
 }

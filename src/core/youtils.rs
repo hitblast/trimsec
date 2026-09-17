@@ -3,32 +3,18 @@ use url::Url;
 
 use crate::core::config::Config;
 
-pub fn get_youtube_api_key() -> YoutilsResult<String> {
+pub fn decide_youtube_key(cfg: &Config) -> YoutilsResult<String> {
     const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
     let x = std::env::var(ENV_VAR_NAME).ok();
 
     match x {
         Some(x) => Ok(x),
-        None => {
-            let cfg_res = Config::load();
-
-            match cfg_res {
-                Ok(cfg) => match cfg.api_key() {
-                    Some(k) => Ok(k.to_string()),
-                    None => bail!(
-                        "API key not found in config! Please add it using the `login` command."
-                    ),
-                },
-                Err(e) => {
-                    if let crate::errors::TConfigError::DeserializingFailed(p) = e {
-                        bail!("Failed to parse .trimsecrc file at path: {p:?}")
-                    }
-                    bail!(
-                        "Missing {ENV_VAR_NAME} environment variable or .trimsecrc file in $HOME; read README.md to learn more."
-                    )
-                }
+        None => match cfg.api_key() {
+            Some(k) => Ok(k.to_string()),
+            None => {
+                bail!("API key not found in config! Please add it using the `login` command.")
             }
-        }
+        },
     }
 }
 

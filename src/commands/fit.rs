@@ -1,10 +1,9 @@
 use crate::{
-    commands::Runnable,
+    commands::{Ctx, Runnable},
     core::{
         api::ApiClient,
-        style::Style,
         time::{TDuration, ToStringTime, time_in_day_after},
-        youtils::{get_youtube_api_key, get_youtube_id},
+        youtils::{decide_youtube_key, get_youtube_id},
     },
 };
 use anyhow::{Result, bail};
@@ -24,8 +23,9 @@ pub struct FitCmd {
 }
 
 impl Runnable for FitCmd {
-    fn run(self, style: &Style) -> Result<()> {
-        let key = get_youtube_api_key()?;
+    fn run(self, ctx: &mut Ctx) -> Result<()> {
+        let key = decide_youtube_key(ctx.config()?)?;
+
         let manager = ApiClient::new(&key);
         let id = get_youtube_id(&self.link);
 
@@ -47,16 +47,16 @@ impl Runnable for FitCmd {
                 if limit_duration > vid_total_duration {
                     format!(
                         "{}Fits in budget!{}\n\nExtra time left: {}",
-                        style.boldgreen(),
-                        style.reset(),
+                        ctx.style.boldgreen(),
+                        ctx.style.reset(),
                         &limit_duration - &vid_total_duration
                     )
                 } else if limit_duration < vid_total_duration {
                     format!(
                         "{}Time overrun by {}!{}",
-                        style.boldred(),
+                        ctx.style.boldred(),
                         &vid_total_duration - &limit_duration,
-                        style.reset()
+                        ctx.style.reset()
                     )
                 } else {
                     "Duration match! Would finish on time.".to_string()
@@ -67,15 +67,15 @@ impl Runnable for FitCmd {
                 if time_left != 0.0 {
                     format!(
                         "{}Fits in day!{}\n\nTime left afterwards: {}",
-                        style.boldgreen(),
-                        style.reset(),
+                        ctx.style.boldgreen(),
+                        ctx.style.reset(),
                         time_left.to_string_duration()
                     )
                 } else {
                     format!(
                         "{}Content does not fit in the day.{}",
-                        style.boldred(),
-                        style.reset()
+                        ctx.style.boldred(),
+                        ctx.style.reset()
                     )
                 }
             };

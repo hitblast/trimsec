@@ -9,6 +9,8 @@
   - [Basic Trimming](#basic-trimming)
   - [Fit-Checking](#fit-checking)
   - [Utility Commands](#utility-commands)
+- [Configuration](#configuration)
+  - [Configuration Options](#configuration-options)
 - [Installation](#installation)
 - [License](#license)
 
@@ -91,6 +93,27 @@ ts fit "https://youtube.com/playlist?..." --max-items 5
 
 ```bash
 ts list <PLAYLIST_URL>
+```
+
+## Configuration
+
+The config file for trimsec lies in the home directory of the user:
+
+- Linux: `$HOME/.trimsecrc` (e.g. `/home/alice/.trimsecrc`)
+- macOS: `$HOME/.trimsecrc` (e.g. `/Users/hitblast/.trimsecrc`)
+- Windows: `C:\Users\<username>\.trimsecrc`
+
+The primary use of the config file is to store the [API key (see "For YouTube videos/playlists")](#for-youtube-videosplaylists) for Google Cloud Console, and to store configuration options for trimsec itself, which are described below.
+
+### Configuration Options
+
+trimsec provides partial modifications of its features through the `options` table.
+
+For example, if you need to set a default multiplier for trimming, you can use:
+
+```toml
+[options]
+default_multiplier = "1.25x"
 ```
 
 ## Installation

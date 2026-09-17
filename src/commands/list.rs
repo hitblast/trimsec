@@ -1,9 +1,8 @@
 use crate::{
-    commands::Runnable,
+    commands::{Ctx, Runnable},
     core::{
         api::ApiClient,
-        style::Style,
-        youtils::{get_youtube_api_key, get_youtube_id},
+        youtils::{decide_youtube_key, get_youtube_id},
     },
 };
 use anyhow::{Result, bail};
@@ -20,8 +19,8 @@ pub struct ListCmd {
 }
 
 impl Runnable for ListCmd {
-    fn run(self, _: &Style) -> Result<()> {
-        let key = get_youtube_api_key()?;
+    fn run(self, ctx: &mut Ctx) -> Result<()> {
+        let key = decide_youtube_key(ctx.config()?)?;
 
         let manager = ApiClient::new(&key);
         let id = match get_youtube_id(&self.link) {

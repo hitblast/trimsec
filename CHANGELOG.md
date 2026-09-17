@@ -4,6 +4,8 @@ Active since v2.0.0.
 
 ### v2.8.0
 
+New features:
+
 Changes:
 
 - Added `fits` as an alias for the `fit` (previously `fits`) command.
@@ -11,6 +13,9 @@ Changes:
 
 Internal changes:
 
+- The `Runnable` trait for commands now, instead of passing in style and other attributes to the commands which will never use them, passes a new `Ctx` object which is a simple context lazy-loader. It holds `Style` and `Config` for now.
+- The new `Ctx` also changes some function signatures for the internal API.
+- `Style` is now under `crate::commands::style`, although this might not be its final destination.
 - `crate::core::api::client`:
   - URLs are now formed using a new `gen_url!()` macro and via the `.query_pairs()` method of `ureq`'s `RequestBuilder` struct.
 - `crate::core::time`:

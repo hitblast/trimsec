@@ -4,7 +4,7 @@ use std::{fmt::Display, path::PathBuf};
 pub enum TConfigError {
     InvalidParentPath,
     UnavailableConfigPath,
-    DirectoryCreationFailure(String),
+    HomeNotFound,
     ConfigReadFailure(String),
     DeserializingFailed(PathBuf),
     SerializingFailed(String),
@@ -18,8 +18,8 @@ impl Display for TConfigError {
             TConfigError::UnavailableConfigPath => {
                 write!(f, "could not fetch absolute config path")
             }
-            TConfigError::DirectoryCreationFailure(e) => {
-                write!(f, "failed to create config directory: {e}")
+            TConfigError::HomeNotFound => {
+                write!(f, "home  directory not found")
             }
             TConfigError::ConfigReadFailure(e) => write!(f, "failed to read config file: {e}"),
             TConfigError::DeserializingFailed(p) => {

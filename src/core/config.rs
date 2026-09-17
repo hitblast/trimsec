@@ -3,30 +3,42 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::errors::TConfigError;
 use serde::{Deserialize, Serialize};
-
-use crate::{core::utils::get_config_path, errors::TConfigError};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     api_key: Option<String>,
+    options: Option<ConfigOptions>,
     #[serde(skip)]
     path: PathBuf,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ConfigOptions {
+    default_multiplier: Option<String>,
+}
+
+fn get_config_path() -> Result<PathBuf, TConfigError> {
+    let home = dirs::home_dir();
+
+    if let Some(h) = home {
+        Ok(h.join(".trimsecrc").to_path_buf())
+    } else {
+        Err(TConfigError::UnavailableConfigPath)
+    }
+}
+
 impl Config {
     pub fn load() -> Result<Self, TConfigError> {
-        let Ok(p) = get_config_path() else {
-            return Err(TConfigError::UnavailableConfigPath);
-        };
+        let p = get_config_path()?;
 
         if !p.try_exists().unwrap_or(false) {
             let parent = p.parent().ok_or(TConfigError::InvalidParentPath)?;
 
             if !parent.try_exists().unwrap_or(false) {
-                fs::create_dir_all(parent)
-                    .map_err(|e| TConfigError::DirectoryCreationFailure(e.to_string()))?;
+                return Err(TConfigError::HomeNotFound);
             }
 
             fs::write(&p, "").map_err(|e| TConfigError::SaveFailed(e.to_string()))?;
