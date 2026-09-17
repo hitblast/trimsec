@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  CARGO_TERM_COLOR: always
   SCCACHE_GHA_ENABLED: "true"
   SCCACHE_CACHE_SIZE: 2G
   RUSTC_WRAPPER: "sccache"
@@ -17,11 +16,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      SCCACHE_CACHE_SIZE: 2G
-      RUSTC_WRAPPER: "sccache"
-
     steps:
       - uses: actions/checkout@v5
 
@@ -33,7 +27,7 @@ jobs:
           components: clippy, rustfmt
 
       - uses: Swatinem/rust-cache@v2
-      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: mozilla-actions/sccache-action@v0.0.11
       - run: sccache --show-stats || true
 
       - run: ./scripts/test-all.sh

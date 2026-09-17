@@ -28,8 +28,7 @@ jobs:
           override: true
 
       - uses: Swatinem/rust-cache@v2
-      - uses: mozilla-actions/sccache-action@v0.0.9
-      - run: sccache --show-stats || true
+      - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
         run: cargo build --release --quiet --locked
@@ -60,8 +59,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: Swatinem/rust-cache@v2
-      - uses: mozilla-actions/sccache-action@v0.0.9
-      - run: sccache --show-stats || true
+      - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
         run: cargo build --release --quiet --locked
@@ -86,8 +84,7 @@ jobs:
         uses: actions/checkout@v6
 
       - uses: Swatinem/rust-cache@v2
-      - uses: mozilla-actions/sccache-action@v0.0.9
-      - run: sccache --show-stats || true
+      - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Publish using cargo
         run: cargo publish --token ${{ secrets.CRATES_TOKEN }} --allow-dirty
