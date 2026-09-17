@@ -20,6 +20,12 @@ pub struct ConfigOptions {
     default_multiplier: Option<String>,
 }
 
+impl ConfigOptions {
+    pub fn default_multiplier(&self) -> Option<&str> {
+        self.default_multiplier.as_deref()
+    }
+}
+
 fn get_config_path() -> Result<PathBuf, TConfigError> {
     let home = dirs::home_dir();
 
@@ -75,6 +81,11 @@ impl Config {
     #[must_use]
     pub fn api_key(&self) -> Option<&str> {
         self.api_key.as_deref()
+    }
+
+    #[must_use]
+    pub fn options(&self) -> Option<&ConfigOptions> {
+        self.options.as_ref()
     }
 
     #[must_use]

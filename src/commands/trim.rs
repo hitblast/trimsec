@@ -15,7 +15,8 @@ pub struct TrimCmd {
     content: String,
 
     /// The speed multiplier (e.g. 1.25x, 1.25).
-    multiplier: String,
+    /// If not passed in, the program will attempt to use the default multiplier provided in the config.
+    multiplier: Option<String>,
 
     /// Max items to traverse in the given YouTube playlist (if content is a YouTube playlist URL).
     #[arg(short, long, visible_alias = "max", default_value = "0")]
@@ -54,8 +55,17 @@ impl TrimCmd {
 
 impl Runnable for TrimCmd {
     fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let multiplier = parse_multiplier(&self.multiplier)
-            .map_err(|e| anyhow!("multiplier parse failed: {e}"))?;
+        let multiplier = {
+            let x = if let Some(x) = &self.multiplier {
+                x
+            } else if let Some(y) = ctx.config()?.options().and_then(|f| f.default_multiplier()) {
+                y
+            } else {
+                bail!("Missing multiplier for trimming: must be provided as a positional argument.")
+            };
+
+            parse_multiplier(x).map_err(|e| anyhow!("multiplier parse failed: {e}"))?
+        };
 
         if multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
