@@ -1,7 +1,9 @@
 name: Tests CI
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
 
 env:
   SCCACHE_GHA_ENABLED: "true"
