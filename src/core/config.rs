@@ -21,6 +21,7 @@ pub struct ConfigOptions {
 }
 
 impl ConfigOptions {
+    #[must_use]
     pub fn default_multiplier(&self) -> Option<&str> {
         self.default_multiplier.as_deref()
     }

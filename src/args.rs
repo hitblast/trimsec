@@ -40,11 +40,11 @@ impl TCmd {
                 mul: multiplier,
             } => {
                 let mut x = TrimCmd::new(content, multiplier, max_items);
-                return x.run(&mut ctx);
+                x.run(&mut ctx)
             }
             TCmd::Fit { content, budget } => {
                 let x = FitCmd::new(content, budget, max_items);
-                return x.run(&mut ctx);
+                x.run(&mut ctx)
             }
             TCmd::Help => todo!(),
             TCmd::None => todo!(),
@@ -112,11 +112,11 @@ pub fn get_cur_cmd() -> Result<TCmd> {
         bail!("Only two positional arguments are allowed.")
     }
 
-    if let Some(arg1) = args.next().as_deref() {
+    if let Some(arg1) = args.next() {
         static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
 
         let cmd = if let Ok(x) = TDuration::parse_str(arg1) {
-            if let Some(arg2) = args.next().as_deref() {
+            if let Some(arg2) = args.next() {
                 if let Ok(y) = TDuration::parse_str(arg2) {
                     TCmd::Fit {
                         content: CmdContentType::Raw(x),
@@ -137,7 +137,7 @@ pub fn get_cur_cmd() -> Result<TCmd> {
                 }
             }
         } else if let Some(id) = get_youtube_id(arg1) {
-            if let Some(arg2) = args.next().as_deref() {
+            if let Some(arg2) = args.next() {
                 if let Ok(y) = parse_multiplier(arg2) {
                     TCmd::Trim {
                         content: CmdContentType::YouTube(id),
