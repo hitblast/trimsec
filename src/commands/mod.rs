@@ -2,8 +2,8 @@ use crate::{args::ColorMode, core::config::Config, style::Style};
 use anyhow::{Result, anyhow};
 
 pub mod fit;
-// pub mod key_set;
-// pub mod list;
+pub mod key_set;
+pub mod key_show;
 pub mod trim;
 
 pub struct Ctx {

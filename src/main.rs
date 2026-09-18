@@ -7,8 +7,8 @@ fn main() {
     };
 
     match get_cur_cmd() {
-        Ok(c) => {
-            if let Err(e) = c.run() {
+        Ok((args, cmd)) => {
+            if let Err(e) = cmd.run(&args) {
                 eexit(e);
             }
         }
