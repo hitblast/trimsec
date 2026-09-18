@@ -40,3 +40,4 @@ unused_must_use = "deny"
 
 [profile.release]
 lto = "thin"
+codegen-units = 1

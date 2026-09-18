@@ -6,13 +6,14 @@ Active since v2.0.0.
 
 New features:
 
-- Completely overhauled the CLI interface using deterministic parsing instead of `clap`-based argument parsing.
+- Completely overhauled the CLI interface using a hybrid solution using `clap` and custom deterministic rules for argument-parsing.
 - Configuration options have been added (a new `[options]` table in .trimsecrc):
   - `default_multiplier`: The default multiplier to use for trimming operations.
 
-Changes:
+Improvements:
 
 - Polished the CLI outputs to be more coherent with the context.
+- Use `codegen-units` for slightly smaller binary size and slightly better performance.
 
 ### v2.8.0
 
