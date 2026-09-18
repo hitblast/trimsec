@@ -12,16 +12,14 @@ use anyhow::{Result, bail};
 pub struct TrimCmd {
     content: CmdContentType,
     multiplier: f64,
-    max_items: usize,
 }
 
 impl TrimCmd {
     #[must_use]
-    pub fn new(content: CmdContentType, multiplier: f64, max_items: usize) -> Self {
+    pub fn new(content: CmdContentType, multiplier: f64) -> Self {
         Self {
             content,
             multiplier,
-            max_items,
         }
     }
 
@@ -29,10 +27,9 @@ impl TrimCmd {
         let key = decide_youtube_key(ctx.config()?)?;
         let manager = ApiClient::new(&key);
 
-        match manager.fetch_duration_from_id(id, self.max_items) {
+        match manager.fetch_duration_from_id(id, ctx.kwargs.max_items()) {
             Ok(dur) => {
                 self.content = CmdContentType::Raw(dur);
-                self.max_items = 0;
                 self.run(ctx)?;
             }
             Err(e) => bail!("Fetching URL failed: {e}"),
@@ -49,10 +46,6 @@ impl TrimCmd {
 
         match &mut self.content {
             CmdContentType::Raw(dur) => {
-                if self.max_items != 0 {
-                    bail!("--max-items can only be passed with a YouTube playlist URL.")
-                }
-
                 dur.trim(self.multiplier);
 
                 let remaining = crate::core::time::time_in_day_after(dur.seconds());

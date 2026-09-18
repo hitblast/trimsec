@@ -1,4 +1,8 @@
-use crate::{args::ColorMode, core::config::Config, style::Style};
+use crate::{
+    args::{ColorMode, TKeywordArgs},
+    core::config::Config,
+    style::Style,
+};
 use anyhow::{Result, anyhow};
 
 pub mod fit;
@@ -8,16 +12,18 @@ pub mod list;
 pub mod path;
 pub mod trim;
 
-pub struct Ctx {
+pub struct Ctx<'a> {
     pub style: Style,
+    pub kwargs: &'a TKeywordArgs,
     config: Option<Config>,
 }
 
-impl Ctx {
+impl<'a> Ctx<'a> {
     #[must_use]
-    pub fn new(color: &ColorMode) -> Self {
+    pub fn new(color: &ColorMode, kwargs: &'a TKeywordArgs) -> Self {
         Ctx {
             style: Style::determine(color),
+            kwargs,
             config: None,
         }
     }
