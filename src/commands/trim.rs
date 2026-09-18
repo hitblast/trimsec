@@ -31,16 +31,11 @@ impl TrimCmd {
 
         match manager.fetch_duration_from_id(id, self.max_items) {
             Ok(dur) => {
-                let splits = dur.splits();
                 self.content = CmdContentType::Raw(dur);
                 self.max_items = 0;
                 self.run(ctx)?;
-
-                if id.is_playlist() {
-                    println!("Trimmed for {} item(s).", splits)
-                }
             }
-            Err(e) => bail!("Failed to fetch details from URL: {e}"),
+            Err(e) => bail!("Fetching URL failed: {e}"),
         }
 
         Ok(())
@@ -67,7 +62,7 @@ impl TrimCmd {
                     format!(
                         "\nFinishes in: {} ",
                         if dur.splits() > 1 {
-                            format!("{dur} (all {} durations)", dur.splits())
+                            format!("{dur}")
                         } else {
                             dur.to_string()
                         }
@@ -78,9 +73,10 @@ impl TrimCmd {
                         "Cannot finish today.".to_string()
                     },
                     format!(
-                        "{}Saved {saved}!{}\n",
+                        "{}Saved {saved}!{}\n\nTrimmed for {} item(s).",
                         ctx.style.boldgreen(),
-                        ctx.style.reset()
+                        ctx.style.reset(),
+                        dur.splits()
                     ),
                 ]
                 .join("\n");
