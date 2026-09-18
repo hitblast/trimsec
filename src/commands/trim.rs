@@ -1,121 +1,96 @@
 use crate::{
-    commands::{Ctx, Runnable},
+    args::CmdContentType,
+    commands::Ctx,
     core::{
         api::ApiClient,
-        time::{TDuration, ToStringTime, parse_multiplier},
-        youtils::{decide_youtube_key, get_youtube_id},
+        time::ToStringTime,
+        youtils::{YoutubeId, decide_youtube_key},
     },
 };
-use anyhow::{Result, anyhow, bail};
-use clap::Args;
+use anyhow::{Result, bail};
 
-#[derive(Debug, Default, Args)]
 pub struct TrimCmd {
-    /// Content to trim (a duration (e.g. 1h2m1s, 2d1h31m) or a YouTube URL).
-    content: String,
-
-    /// The speed multiplier (e.g. 1.25x, 1.25).
-    /// If not passed in, the program will attempt to use the default multiplier provided in the config.
-    multiplier: Option<String>,
-
-    /// Max items to traverse in the given YouTube playlist (if content is a YouTube playlist URL).
-    #[arg(short, long, visible_alias = "max", default_value = "0")]
+    content: CmdContentType,
+    multiplier: f64,
     max_items: usize,
 }
 
 impl TrimCmd {
-    fn yt_fallback(mut self, ctx: &mut Ctx) -> Result<()> {
+    pub fn new(content: CmdContentType, multiplier: f64, max_items: usize) -> Self {
+        Self {
+            content,
+            multiplier,
+            max_items,
+        }
+    }
+
+    fn yt_fallback(&mut self, id: &YoutubeId, ctx: &mut Ctx) -> Result<()> {
         let key = decide_youtube_key(ctx.config()?)?;
-
         let manager = ApiClient::new(&key);
-        let id = get_youtube_id(&self.content);
 
-        if let Some(id) = id {
-            match manager.fetch_duration_from_id(&id, self.max_items) {
-                Ok(dur) => {
-                    self.content = dur.to_string();
-                    self.max_items = 0;
-                    self.run(ctx)?;
+        match manager.fetch_duration_from_id(&id, self.max_items) {
+            Ok(dur) => {
+                let splits = dur.splits();
+                self.content = CmdContentType::Raw(dur);
+                self.max_items = 0;
+                self.run(ctx)?;
 
-                    if id.is_playlist() {
-                        println!("Trimmed for {} item(s).", dur.splits())
-                    }
+                if id.is_playlist() {
+                    println!("Trimmed for {} item(s).", splits)
                 }
-                Err(e) => bail!("Failed to fetch details from URL: {e}"),
             }
-        } else {
-            bail!(
-                "Invalid content passed! Valid contents are: any YouTube URL, any duration (e.g. 1h25m, 2d1m)"
-            )
+            Err(e) => bail!("Failed to fetch details from URL: {e}"),
         }
 
         Ok(())
     }
-}
 
-impl Runnable for TrimCmd {
-    fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let multiplier = {
-            let x = if let Some(x) = &self.multiplier {
-                x
-            } else if let Some(y) = ctx.config()?.options().and_then(|f| f.default_multiplier()) {
-                y
-            } else {
-                bail!("Missing multiplier for trimming: must be provided as a positional argument.")
-            };
-
-            parse_multiplier(x).map_err(|e| anyhow!("multiplier parse failed: {e}"))?
-        };
-
-        if multiplier == 1.0 {
+    pub fn run(&mut self, ctx: &mut Ctx) -> Result<()> {
+        if self.multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
             return Ok(());
         }
 
-        let parse_attempt = TDuration::parse_str(&self.content);
+        match &mut self.content {
+            CmdContentType::Raw(dur) => {
+                if self.max_items != 0 {
+                    bail!("--max-items can only be passed with a YouTube playlist URL.")
+                }
 
-        if let Ok(mut dur) = parse_attempt {
-            if self.max_items != 0 {
-                bail!("--max-items can only be passed with a YouTube playlist URL.")
+                dur.trim(self.multiplier);
+
+                let remaining = crate::core::time::time_in_day_after(dur.seconds());
+                let saved = dur.saved_time().to_string_duration();
+
+                let message = [
+                    format!(
+                        "\nFinishes in: {} ",
+                        if dur.splits() > 1 {
+                            format!("{dur} (all {} durations)", dur.splits())
+                        } else {
+                            dur.to_string()
+                        }
+                    ),
+                    if remaining != 0.0 {
+                        format!("Time in day left: {} ", remaining.to_string_duration())
+                    } else {
+                        "Cannot finish today.".to_string()
+                    },
+                    format!(
+                        "{}Saved {saved}!{}\n",
+                        ctx.style.boldgreen(),
+                        ctx.style.reset()
+                    ),
+                ]
+                .join("\n");
+
+                println!("{message}");
             }
 
-            dur.trim(multiplier);
-
-            let remaining = crate::core::time::time_in_day_after(dur.seconds());
-            let saved = dur.saved_time().to_string_duration();
-
-            let message = [
-                format!(
-                    "\nFinishes in: {} ",
-                    if dur.splits() > 1 {
-                        format!("{dur} (all {} durations)", dur.splits())
-                    } else {
-                        dur.to_string()
-                    }
-                ),
-                if remaining != 0.0 {
-                    format!(
-                        "Time in day left: {} ",
-                        if remaining == 0.0 {
-                            "0s".to_string()
-                        } else {
-                            remaining.to_string_duration()
-                        }
-                    )
-                } else {
-                    "Cannot finish today.".to_string()
-                },
-                format!(
-                    "{}Saved {saved}!{}\n",
-                    ctx.style.boldgreen(),
-                    ctx.style.reset()
-                ),
-            ]
-            .join("\n");
-
-            println!("{message}");
-        } else {
-            return self.yt_fallback(ctx);
+            CmdContentType::YouTube(e) => {
+                let id = e.clone();
+                return self.yt_fallback(&id, ctx);
+            }
         }
 
         Ok(())

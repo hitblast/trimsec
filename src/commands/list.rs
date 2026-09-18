@@ -1,5 +1,5 @@
 use crate::{
-    commands::{Ctx, Runnable},
+    commands::Ctx,
     core::{
         api::ApiClient,
         youtils::{decide_youtube_key, get_youtube_id},
@@ -10,16 +10,12 @@ use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
-    /// The link to the YouTube playlist.
     link: String,
-
-    /// The maximum amount of items to list from the given playlist.
-    #[arg(short, long, visible_alias = "max", default_value = "0")]
     max_items: usize,
 }
 
-impl Runnable for ListCmd {
-    fn run(self, ctx: &mut Ctx) -> Result<()> {
+impl ListCmd {
+    pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         let key = decide_youtube_key(ctx.config()?)?;
 
         let manager = ApiClient::new(&key);

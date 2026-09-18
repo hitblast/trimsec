@@ -18,7 +18,7 @@ pub fn decide_youtube_key(cfg: &Config) -> YoutilsResult<String> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct YoutubeId {
     id: String,
     is_playlist: bool,
