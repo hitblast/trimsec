@@ -4,10 +4,10 @@ use crate::{
     core::{
         api::ApiClient,
         time::{TDuration, ToStringTime, time_in_day_after},
-        youtils::{decide_youtube_key, get_youtube_id},
+        youtils::decide_youtube_key,
     },
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 
 pub struct FitCmd {
     pub content: CmdContentType,
@@ -16,44 +16,49 @@ pub struct FitCmd {
 }
 
 impl FitCmd {
+    pub fn new(content: CmdContentType, budget: Option<TDuration>, max_items: usize) -> Self {
+        Self {
+            content,
+            budget,
+            max_items,
+        }
+    }
+
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         let key = decide_youtube_key(ctx.config()?)?;
 
-        let manager = ApiClient::new(&key);
+        let content_dur = match self.content {
+            CmdContentType::Raw(tduration) => tduration,
+            CmdContentType::YouTube(youtube_id) => {
+                let manager = ApiClient::new(&key);
 
-        let id = get_youtube_id(&self.link);
-
-        let Some(id) = id else {
-            bail!(
-                "Not a valid YouTube URL! Only videos/embeds/shorts URLs are supported in the `fit` command."
-            )
+                manager
+                    .fetch_duration_from_id(&youtube_id, self.max_items)
+                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
+            }
         };
-
-        let yt_dur = manager
-            .fetch_duration_from_id(&id, self.max_items)
-            .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?;
 
         let message = {
             let status = if let Some(budget_dur) = &self.budget {
-                if budget_dur > &yt_dur {
+                if budget_dur > &content_dur {
                     format!(
                         "{}Fits in budget!{}\n\nExtra time left: {}",
                         ctx.style.boldgreen(),
                         ctx.style.reset(),
-                        budget_dur - &yt_dur
+                        budget_dur - &content_dur
                     )
-                } else if budget_dur < &yt_dur {
+                } else if budget_dur < &content_dur {
                     format!(
                         "{}Time overrun by {}!{}",
                         ctx.style.boldred(),
-                        &yt_dur - &budget_dur,
+                        &content_dur - budget_dur,
                         ctx.style.reset()
                     )
                 } else {
                     "Duration match! Would finish on time.".to_string()
                 }
             } else {
-                let time_left = time_in_day_after(yt_dur.seconds());
+                let time_left = time_in_day_after(content_dur.seconds());
 
                 if time_left != 0.0 {
                     format!(
@@ -71,7 +76,7 @@ impl FitCmd {
                 }
             };
 
-            format!("\n{status}\n(counted {} videos)\n", yt_dur.splits())
+            format!("\n{status}\n(counted {} splits)\n", content_dur.splits())
         };
 
         println!("{message}");
