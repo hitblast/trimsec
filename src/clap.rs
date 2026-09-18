@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Parser)]
-#[command(override_usage = "ts [OPTIONS] | [COMMAND]")]
+#[command(override_usage = "ts [ARGS] | [COMMAND]")]
 pub struct Args {
     #[command(subcommand)]
     pub command: Command,
