@@ -12,17 +12,12 @@ use anyhow::Result;
 pub struct FitCmd {
     content: CmdContentType,
     budget: Option<TDuration>,
-    max_items: usize,
 }
 
 impl FitCmd {
     #[must_use]
-    pub fn new(content: CmdContentType, budget: Option<TDuration>, max_items: usize) -> Self {
-        Self {
-            content,
-            budget,
-            max_items,
-        }
+    pub fn new(content: CmdContentType, budget: Option<TDuration>) -> Self {
+        Self { content, budget }
     }
 
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
@@ -34,7 +29,7 @@ impl FitCmd {
                 let manager = ApiClient::new(&key);
 
                 manager
-                    .fetch_duration_from_id(&youtube_id, self.max_items)
+                    .fetch_duration_from_id(&youtube_id, ctx.kwargs.max_items())
                     .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
             }
         };

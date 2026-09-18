@@ -39,19 +39,19 @@ pub enum TCmd {
 
 impl TCmd {
     pub fn run(self, args: &TKeywordArgs) -> Result<()> {
-        let mut ctx = Ctx::new(args.color());
+        let mut ctx = Ctx::new(args.color(), args);
 
         match self {
             TCmd::Trim {
                 content,
                 mul: multiplier,
             } => {
-                let mut x = TrimCmd::new(content, multiplier, args.max_items());
+                let mut x = TrimCmd::new(content, multiplier);
 
                 x.run(&mut ctx)
             }
             TCmd::Fit { content, budget } => {
-                let x = FitCmd::new(content, budget, args.max_items());
+                let x = FitCmd::new(content, budget);
 
                 x.run(&mut ctx)
             }
