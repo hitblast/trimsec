@@ -30,6 +30,5 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
       - uses: mozilla-actions/sccache-action@v0.0.11
-      - run: sccache --show-stats || true
-
       - run: ./scripts/test-all.sh
+      - run: sccache --show-stats || true
