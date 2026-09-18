@@ -13,7 +13,7 @@ pub struct Ctx {
 
 impl Ctx {
     #[must_use]
-    pub fn new(color: ColorMode) -> Self {
+    pub fn new(color: &ColorMode) -> Self {
         Ctx {
             style: Style::determine(color),
             config: None,

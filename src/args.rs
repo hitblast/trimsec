@@ -30,20 +30,19 @@ pub enum TCmd {
 
 impl TCmd {
     pub fn run(self) -> Result<()> {
-        let color_mode = should_color()?;
-        let max_items = max_items()?;
-        let mut ctx = Ctx::new(color_mode);
+        let args = TKeywordArgs::traverse()?;
+        let mut ctx = Ctx::new(&args.color);
 
         match self {
             TCmd::Trim {
                 content,
                 mul: multiplier,
             } => {
-                let mut x = TrimCmd::new(content, multiplier, max_items);
+                let mut x = TrimCmd::new(content, multiplier, args.max_items());
                 x.run(&mut ctx)
             }
             TCmd::Fit { content, budget } => {
-                let x = FitCmd::new(content, budget, max_items);
+                let x = FitCmd::new(content, budget, args.max_items());
                 x.run(&mut ctx)
             }
             TCmd::Help => todo!(),
@@ -58,6 +57,12 @@ pub enum ColorMode {
     Always,
     Auto,
     Never,
+}
+
+impl Default for ColorMode {
+    fn default() -> Self {
+        Self::Auto
+    }
 }
 
 impl FromStr for ColorMode {
@@ -75,29 +80,55 @@ impl FromStr for ColorMode {
     }
 }
 
-pub fn should_color() -> Result<ColorMode> {
-    let mut args = env::args().skip(1);
-    let x = if let Some(s) = args.find_map(|f| f.strip_prefix("--color=").map(str::to_owned)) {
-        ColorMode::from_str(&s)?
-    } else {
-        ColorMode::Auto
-    };
-    Ok(x)
+#[derive(Default)]
+pub struct TKeywordArgs {
+    color: ColorMode,
+    max_items: usize,
 }
 
-pub fn max_items() -> Result<usize> {
-    let mut args = env::args().skip(1);
-    let x = if let Some(s) = args.find_map(|f| f.strip_prefix("--max-items=").map(str::to_owned)) {
-        if let Ok(y) = s.parse::<usize>() {
-            y
-        } else {
-            bail!("invalid max-items passed: must be a positive integer")
-        }
-    } else {
-        0
-    };
+impl TKeywordArgs {
+    pub fn color(&self) -> &ColorMode {
+        &self.color
+    }
+    pub fn max_items(&self) -> usize {
+        self.max_items
+    }
 
-    Ok(x)
+    fn traverse() -> Result<Self> {
+        let mut val = Self::default();
+        let mut args = env::args().skip(1);
+
+        let mut color_mode = None;
+        let mut max_items = None;
+
+        while let Some(arg) = args.next().as_deref() {
+            if let Some(x) = arg.strip_prefix("--color=") {
+                let None = color_mode else {
+                    bail!("Multiple --color arguments provided.")
+                };
+                let mode = ColorMode::from_str(x)?;
+                color_mode = Some(mode);
+            } else if let Some(x) = arg.strip_prefix("--max-items=") {
+                if max_items.is_none() {
+                    let Ok(y) = x.parse::<usize>() else {
+                        bail!("Invalid --max-items value provided.")
+                    };
+                    max_items = Some(y);
+                }
+            } else {
+                continue;
+            }
+        }
+
+        if let Some(c) = color_mode {
+            val.color = c;
+        }
+        if let Some(m) = max_items {
+            val.max_items = m;
+        }
+
+        Ok(val)
+    }
 }
 
 pub fn get_cur_cmd() -> Result<TCmd> {

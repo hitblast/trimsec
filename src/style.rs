@@ -14,7 +14,7 @@ pub struct Style {
 impl Style {
     /// Determines the color palette for trimsec.
     #[must_use]
-    pub fn determine(color_mode: ColorMode) -> Self {
+    pub fn determine(color_mode: &ColorMode) -> Self {
         let defbool = env::var("NO_COLOR").ok().is_some();
 
         Style::new(if defbool {
