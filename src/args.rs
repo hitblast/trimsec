@@ -4,7 +4,7 @@ use anyhow::{Result, anyhow, bail};
 
 use crate::{
     clap::{KeySubcmd, parse_with_clap},
-    commands::{Ctx, fit::FitCmd, trim::TrimCmd},
+    commands::{Ctx, fit::FitCmd, list::ListCmd, trim::TrimCmd},
     core::{
         time::{TDuration, parse_multiplier},
         youtils::{YoutubeId, get_youtube_id},
@@ -26,7 +26,10 @@ pub enum TCmd {
         budget: Option<TDuration>,
     },
     Key {
-        command: KeySubcmd,
+        subcmd: KeySubcmd,
+    },
+    List {
+        cmd: ListCmd,
     },
     Unreachable,
 }
@@ -49,10 +52,11 @@ impl TCmd {
 
                 x.run(&mut ctx)
             }
-            TCmd::Key { command } => match command {
+            TCmd::Key { subcmd: command } => match command {
                 KeySubcmd::Show(key_show_cmd) => key_show_cmd.run(&mut ctx),
                 KeySubcmd::Set(key_set_cmd) => key_set_cmd.run(&mut ctx),
             },
+            TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Unreachable => Ok(()),
         }
     }
@@ -138,7 +142,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
 
     let cmd = match remaining.first().map(String::as_str) {
-        Some("key" | "help") | None => parse_with_clap(&remaining)?,
+        Some("key" | "help" | "list" | "ls") | None => parse_with_clap(&remaining)?,
         _ => parse_deterministic(&remaining)?,
     };
 
