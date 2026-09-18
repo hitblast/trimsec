@@ -10,9 +10,9 @@ use crate::{
 use anyhow::Result;
 
 pub struct FitCmd {
-    pub content: CmdContentType,
-    pub budget: Option<TDuration>,
-    pub max_items: usize,
+    content: CmdContentType,
+    budget: Option<TDuration>,
+    max_items: usize,
 }
 
 impl FitCmd {
