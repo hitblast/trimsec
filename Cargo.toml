@@ -29,9 +29,6 @@ url = "2.5.8"
 clap_complete = "4.6.11"
 pretty_assertions = "1.4.1"
 
-[workspace]
-members = [".", "xtask"]
-
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"

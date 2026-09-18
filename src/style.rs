@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::cli::args::ColorMode;
+use crate::args::ColorMode;
 
 pub struct Style {
     red: &'static str,
