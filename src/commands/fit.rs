@@ -16,6 +16,7 @@ pub struct FitCmd {
 }
 
 impl FitCmd {
+    #[must_use]
     pub fn new(content: CmdContentType, budget: Option<TDuration>, max_items: usize) -> Self {
         Self {
             content,

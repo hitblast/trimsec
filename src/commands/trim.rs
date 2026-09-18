@@ -16,6 +16,7 @@ pub struct TrimCmd {
 }
 
 impl TrimCmd {
+    #[must_use]
     pub fn new(content: CmdContentType, multiplier: f64, max_items: usize) -> Self {
         Self {
             content,
@@ -28,7 +29,7 @@ impl TrimCmd {
         let key = decide_youtube_key(ctx.config()?)?;
         let manager = ApiClient::new(&key);
 
-        match manager.fetch_duration_from_id(&id, self.max_items) {
+        match manager.fetch_duration_from_id(id, self.max_items) {
             Ok(dur) => {
                 let splits = dur.splits();
                 self.content = CmdContentType::Raw(dur);
