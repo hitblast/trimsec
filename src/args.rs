@@ -1,13 +1,9 @@
-use std::{
-    env,
-    fmt::{self},
-    str::FromStr,
-};
+use std::{env, str::FromStr};
 
 use anyhow::{Result, anyhow, bail};
 
 use crate::{
-    commands::{Ctx, trim::TrimCmd},
+    commands::{Ctx, fit::FitCmd, trim::TrimCmd},
     core::{
         time::{TDuration, parse_multiplier},
         youtils::{YoutubeId, get_youtube_id},
@@ -20,8 +16,14 @@ pub enum CmdContentType {
 }
 
 pub enum TCmd {
-    Trim { content: CmdContentType, mul: f64 },
-    Fit { dur: TDuration, budget: TDuration },
+    Trim {
+        content: CmdContentType,
+        mul: f64,
+    },
+    Fit {
+        content: CmdContentType,
+        budget: Option<TDuration>,
+    },
     Help,
     None,
 }
@@ -29,6 +31,7 @@ pub enum TCmd {
 impl TCmd {
     pub fn run(self) -> Result<()> {
         let color_mode = should_color()?;
+        let max_items = max_items()?;
         let mut ctx = Ctx::new(color_mode);
 
         match self {
@@ -36,10 +39,13 @@ impl TCmd {
                 content,
                 mul: multiplier,
             } => {
-                let mut x = TrimCmd::new(content, multiplier, 0);
+                let mut x = TrimCmd::new(content, multiplier, max_items);
                 return x.run(&mut ctx);
             }
-            TCmd::Fit { dur, budget } => todo!(),
+            TCmd::Fit { content, budget } => {
+                let x = FitCmd::new(content, budget, max_items);
+                return x.run(&mut ctx);
+            }
             TCmd::Help => todo!(),
             TCmd::None => todo!(),
         }
@@ -107,35 +113,49 @@ pub fn get_cur_cmd() -> Result<TCmd> {
     }
 
     if let Some(arg1) = args.next().as_deref() {
+        static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
+
         let cmd = if let Ok(x) = TDuration::parse_str(arg1) {
             if let Some(arg2) = args.next().as_deref() {
                 if let Ok(y) = TDuration::parse_str(arg2) {
-                    TCmd::Fit { dur: x, budget: y }
+                    TCmd::Fit {
+                        content: CmdContentType::Raw(x),
+                        budget: Some(y),
+                    }
                 } else if let Ok(y) = parse_multiplier(arg2) {
                     TCmd::Trim {
                         content: CmdContentType::Raw(x),
                         mul: y,
                     }
                 } else {
-                    bail!("Second duration must be either a duration or a multiplier.")
+                    bail!(SARGERROR)
                 }
             } else {
-                bail!(
-                    "You passed in {x}, you need to pass another duration or multiplier to continue."
-                )
+                TCmd::Fit {
+                    content: CmdContentType::Raw(x),
+                    budget: None,
+                }
             }
-        } else if let Some(s) = get_youtube_id(arg1) {
+        } else if let Some(id) = get_youtube_id(arg1) {
             if let Some(arg2) = args.next().as_deref() {
                 if let Ok(y) = parse_multiplier(arg2) {
                     TCmd::Trim {
-                        content: CmdContentType::YouTube(s),
+                        content: CmdContentType::YouTube(id),
                         mul: y,
                     }
+                } else if let Ok(budget) = TDuration::parse_str(arg2) {
+                    TCmd::Fit {
+                        content: CmdContentType::YouTube(id),
+                        budget: Some(budget),
+                    }
                 } else {
-                    bail!("Second argument must be either a duration or a multiplier.")
+                    bail!(SARGERROR)
                 }
             } else {
-                bail!("YouTube URL verified, must also pass either a multiplier or a duration.")
+                TCmd::Fit {
+                    content: CmdContentType::YouTube(id),
+                    budget: None,
+                }
             }
         } else {
             bail!("First argument must always either be a duration or a YouTube URL.")
