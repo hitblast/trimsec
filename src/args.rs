@@ -104,7 +104,7 @@ impl TKeywordArgs {
                 let None = color_mode else {
                     bail!("Multiple --color arguments provided.")
                 };
-                let mode = ColorMode::from_str(x)?;
+                let mode = ColorMode::from_str(&x.to_lowercase())?;
                 color_mode = Some(mode);
             } else if let Some(x) = arg.strip_prefix("--max-items=") {
                 if max_items.is_none() {
