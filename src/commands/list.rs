@@ -10,7 +10,11 @@ use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct ListCmd {
+    /// The link to the YouTube playlist.
     link: String,
+
+    /// The maximum amount of items to list from the given playlist.
+    #[arg(long, default_value = "0")]
     max_items: usize,
 }
 
