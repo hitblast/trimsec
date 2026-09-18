@@ -53,7 +53,7 @@ impl TCmd {
                 KeySubcmd::Show(key_show_cmd) => key_show_cmd.run(&mut ctx),
                 KeySubcmd::Set(key_set_cmd) => key_set_cmd.run(&mut ctx),
             },
-            TCmd::Unreachable => return Ok(()),
+            TCmd::Unreachable => Ok(()),
         }
     }
 }
@@ -101,10 +101,9 @@ impl TKeywordArgs {
         let mut color = None;
         let mut max_items = None;
 
-        let mut args = args.iter();
         let mut remaining = Vec::new();
 
-        while let Some(arg) = args.next().as_deref() {
+        for arg in args {
             if let Some(x) = arg.strip_prefix("--color=") {
                 let None = color else {
                     bail!("Multiple --color arguments provided.")
