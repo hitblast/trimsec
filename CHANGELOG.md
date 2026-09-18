@@ -2,10 +2,11 @@
 
 Active since v2.0.0.
 
-### v2.9.0
+### v3.0.0
 
 New features:
 
+- Completely overhauled the CLI interface using deterministic parsing instead of `clap`-based argument parsing.
 - Configuration options have been added (a new `[options]` table in .trimsecrc):
   - `default_multiplier`: The default multiplier to use for trimming operations.
 
