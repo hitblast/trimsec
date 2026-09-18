@@ -3,6 +3,7 @@ use std::{env, str::FromStr};
 use anyhow::{Result, anyhow, bail};
 
 use crate::{
+    clap::{KeySubcmd, parse_with_clap},
     commands::{Ctx, fit::FitCmd, trim::TrimCmd},
     core::{
         time::{TDuration, parse_multiplier},
@@ -24,14 +25,15 @@ pub enum TCmd {
         content: CmdContentType,
         budget: Option<TDuration>,
     },
-    Help,
-    None,
+    Key {
+        command: KeySubcmd,
+    },
+    Unreachable,
 }
 
 impl TCmd {
-    pub fn run(self) -> Result<()> {
-        let args = TKeywordArgs::traverse()?;
-        let mut ctx = Ctx::new(&args.color);
+    pub fn run(self, args: &TKeywordArgs) -> Result<()> {
+        let mut ctx = Ctx::new(args.color());
 
         match self {
             TCmd::Trim {
@@ -39,19 +41,22 @@ impl TCmd {
                 mul: multiplier,
             } => {
                 let mut x = TrimCmd::new(content, multiplier, args.max_items());
+
                 x.run(&mut ctx)
             }
             TCmd::Fit { content, budget } => {
                 let x = FitCmd::new(content, budget, args.max_items());
+
                 x.run(&mut ctx)
             }
-            TCmd::Help => todo!(),
-            TCmd::None => todo!(),
+            TCmd::Key { command } => match command {
+                KeySubcmd::Show(key_show_cmd) => key_show_cmd.run(&mut ctx),
+                KeySubcmd::Set(key_set_cmd) => key_set_cmd.run(&mut ctx),
+            },
+            TCmd::Unreachable => return Ok(()),
         }
     }
 }
-
-const NONE: TCmd = TCmd::None;
 
 #[derive(Default)]
 pub enum ColorMode {
@@ -92,108 +97,105 @@ impl TKeywordArgs {
         self.max_items
     }
 
-    fn traverse() -> Result<Self> {
-        let mut val = Self::default();
-        let mut args = env::args().skip(1);
-
-        let mut color_mode = None;
+    fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
+        let mut color = None;
         let mut max_items = None;
+
+        let mut args = args.iter();
+        let mut remaining = Vec::new();
 
         while let Some(arg) = args.next().as_deref() {
             if let Some(x) = arg.strip_prefix("--color=") {
-                let None = color_mode else {
+                let None = color else {
                     bail!("Multiple --color arguments provided.")
                 };
-                let mode = ColorMode::from_str(&x.to_lowercase())?;
-                color_mode = Some(mode);
+                color = Some(ColorMode::from_str(&x.to_lowercase())?);
             } else if let Some(x) = arg.strip_prefix("--max-items=") {
-                if max_items.is_none() {
-                    let Ok(y) = x.parse::<usize>() else {
-                        bail!("Invalid --max-items value provided.")
-                    };
-                    max_items = Some(y);
-                }
+                let None = max_items else {
+                    bail!("Multiple --max-items arguments provided.")
+                };
+                let Ok(y) = x.parse::<usize>() else {
+                    bail!("Invalid --max-items value provided.")
+                };
+                max_items = Some(y);
             } else {
-                continue;
+                remaining.push(arg.clone());
             }
         }
 
-        if let Some(c) = color_mode {
-            val.color = c;
-        }
-        if let Some(m) = max_items {
-            val.max_items = m;
-        }
-
-        Ok(val)
+        Ok((
+            Self {
+                color: color.unwrap_or_default(),
+                max_items: max_items.unwrap_or_default(),
+            },
+            remaining,
+        ))
     }
 }
 
-pub fn get_cur_cmd() -> Result<TCmd> {
-    let vector: Vec<String> = env::args()
-        .skip(1)
-        .filter(|f| !f.starts_with("--"))
-        .collect();
+pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
+    let argv: Vec<String> = env::args().skip(1).collect();
 
-    let mut args = vector.iter();
+    let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
 
-    // TODO: handle other commands here
+    let cmd = match remaining.first().map(String::as_str) {
+        Some("key" | "help") | None => parse_with_clap(&remaining)?,
+        _ => parse_deterministic(&remaining)?,
+    };
 
-    if args.len() >= 3 {
-        bail!("Only two positional arguments are allowed.")
+    Ok((kwargs, cmd))
+}
+
+fn parse_deterministic(args: &[String]) -> Result<TCmd> {
+    if args.len() > 2 {
+        bail!("Only two positional arguments are allowed.");
     }
 
-    if let Some(arg1) = args.next() {
-        static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
+    let Some(arg1) = args.first() else {
+        return Ok(TCmd::Unreachable);
+    };
 
-        let cmd = if let Ok(x) = TDuration::parse_str(arg1) {
-            if let Some(arg2) = args.next() {
-                if let Ok(y) = TDuration::parse_str(arg2) {
-                    TCmd::Fit {
-                        content: CmdContentType::Raw(x),
-                        budget: Some(y),
-                    }
-                } else if let Ok(y) = parse_multiplier(arg2) {
-                    TCmd::Trim {
-                        content: CmdContentType::Raw(x),
-                        mul: y,
-                    }
-                } else {
-                    bail!(SARGERROR)
-                }
-            } else {
-                TCmd::Fit {
-                    content: CmdContentType::Raw(x),
-                    budget: None,
-                }
-            }
-        } else if let Some(id) = get_youtube_id(arg1) {
-            if let Some(arg2) = args.next() {
-                if let Ok(y) = parse_multiplier(arg2) {
-                    TCmd::Trim {
-                        content: CmdContentType::YouTube(id),
-                        mul: y,
-                    }
-                } else if let Ok(budget) = TDuration::parse_str(arg2) {
-                    TCmd::Fit {
-                        content: CmdContentType::YouTube(id),
-                        budget: Some(budget),
-                    }
-                } else {
-                    bail!(SARGERROR)
-                }
-            } else {
-                TCmd::Fit {
-                    content: CmdContentType::YouTube(id),
-                    budget: None,
-                }
-            }
-        } else {
-            bail!("First argument must always either be a duration or a YouTube URL.")
-        };
+    static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
 
-        return Ok(cmd);
+    if let Ok(x) = TDuration::parse_str(arg1) {
+        match args.get(1) {
+            Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
+                content: CmdContentType::Raw(x),
+                budget: Some(y),
+            }),
+
+            Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
+                content: CmdContentType::Raw(x),
+                mul: y,
+            }),
+
+            Some(_) => bail!(SARGERROR),
+
+            None => Ok(TCmd::Fit {
+                content: CmdContentType::Raw(x),
+                budget: None,
+            }),
+        }
+    } else if let Some(id) = get_youtube_id(arg1) {
+        match args.get(1) {
+            Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
+                content: CmdContentType::YouTube(id),
+                mul: y,
+            }),
+
+            Some(arg2) if let Ok(budget) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
+                content: CmdContentType::YouTube(id),
+                budget: Some(budget),
+            }),
+
+            Some(_) => bail!(SARGERROR),
+
+            None => Ok(TCmd::Fit {
+                content: CmdContentType::YouTube(id),
+                budget: None,
+            }),
+        }
+    } else {
+        bail!("First argument must be a subcommand, duration, or a YouTube URL.")
     }
-
-    Ok(NONE)
 }
