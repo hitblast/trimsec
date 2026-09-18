@@ -53,17 +53,14 @@ impl TCmd {
 
 const NONE: TCmd = TCmd::None;
 
+#[derive(Default)]
 pub enum ColorMode {
     Always,
+    #[default]
     Auto,
     Never,
 }
 
-impl Default for ColorMode {
-    fn default() -> Self {
-        Self::Auto
-    }
-}
 
 impl FromStr for ColorMode {
     type Err = anyhow::Error;
@@ -87,9 +84,11 @@ pub struct TKeywordArgs {
 }
 
 impl TKeywordArgs {
+    #[must_use]
     pub fn color(&self) -> &ColorMode {
         &self.color
     }
+    #[must_use]
     pub fn max_items(&self) -> usize {
         self.max_items
     }
