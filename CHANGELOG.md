@@ -10,6 +10,10 @@ New features:
 - Configuration options have been added (a new `[options]` table in .trimsecrc):
   - `default_multiplier`: The default multiplier to use for trimming operations.
 
+Changes:
+
+- Polished the CLI outputs to be more coherent with the context.
+
 ### v2.8.0
 
 New features:

@@ -61,7 +61,6 @@ pub enum ColorMode {
     Never,
 }
 
-
 impl FromStr for ColorMode {
     type Err = anyhow::Error;
 
@@ -137,6 +136,8 @@ pub fn get_cur_cmd() -> Result<TCmd> {
         .collect();
 
     let mut args = vector.iter();
+
+    // TODO: handle other commands here
 
     if args.len() >= 3 {
         bail!("Only two positional arguments are allowed.")
