@@ -33,6 +33,8 @@ jobs:
       - name: Build
         run: cargo build --release --quiet --locked
 
+      - run: sccache --show-stats || true
+
       - name: Compress binary
         run: |
           powershell -Command "Compress-Archive -Path target/release/ts.exe -DestinationPath $env:FILE_NAME"
@@ -63,6 +65,8 @@ jobs:
 
       - name: Build
         run: cargo build --release --quiet --locked
+
+      - run: sccache --show-stats || true
 
       - name: Compress binary
         run: tar -czf ${{ env.FILE_NAME }} -C target/release ts
