@@ -6,7 +6,7 @@ use crate::{
     core::{
         api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
         time::TDuration,
-        youtils::YoutubeId,
+        youtils::TYoutubeId,
     },
     errors::TYoutubeError,
 };
@@ -41,7 +41,7 @@ impl<'a> ApiClient<'a> {
     /// is not a playlist, then a vector would be returned with the ID that was originally passed in.
     pub fn expand_id(
         &self,
-        id: &YoutubeId,
+        id: &TYoutubeId,
         max_items: usize,
     ) -> Result<Vec<String>, TYoutubeError> {
         let total_ids = {
@@ -166,7 +166,7 @@ impl<'a> ApiClient<'a> {
     /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
     pub fn fetch_duration_from_id(
         &self,
-        id: &YoutubeId,
+        id: &TYoutubeId,
         max_items: usize,
     ) -> Result<TDuration, TYoutubeError> {
         let total_ids = self.expand_id(id, max_items)?;

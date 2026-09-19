@@ -4,7 +4,7 @@ use crate::{
     core::{
         api::ApiClient,
         time::ToStringTime,
-        youtils::{YoutubeId, decide_youtube_key},
+        youtils::{TYoutubeId, decide_youtube_key},
     },
 };
 use anyhow::{Result, bail};
@@ -23,7 +23,7 @@ impl TrimCmd {
         }
     }
 
-    fn yt_fallback(&mut self, id: &YoutubeId, ctx: &mut Ctx) -> Result<()> {
+    fn yt_fallback(&mut self, id: &TYoutubeId, ctx: &mut Ctx) -> Result<()> {
         let key = decide_youtube_key(ctx.config()?)?;
         let manager = ApiClient::new(&key);
 

@@ -1,6 +1,6 @@
 use crate::{
     commands::Ctx,
-    core::{api::ApiClient, youtils::YoutubeId},
+    core::{api::ApiClient, youtils::TYoutubeId},
 };
 use anyhow::{Result, bail};
 use clap::Args;
@@ -28,7 +28,7 @@ impl KeySetCmd {
             println!("Testing key... (use --no-check to skip)");
             let client = ApiClient::new(&self.api_key);
 
-            let id = YoutubeId::new("dQw4w9WgXcQ".to_string(), false);
+            let id = TYoutubeId::new("dQw4w9WgXcQ".to_string(), false);
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
                 bail!(

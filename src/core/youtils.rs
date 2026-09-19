@@ -19,12 +19,12 @@ pub fn decide_youtube_key(cfg: &Config) -> YoutilsResult<String> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct YoutubeId {
+pub struct TYoutubeId {
     id: String,
     is_playlist: bool,
 }
 
-impl YoutubeId {
+impl TYoutubeId {
     #[must_use]
     pub fn new(id: String, is_playlist: bool) -> Self {
         Self { id, is_playlist }
@@ -41,7 +41,7 @@ impl YoutubeId {
 }
 
 #[must_use]
-pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
+pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
     let mut is_playlist = false;
 
     if let Ok(parsed_url) = Url::parse(link) {
@@ -94,7 +94,7 @@ pub fn get_youtube_id(link: &str) -> Option<YoutubeId> {
         if id == Some("".to_string()) {
             None
         } else {
-            id.map(|id| YoutubeId { id, is_playlist })
+            id.map(|id| TYoutubeId { id, is_playlist })
         }
     } else {
         None
@@ -112,21 +112,21 @@ mod tests {
         assert_eq!(get_youtube_id("test-driven-development"), None);
         assert_eq!(
             get_youtube_id("https://www.youtube.com/embed/ZNYRjxJ3sdY"),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
             get_youtube_id("https://www.youtube.com/shorts/ZNYRjxJ3sdY"),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
             get_youtube_id("https://www.youtube.com/watch?v=ZNYRjxJ3sdY"),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
@@ -135,7 +135,7 @@ mod tests {
             get_youtube_id(
                 "https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
             ),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
                 is_playlist: true
             })
@@ -149,21 +149,21 @@ mod tests {
             get_youtube_id(
                 "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
             ),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
                 is_playlist: true
             })
         );
         assert_eq!(
             get_youtube_id("https://www.youtube.com/watch?v=rdXw7Ps9vxc&list="),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "rdXw7Ps9vxc".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
             get_youtube_id("https://youtu.be/sEWIDdQKWgc?si=Ywu5MycwAaZ4cZ3t"),
-            Some(YoutubeId {
+            Some(TYoutubeId {
                 id: "sEWIDdQKWgc".to_string(),
                 is_playlist: false
             })
