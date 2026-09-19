@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v3.0.2
+
+Bug fixes:
+
+- Fixed the `fit` command not executing without an API key.
+
 ### v3.0.1
 
 Bug fixes:

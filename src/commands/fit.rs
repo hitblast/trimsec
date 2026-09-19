@@ -21,11 +21,10 @@ impl FitCmd {
     }
 
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let key = decide_youtube_key(ctx.config()?)?;
-
         let content_dur = match self.content {
             TCmdContent::Raw(tduration) => tduration,
             TCmdContent::YouTube(youtube_id) => {
+                let key = decide_youtube_key(ctx.config()?)?;
                 let manager = ApiClient::new(&key);
 
                 manager
