@@ -81,7 +81,7 @@ impl FromStr for ColorMode {
             "auto" => Self::Auto,
             "always" => Self::Always,
             "never" => Self::Never,
-            _ => return Err(anyhow!("color mode must be: always, auto, never")),
+            _ => return Err(anyhow!("color mode must be one of: always, auto, never")),
         };
 
         Ok(x)

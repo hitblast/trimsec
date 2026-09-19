@@ -16,9 +16,11 @@
 
 ## Overview
 
-trimsec helps you plan your content consumption. It includes utility functions such as duration-trimming (AKA calculating how much time you'd have in hand _after_ you've watched a video with a multiplier), playlist and video-trimming (same stuff but for YouTube), and other commands. It is still a work-in-progress project, and more commands are already planned!
+trimsec helps you plan your content consumption.
 
-It is oriented towards terminal-headed academic nerds (pun intended) who can't seem to get a grasp of their syllabus until the last night before the exam, when they already have hundreds of videos to cover. Theoretically impossible to cover - trimsec makes it easier.
+It helps you trim your planned content using multipliers, check if it fits within a given duration or the remainder of the day, and do much more. trimsec supports YouTube data via Google's APIs, so you can even execute these operations for your online videos. It is oriented towards terminal-headed academic nerds who can't seem to get a grasp of their syllabus until the last night before the exam.
+
+trimsec will always be a work-in-progress.
 
 ## Usage
 
@@ -29,20 +31,20 @@ It is oriented towards terminal-headed academic nerds (pun intended) who can't s
 To calculate saved time, you run the `trim` command as follows:
 
 ```bash
-ts trim 1h 2x
+ts 1h 2x
 ```
 
 This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
 
 ```bash
-ts trim 1h30m 1.5x
-ts trim 1.5h30m 1.5x  # equivalent to 2 hours
+ts 1h30m 1.5x
+ts 1.5h30m 1.5x  # equivalent to 2 hours
 ```
 
 Combine multiple durations like this:
 
 ```bash
-ts trim 1h30m+2h50m 1.25x
+ts 1h30m+2h50m 1.25x
 ```
 
 #### For YouTube videos/playlists:
@@ -57,19 +59,19 @@ ts trim 1h30m+2h50m 1.25x
 In place of the duration from before, now you just paste the YouTube video URL:
 
 ```bash
-ts trim https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+ts https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
 ```
 
 You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
 
 ```bash
-ts trim "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
+ts "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
 ```
 
 For calculating based on the data of only a few items in the playlist, use:
 
 ```bash
-ts trim <PLAYLIST_URL> --max-items 7 1.8x
+ts <PLAYLIST_URL> --max-items=7 1.8x
 ```
 
 ### Fit-Checking
@@ -78,13 +80,15 @@ You can check whether a particular YouTube content fits in a given budget of tim
 
 ```bash
 # budget is today
-ts fit "https://youtube.com/..."
+ts 1h24m
+ts "https://youtube.com/..."
 
-# shortened param names; budget is 2 hours and 4 minutes
-ts fit "https://youtube.com/..." -b 2h4m
+# fixed duration: 2 hours and 4 minutes
+ts 1h24m 2h4m
+ts "https://youtube.com/..." 2h4m
 
 # youtube playlist + item cap
-ts fit "https://youtube.com/playlist?..." --max-items 5
+ts "https://youtu.be/..." --max-items=5
 ```
 
 ### Utility Commands
@@ -92,7 +96,7 @@ ts fit "https://youtube.com/playlist?..." --max-items 5
 - For listing the contents in a YouTube playlist:
 
 ```bash
-ts list <PLAYLIST_URL>
+ts list <PLAYLIST_URL>  # or: ts ls <PLAYLIST_URL>
 ```
 
 ## Configuration
