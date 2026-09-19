@@ -6,7 +6,7 @@ Active since v2.0.0.
 
 New features:
 
-- Completely overhauled the CLI interface using a hybrid solution using `clap` and custom deterministic rules for argument-parsing.
+- Completely overhauled the CLI interface using a hybrid solution of `clap` and custom deterministic rules for argument-parsing.
 - Configuration options have been added (a new `[options]` table in .trimsecrc):
   - `default_multiplier`: The default multiplier to use for trimming operations.
 
