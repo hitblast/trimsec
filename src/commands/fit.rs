@@ -1,5 +1,5 @@
 use crate::{
-    args::CmdContentType,
+    args::TCmdContent,
     commands::Ctx,
     core::{
         api::ApiClient,
@@ -10,13 +10,13 @@ use crate::{
 use anyhow::Result;
 
 pub struct FitCmd {
-    content: CmdContentType,
+    content: TCmdContent,
     budget: Option<TDuration>,
 }
 
 impl FitCmd {
     #[must_use]
-    pub fn new(content: CmdContentType, budget: Option<TDuration>) -> Self {
+    pub fn new(content: TCmdContent, budget: Option<TDuration>) -> Self {
         Self { content, budget }
     }
 
@@ -24,8 +24,8 @@ impl FitCmd {
         let key = decide_youtube_key(ctx.config()?)?;
 
         let content_dur = match self.content {
-            CmdContentType::Raw(tduration) => tduration,
-            CmdContentType::YouTube(youtube_id) => {
+            TCmdContent::Raw(tduration) => tduration,
+            TCmdContent::YouTube(youtube_id) => {
                 let manager = ApiClient::new(&key);
 
                 manager

@@ -12,18 +12,18 @@ use crate::{
     },
 };
 
-pub enum CmdContentType {
+pub enum TCmdContent {
     Raw(TDuration),
     YouTube(TYoutubeId),
 }
 
 pub enum TCmd {
     Trim {
-        content: CmdContentType,
+        content: TCmdContent,
         mul: f64,
     },
     Fit {
-        content: CmdContentType,
+        content: TCmdContent,
         budget: Option<TDuration>,
     },
     Key {
@@ -165,38 +165,38 @@ fn parse_deterministic(arg1: &str, args: &[String]) -> Result<TCmd> {
     if let Ok(x) = TDuration::parse_str(arg1) {
         match args.get(1) {
             Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-                content: CmdContentType::Raw(x),
+                content: TCmdContent::Raw(x),
                 budget: Some(y),
             }),
 
             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-                content: CmdContentType::Raw(x),
+                content: TCmdContent::Raw(x),
                 mul: y,
             }),
 
             Some(_) => bail!(SARGERROR),
 
             None => Ok(TCmd::Fit {
-                content: CmdContentType::Raw(x),
+                content: TCmdContent::Raw(x),
                 budget: None,
             }),
         }
     } else if let Some(id) = get_youtube_id(arg1) {
         match args.get(1) {
             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-                content: CmdContentType::YouTube(id),
+                content: TCmdContent::YouTube(id),
                 mul: y,
             }),
 
             Some(arg2) if let Ok(budget) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-                content: CmdContentType::YouTube(id),
+                content: TCmdContent::YouTube(id),
                 budget: Some(budget),
             }),
 
             Some(_) => bail!(SARGERROR),
 
             None => Ok(TCmd::Fit {
-                content: CmdContentType::YouTube(id),
+                content: TCmdContent::YouTube(id),
                 budget: None,
             }),
         }

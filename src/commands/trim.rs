@@ -1,5 +1,5 @@
 use crate::{
-    args::CmdContentType,
+    args::TCmdContent,
     commands::Ctx,
     core::{
         api::ApiClient,
@@ -10,13 +10,13 @@ use crate::{
 use anyhow::{Result, bail};
 
 pub struct TrimCmd {
-    content: CmdContentType,
+    content: TCmdContent,
     multiplier: f64,
 }
 
 impl TrimCmd {
     #[must_use]
-    pub fn new(content: CmdContentType, multiplier: f64) -> Self {
+    pub fn new(content: TCmdContent, multiplier: f64) -> Self {
         Self {
             content,
             multiplier,
@@ -29,7 +29,7 @@ impl TrimCmd {
 
         match manager.fetch_duration_from_id(id, ctx.kwargs.max_items()) {
             Ok(dur) => {
-                self.content = CmdContentType::Raw(dur);
+                self.content = TCmdContent::Raw(dur);
                 self.run(ctx)?;
             }
             Err(e) => bail!("Fetching URL failed: {e}"),
@@ -45,7 +45,7 @@ impl TrimCmd {
         }
 
         match &mut self.content {
-            CmdContentType::Raw(dur) => {
+            TCmdContent::Raw(dur) => {
                 dur.trim(self.multiplier);
 
                 let remaining = crate::core::time::time_in_day_after(dur.seconds());
@@ -77,7 +77,7 @@ impl TrimCmd {
                 println!("{message}");
             }
 
-            CmdContentType::YouTube(e) => {
+            TCmdContent::YouTube(e) => {
                 let id = e.clone();
                 return self.yt_fallback(&id, ctx);
             }
