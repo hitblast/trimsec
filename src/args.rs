@@ -1,9 +1,10 @@
 use std::{env, str::FromStr};
 
 use anyhow::{Result, anyhow, bail};
+use clap::CommandFactory;
 
 use crate::{
-    clap::{KeySubcmd, parse_with_clap},
+    clap::{Args, KeySubcmd, parse_with_clap},
     commands::{Ctx, fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
         time::{TDuration, parse_multiplier},
@@ -155,7 +156,8 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
 
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
     if args.len() > 2 {
-        bail!("Only two positional arguments are allowed.");
+        Args::command().print_help()?;
+        bail!("\nToo many positional arguments.")
     }
 
     let Some(arg1) = args.first() else {

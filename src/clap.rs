@@ -7,7 +7,25 @@ use crate::{
 };
 
 #[derive(Parser)]
-#[command(override_usage = "ts [ARGS] | [COMMAND]")]
+#[command(override_usage = r#"
+ts [ARGS | COMMAND]
+
+Dynamic Arguments:
+  ts 1h24m 1.25x                        # trim mode
+  ts https://youtube.com/... 1.25x      # trim mode (yt)
+
+  ts 1h24m 3h                           # fit-check (fixed duration)
+  ts https://youtu.be/... 3h            # fit-check (yt, fixed duration)
+  ts 1h24m                              # fit-check (remaining day as duration)
+  ts https://youtu.be/...               # fit-check (yt, remaining day as duration)
+
+Keyword Arguments:
+  1. Playlist traverse limit:
+    --max-items=<uint>                  e.g. --max-items=7
+  2. Color mode:
+    --color=<ColorMode>                 e.g. --color=auto
+                                             (modes: always, auto, never)
+"#)]
 pub struct Args {
     #[command(subcommand)]
     pub command: Command,
