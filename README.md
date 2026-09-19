@@ -74,7 +74,7 @@ For calculating based on the data of only a few items in the playlist, use:
 ts <PLAYLIST_URL> --max-items=7 1.8x
 ```
 
-### Fit-Checking
+### 2. Fit-Checking
 
 You can check whether a particular YouTube content fits in a given budget of time like as follows:
 
@@ -91,7 +91,7 @@ ts "https://youtube.com/..." 2h4m
 ts "https://youtu.be/..." --max-items=5
 ```
 
-### Utility Commands
+### 3. Utility Commands
 
 - For listing the contents in a YouTube playlist:
 
