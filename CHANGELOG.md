@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v3.0.1
+
+Bug fixes:
+
+- Fixed `--version` not being recognized.
+
 ### v3.0.0
 
 New features:

@@ -7,7 +7,9 @@ use crate::{
 };
 
 #[derive(Parser)]
-#[command(override_usage = r#"
+#[command(
+    version,
+    override_usage = r#"
 ts [ARGS | COMMAND]
 
 Dynamic Arguments:
@@ -25,7 +27,8 @@ Keyword Arguments:
   2. Color mode:
     --color=<ColorMode>                 e.g. --color=auto
                                              (modes: always, auto, never)
-"#)]
+"#
+)]
 pub struct Args {
     #[command(subcommand)]
     pub command: Command,

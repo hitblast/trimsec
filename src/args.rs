@@ -145,7 +145,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
 
     let cmd = match remaining.first().map(String::as_str) {
-        Some("key" | "help" | "-h" | "--help" | "list" | "ls" | "path") | None => {
+        Some("key" | "help" | "-h" | "--help" | "list" | "ls" | "path" | "--version") | None => {
             parse_with_clap(&remaining)?
         }
         Some(other) => parse_deterministic(other, &remaining)?,
