@@ -8,13 +8,13 @@ use crate::{
     commands::{Ctx, fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
         time::{TDuration, parse_multiplier},
-        youtils::{YoutubeId, get_youtube_id},
+        youtils::{TYoutubeId, get_youtube_id},
     },
 };
 
 pub enum CmdContentType {
     Raw(TDuration),
-    YouTube(YoutubeId),
+    YouTube(TYoutubeId),
 }
 
 pub enum TCmd {
