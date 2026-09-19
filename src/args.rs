@@ -35,7 +35,6 @@ pub enum TCmd {
     Path {
         cmd: PathCmd,
     },
-    Unreachable,
 }
 
 impl TCmd {
@@ -62,7 +61,6 @@ impl TCmd {
             },
             TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Path { cmd } => cmd.run(&mut ctx),
-            TCmd::Unreachable => Ok(()),
         }
     }
 }
@@ -148,21 +146,17 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
 
     let cmd = match remaining.first().map(String::as_str) {
         Some("key" | "help" | "list" | "ls" | "path") | None => parse_with_clap(&remaining)?,
-        _ => parse_deterministic(&remaining)?,
+        Some(other) => parse_deterministic(other, &remaining)?,
     };
 
     Ok((kwargs, cmd))
 }
 
-fn parse_deterministic(args: &[String]) -> Result<TCmd> {
+fn parse_deterministic(arg1: &str, args: &[String]) -> Result<TCmd> {
     if args.len() > 2 {
         Args::command().print_help()?;
         bail!("\nToo many positional arguments.")
     }
-
-    let Some(arg1) = args.first() else {
-        return Ok(TCmd::Unreachable);
-    };
 
     static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
 
