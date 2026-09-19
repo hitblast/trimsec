@@ -1,0 +1,10 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.104"
+clap = "4.6.7"
+clap_mangen = "0.2.33"
+trimsec = { path = "../" }

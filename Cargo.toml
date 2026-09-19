@@ -35,6 +35,9 @@ expect_used = "deny"
 unreachable = "deny"
 must_use_candidate = "warn"
 
+[workspace]
+members = [".", "xtask"]
+
 [lints.rust]
 unused_must_use = "deny"
 
