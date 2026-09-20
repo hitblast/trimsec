@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::errors::TConfigError;
+use crate::{core::time::TDuration, errors::TConfigError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,13 +17,13 @@ pub struct Config {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigOptions {
-    default_multiplier: Option<String>,
+    default_fit_budget: Option<TDuration>,
 }
 
 impl ConfigOptions {
     #[must_use]
-    pub fn default_multiplier(&self) -> Option<&str> {
-        self.default_multiplier.as_deref()
+    pub fn default_fit_budget(&self) -> Option<&TDuration> {
+        self.default_fit_budget.as_ref()
     }
 }
 

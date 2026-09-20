@@ -2,6 +2,18 @@
 
 Active since v2.0.0.
 
+### v3.1.0
+
+New features:
+
+- Added a new configuration option: `default_fit_budget`
+  - It lets you add a specific time-budget that you want to fit-check for instead of the default "remaining time in the day" setting.
+
+Internal changes:
+
+- `Ctx` has now been moved to: `crate::core::context`.
+- `Ctx` now lazily initalizes `ApiClient` inside it, within the `api_client` property.
+
 ### v3.0.2
 
 Bug fixes:
