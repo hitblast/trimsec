@@ -29,10 +29,12 @@ impl<'a> Ctx<'a> {
     }
 
     pub fn config(&mut self) -> Result<&mut Config> {
-        if self.config.is_none() {
-            self.config = Some(Config::load().map_err(|e| anyhow!("config load failure: {e}"))?);
+        match self.config {
+            Some(ref mut c) => Ok(c),
+            None => {
+                let cfg = Config::load().map_err(|e| anyhow!("config load failure: {e}"))?;
+                Ok(self.config.insert(cfg))
+            }
         }
-        #[allow(clippy::unwrap_used)]
-        Ok(self.config.as_mut().unwrap())
     }
 }

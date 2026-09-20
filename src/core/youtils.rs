@@ -44,25 +44,24 @@ impl TYoutubeId {
 pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
     let mut is_playlist = false;
 
-    if let Ok(parsed_url) = Url::parse(link) {
-        if !parsed_url.host_str().is_some_and(|f| {
-            f == "www.youtube.com"
-                || f == "youtube.com"
-                || f == "youtu.be"
-                || f == "music.youtube.com"
-        }) {
-            return None;
-        }
+    let Ok(parsed_url) = Url::parse(link) else {
+        return None;
+    };
 
-        let query_search = |q: &str, ptr: &str| {
-            q.split('&')
-                .find(|p| p.starts_with(ptr))
-                .map(|p| p.trim_start_matches(ptr).to_string())
-        };
+    if !parsed_url.host_str().is_some_and(|f| {
+        f == "www.youtube.com" || f == "youtube.com" || f == "youtu.be" || f == "music.youtube.com"
+    }) {
+        return None;
+    }
 
-        let id: Option<String> = if parsed_url.path().starts_with("/shorts/")
-            || parsed_url.path().starts_with("/embed/")
-        {
+    let query_search = |q: &str, ptr: &str| {
+        q.split('&')
+            .find(|p| p.starts_with(ptr))
+            .map(|p| p.trim_start_matches(ptr).to_string())
+    };
+
+    let id: Option<String> =
+        if parsed_url.path().starts_with("/shorts/") || parsed_url.path().starts_with("/embed/") {
             parsed_url
                 .path_segments()
                 .and_then(|mut f| f.next_back())
@@ -91,14 +90,15 @@ pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
             None
         };
 
-        if id == Some("".to_string()) {
-            None
-        } else {
-            id.map(|id| TYoutubeId { id, is_playlist })
-        }
-    } else {
-        None
+    let Some(id) = id else {
+        return None;
+    };
+
+    if id.is_empty() {
+        return None;
     }
+
+    Some(TYoutubeId { id, is_playlist })
 }
 
 #[cfg(test)]
