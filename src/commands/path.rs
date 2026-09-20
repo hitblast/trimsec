@@ -1,5 +1,6 @@
-use crate::commands::Ctx;
 use clap::Args;
+
+use crate::core::context::Ctx;
 
 #[derive(Debug, Args)]
 pub struct PathCmd;

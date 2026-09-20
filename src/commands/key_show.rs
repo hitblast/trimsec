@@ -1,4 +1,4 @@
-use crate::{commands::Ctx, core::youtils::decide_youtube_key};
+use crate::core::{context::Ctx, youtils::decide_youtube_key};
 use clap::Args;
 
 #[derive(Args, Debug)]

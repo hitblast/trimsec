@@ -21,17 +21,17 @@ gen_url!(PLAYLISTS_URL, "/playlists");
 gen_url!(PLAYLISTITEMS_URL, "/playlistItems");
 gen_url!(VIDEOS_URL, "/videos");
 
-pub struct ApiClient<'a> {
+pub struct ApiClient {
     client: Agent,
-    key: &'a str,
+    key: String,
 }
 
-impl<'a> ApiClient<'a> {
+impl ApiClient {
     #[must_use]
-    pub fn new(key: &'a str) -> Self {
+    pub fn new(key: impl ToString) -> Self {
         Self {
             client: Agent::new_with_defaults(),
-            key,
+            key: key.to_string(),
         }
     }
 
@@ -56,7 +56,7 @@ impl<'a> ApiClient<'a> {
                     .query_pairs([
                         ("part", "contentDetails"),
                         ("id", id.id()),
-                        ("key", self.key),
+                        ("key", &self.key),
                         ("maxResults", "1"),
                     ])
                     .call()
@@ -89,7 +89,7 @@ impl<'a> ApiClient<'a> {
 
                     let mut query_pairs = Vec::from([
                         ("playlistId", id.id()),
-                        ("key", self.key),
+                        ("key", &self.key),
                         ("maxResults", &max_results),
                         ("part", "contentDetails"),
                     ]);
@@ -148,7 +148,7 @@ impl<'a> ApiClient<'a> {
                 .get(VIDEOS_URL)
                 .query_pairs([
                     ("id", chunk_ids.join(",").as_str()),
-                    ("key", self.key),
+                    ("key", &self.key),
                     ("part", "snippet,contentDetails"),
                 ])
                 .call()

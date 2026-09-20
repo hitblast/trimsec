@@ -5,8 +5,9 @@ use clap::CommandFactory;
 
 use crate::{
     clap::{Args, KeySubcmd, parse_with_clap},
-    commands::{Ctx, fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
+    commands::{fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
+        context::Ctx,
         time::{TDuration, parse_multiplier},
         youtils::{TYoutubeId, get_youtube_id},
     },
