@@ -1,4 +1,5 @@
 use chrono::{Datelike, TimeZone};
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, iter::Sum, ops::Sub};
 
 use crate::errors::TTimeError;
@@ -21,11 +22,31 @@ pub fn parse_multiplier(multiplier: &str) -> Result<f64, TTimeError> {
     }
 }
 
-#[derive(PartialEq, Debug, Default)]
+#[derive(PartialEq, Debug, Default, Clone)]
 pub struct TDuration {
     seconds: f64,
     saved_time: f64,
     splits: u64,
+}
+
+impl Serialize for TDuration {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for TDuration {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+
+        TDuration::parse_str(&value).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Ord for TDuration {

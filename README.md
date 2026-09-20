@@ -113,11 +113,11 @@ The primary use of the config file is to store the [API key (see "For YouTube vi
 
 trimsec provides partial modifications of its features through the `options` table.
 
-For example, if you need to set a default multiplier for trimming, you can use:
+For example, if you need to set a default time-budget for fit-checks, you can use:
 
 ```toml
 [options]
-default_multiplier = "1.25x"
+default_fit_budget = "2h4m"
 ```
 
 ## Installation

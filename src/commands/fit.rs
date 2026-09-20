@@ -32,20 +32,34 @@ impl FitCmd {
             }
         };
 
+        let cfg_budget = ctx
+            .config()?
+            .options()
+            .and_then(|f| f.default_fit_budget())
+            .cloned();
+
+        let budget = if self.budget.is_some() {
+            self.budget.as_ref()
+        } else if cfg_budget.is_some() {
+            cfg_budget.as_ref()
+        } else {
+            None
+        };
+
         let message = {
-            let status = if let Some(budget_dur) = &self.budget {
-                if budget_dur > &content_dur {
+            let status = if let Some(budget) = budget {
+                if budget > &content_dur {
                     format!(
                         "{}Fits in budget!{}\n\nExtra time left: {}",
                         ctx.style.boldgreen(),
                         ctx.style.reset(),
-                        budget_dur - &content_dur
+                        budget - &content_dur
                     )
-                } else if budget_dur < &content_dur {
+                } else if budget < &content_dur {
                     format!(
                         "{}Time overrun by {}!{}",
                         ctx.style.boldred(),
-                        &content_dur - budget_dur,
+                        &content_dur - budget,
                         ctx.style.reset()
                     )
                 } else {
