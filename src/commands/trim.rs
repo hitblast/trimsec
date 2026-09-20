@@ -1,11 +1,6 @@
 use crate::{
     args::TCmdContent,
-    commands::Ctx,
-    core::{
-        api::ApiClient,
-        time::ToStringTime,
-        youtils::{TYoutubeId, decide_youtube_key},
-    },
+    core::{context::Ctx, time::ToStringTime, youtils::TYoutubeId},
 };
 use anyhow::{Result, bail};
 
@@ -24,10 +19,8 @@ impl TrimCmd {
     }
 
     fn yt_fallback(&mut self, id: &TYoutubeId, ctx: &mut Ctx) -> Result<()> {
-        let key = decide_youtube_key(ctx.config()?)?;
-        let manager = ApiClient::new(&key);
-
-        match manager.fetch_duration_from_id(id, ctx.kwargs.max_items()) {
+        let max = ctx.kwargs.max_items();
+        match ctx.client()?.fetch_duration_from_id(id, max) {
             Ok(dur) => {
                 self.content = TCmdContent::Raw(dur);
                 self.run(ctx)?;

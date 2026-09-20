@@ -26,8 +26,11 @@ pub struct TYoutubeId {
 
 impl TYoutubeId {
     #[must_use]
-    pub fn new(id: String, is_playlist: bool) -> Self {
-        Self { id, is_playlist }
+    pub fn new(id: impl ToString, is_playlist: bool) -> Self {
+        Self {
+            id: id.to_string(),
+            is_playlist,
+        }
     }
 
     #[must_use]

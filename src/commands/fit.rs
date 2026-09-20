@@ -1,10 +1,8 @@
 use crate::{
     args::TCmdContent,
-    commands::Ctx,
     core::{
-        api::ApiClient,
+        context::Ctx,
         time::{TDuration, ToStringTime, time_in_day_after},
-        youtils::decide_youtube_key,
     },
 };
 use anyhow::Result;
@@ -24,12 +22,13 @@ impl FitCmd {
         let content_dur = match self.content {
             TCmdContent::Raw(tduration) => tduration,
             TCmdContent::YouTube(youtube_id) => {
-                let key = decide_youtube_key(ctx.config()?)?;
-                let manager = ApiClient::new(&key);
+                let max = ctx.kwargs.max_items();
+                let x = ctx
+                    .client()?
+                    .fetch_duration_from_id(&youtube_id, max)
+                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?;
 
-                manager
-                    .fetch_duration_from_id(&youtube_id, ctx.kwargs.max_items())
-                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
+                x
             }
         };
 
