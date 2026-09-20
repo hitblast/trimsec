@@ -23,12 +23,9 @@ impl FitCmd {
             TCmdContent::Raw(tduration) => tduration,
             TCmdContent::YouTube(youtube_id) => {
                 let max = ctx.kwargs.max_items();
-                let x = ctx
-                    .client()?
+                ctx.client()?
                     .fetch_duration_from_id(&youtube_id, max)
-                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?;
-
-                x
+                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
             }
         };
 
