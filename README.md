@@ -6,9 +6,9 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Basic Trimming](#basic-trimming)
-  - [Fit-Checking](#fit-checking)
-  - [Utility Commands](#utility-commands)
+  - [Basic Trimming](#1-basic-trimming)
+  - [Fit-Checking](#2-fit-checking)
+  - [Utility Commands](#3-utility-commands)
 - [Configuration](#configuration)
   - [Configuration Options](#configuration-options)
 - [Installation](#installation)
