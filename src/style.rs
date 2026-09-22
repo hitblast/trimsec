@@ -1,23 +1,31 @@
 use std::env;
 
 use crate::args::ColorMode;
+use constcat::concat;
 
+#[derive(Default)]
 pub struct Style {
     red: &'static str,
-    boldred: String,
+    boldred: &'static str,
     reset: &'static str,
     bold: &'static str,
     green: &'static str,
-    boldgreen: String,
+    boldgreen: &'static str,
+}
+
+macro_rules! getter {
+    ($x:ident) => {
+        #[must_use]
+        pub fn $x(&self) -> &str {
+            self.$x
+        }
+    };
 }
 
 impl Style {
-    /// Determines the color palette for trimsec.
     #[must_use]
-    pub fn determine(color_mode: &ColorMode) -> Self {
-        let defbool = env::var("NO_COLOR").ok().is_some();
-
-        Style::new(if defbool {
+    pub fn new(color_mode: &ColorMode) -> Self {
+        let colors = if env::var("NO_COLOR").ok().is_some() {
             false
         } else {
             match color_mode {
@@ -25,60 +33,37 @@ impl Style {
                 ColorMode::Auto => supports_color::on(supports_color::Stream::Stdout).is_some(),
                 ColorMode::Never => false,
             }
-        })
-    }
-
-    #[must_use]
-    pub fn red(&self) -> &str {
-        self.red
-    }
-    #[must_use]
-    pub fn boldred(&self) -> &str {
-        &self.boldred
-    }
-    #[must_use]
-    pub fn reset(&self) -> &str {
-        self.reset
-    }
-    #[must_use]
-    pub fn green(&self) -> &str {
-        self.green
-    }
-    #[must_use]
-    pub fn boldgreen(&self) -> &str {
-        &self.boldgreen
-    }
-    #[must_use]
-    pub fn bold(&self) -> &str {
-        self.bold
-    }
-
-    fn new(colors: bool) -> Self {
-        let red = "\u{001b}[31m";
-        let bold = "\u{001b}[1m";
-        let boldred = red.to_owned() + bold;
-        let green = "\u{001b}[32m";
-        let boldgreen = green.to_owned() + bold;
-        let reset = "\u{001b}[0m";
-
+        };
         if colors {
-            Self {
-                red,
-                boldred,
-                reset,
-                bold,
-                green,
-                boldgreen,
-            }
+            Self::full()
         } else {
-            Self {
-                red: "",
-                boldred: "".to_string(),
-                reset: "",
-                bold: "",
-                green: "",
-                boldgreen: "".to_string(),
-            }
+            Self::default()
         }
     }
+
+    fn full() -> Self {
+        const RED: &str = "\u{001b}[31m";
+        const BOLD: &str = "\u{001b}[1m";
+        const BOLDRED: &str = concat!(RED, BOLD);
+        const GREEN: &str = "\u{001b}[32m";
+        const BOLDGREEN: &str = concat!(GREEN, BOLD);
+        const RESET: &str = "\u{001b}[0m";
+
+        Self {
+            red: RED,
+            boldred: BOLDRED,
+            reset: RESET,
+            bold: BOLD,
+            green: GREEN,
+            boldgreen: BOLDGREEN,
+        }
+    }
+
+    getter!(bold);
+    getter!(reset);
+
+    getter!(red);
+    getter!(boldred);
+    getter!(green);
+    getter!(boldgreen);
 }
