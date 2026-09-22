@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v3.2.0
+
+New features:
+
+- Add support for spaced values in keyword arg-parsing (for the deterministic parser).
+
 ### v3.1.0
 
 New features:
