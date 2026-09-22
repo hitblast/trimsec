@@ -11,6 +11,8 @@ New features:
 
 Internal changes:
 
+- `Style` now implements `Default`.
+- All fields in `Style` are now `&'static str`, since literals are now concatenated using `constcat::concat`..
 - `Ctx` has now been moved to: `crate::core::context`.
 - `Ctx` now lazily initalizes `ApiClient` inside it, within the `api_client` property.
 

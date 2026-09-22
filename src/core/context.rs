@@ -16,7 +16,7 @@ impl<'a> Ctx<'a> {
     #[must_use]
     pub fn new(color: &ColorMode, kwargs: &'a TKeywordArgs) -> Self {
         Ctx {
-            style: Style::determine(color),
+            style: Style::new(color),
             kwargs,
             config: None,
             api_client: None,
