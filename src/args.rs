@@ -1,10 +1,9 @@
-use std::{env, str::FromStr};
+use std::{collections::HashSet, env, str::FromStr};
 
 use anyhow::{Result, anyhow, bail};
-use clap::CommandFactory;
 
 use crate::{
-    clap::{Args, KeySubcmd, parse_with_clap},
+    clap::{KeySubcmd, parse_with_clap},
     commands::{fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
         context::Ctx,
@@ -110,21 +109,51 @@ impl TKeywordArgs {
         let mut max_items = None;
 
         let mut remaining = Vec::new();
+        let mut skippable: HashSet<usize> = HashSet::new();
 
-        for arg in args {
-            if let Some(x) = arg.strip_prefix("--color=") {
+        for (idx, arg) in args.iter().enumerate() {
+            if skippable.contains(&idx) {
+                continue;
+            }
+
+            if arg.starts_with("--color") {
                 let None = color else {
                     bail!("Multiple --color arguments provided.")
                 };
-                color = Some(ColorMode::from_str(&x.to_lowercase())?);
-            } else if let Some(x) = arg.strip_prefix("--max-items=") {
+
+                let x = if let Some(x) = arg.strip_prefix("--color=") {
+                    x
+                } else if arg == "--color"
+                    && let Some(argval) = args.get(idx + 1)
+                {
+                    argval
+                } else {
+                    bail!("Missing value for keyword argument: --color")
+                };
+
+                color = Some(ColorMode::from_str(x)?);
+                skippable.insert(idx + 1);
+            } else if arg.starts_with("--max-items") {
                 let None = max_items else {
                     bail!("Multiple --max-items arguments provided.")
                 };
+
+                let x = if let Some(x) = arg.strip_prefix("--max-items=") {
+                    x
+                } else if arg == "--max-items"
+                    && let Some(argval) = args.get(idx + 1)
+                {
+                    argval
+                } else {
+                    bail!("Missing value for keyword argument: --max-items")
+                };
+
                 let Ok(y) = x.parse::<usize>() else {
                     bail!("Invalid --max-items value provided.")
                 };
+
                 max_items = Some(y);
+                skippable.insert(idx + 1);
             } else {
                 remaining.push(arg.clone());
             }
@@ -149,21 +178,16 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
         Some("key" | "help" | "-h" | "--help" | "list" | "ls" | "path" | "--version") | None => {
             parse_with_clap(&remaining)?
         }
-        Some(other) => parse_deterministic(other, &remaining)?,
+        Some(first) => parse_deterministic(first, &remaining)?,
     };
 
     Ok((kwargs, cmd))
 }
 
-fn parse_deterministic(arg1: &str, args: &[String]) -> Result<TCmd> {
-    if args.len() > 2 {
-        Args::command().print_help()?;
-        bail!("\nToo many positional arguments.")
-    }
-
+fn parse_deterministic(first: &str, args: &[String]) -> Result<TCmd> {
     static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
 
-    if let Ok(x) = TDuration::parse_str(arg1) {
+    if let Ok(x) = TDuration::parse_str(first) {
         match args.get(1) {
             Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
                 content: TCmdContent::Raw(x),
@@ -182,7 +206,7 @@ fn parse_deterministic(arg1: &str, args: &[String]) -> Result<TCmd> {
                 budget: None,
             }),
         }
-    } else if let Some(id) = get_youtube_id(arg1) {
+    } else if let Some(id) = get_youtube_id(first) {
         match args.get(1) {
             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
                 content: TCmdContent::YouTube(id),
