@@ -23,10 +23,12 @@ Dynamic Arguments:
 
 Keyword Arguments:
   1. Playlist traverse limit:
-    --max-items=<uint>                  e.g. --max-items=7
+    --max-items <uint>                  e.g. --max-items 7
   2. Color mode:
-    --color=<ColorMode>                 e.g. --color=auto
+    --color <ColorMode>                 e.g. --color auto
                                              (modes: always, auto, never)
+  3. Budget configuration override:
+    --budget <Duration>                 e.g. --budget 2h12m1s
 "#
 )]
 pub struct Args {

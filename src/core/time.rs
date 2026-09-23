@@ -1,6 +1,6 @@
 use chrono::{Datelike, TimeZone};
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, iter::Sum, ops::Sub};
+use std::{fmt::Display, iter::Sum, ops::Sub, str::FromStr};
 
 use crate::errors::TTimeError;
 
@@ -46,6 +46,14 @@ impl<'de> Deserialize<'de> for TDuration {
         let value = String::deserialize(deserializer)?;
 
         TDuration::parse_str(&value).map_err(serde::de::Error::custom)
+    }
+}
+
+impl FromStr for TDuration {
+    type Err = TTimeError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        TDuration::parse_str(s)
     }
 }
 
