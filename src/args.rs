@@ -209,6 +209,7 @@ pub enum Token {
     Duration(TDuration),
     Multiplier(f64),
     YouTube(TYoutubeId),
+    EOL,
 }
 
 fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
@@ -227,6 +228,7 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
             vec.push(Token::Multiplier(mul));
         }
     }
+    vec.push(Token::EOL);
 
     return (vec, notrim);
 }
