@@ -8,6 +8,10 @@ New features:
 
 - Add support for spaced values in global kwarg-parsing, as well as some refinements in the parsing code itself.
 
+Internal changes:
+
+- `TKeywordArgs` is now owned by the `Ctx` instance when executing `Ctx::new()`, as well as the `TCmd::run()` executing it.
+
 ### v3.1.0
 
 New features:
