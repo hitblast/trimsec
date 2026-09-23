@@ -131,7 +131,7 @@ impl TKeywordArgs {
             .map_err(|e| anyhow!("Failed to parse from string: {e}"))?)
     }
 
-    fn parse<'a>(args: &[String]) -> Result<(Self, Vec<String>)> {
+    fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
         let mut color = None;
         let mut max_items = None;
 
