@@ -38,7 +38,7 @@ impl<'a> Ctx<'a> {
             Some(ref c) => Ok(c),
             None => {
                 let cfg = self.config()?;
-                let key = decide_youtube_key(&cfg)?;
+                let key = decide_youtube_key(cfg)?;
 
                 let client = ApiClient::new(key);
                 let ins = self.api_client.insert(client);

@@ -93,10 +93,7 @@ pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
             None
         };
 
-    let Some(id) = id else {
-        return None;
-    };
-
+    let id = id?;
     if id.is_empty() {
         return None;
     }

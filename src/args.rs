@@ -127,8 +127,8 @@ impl TKeywordArgs {
 
         skippable.insert(idx + 1);
 
-        Ok(x.parse::<T>()
-            .map_err(|e| anyhow!("Failed to parse from string: {e}"))?)
+        x.parse::<T>()
+            .map_err(|e| anyhow!("Failed to parse from string: {e}"))
     }
 
     fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
