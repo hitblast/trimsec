@@ -23,6 +23,7 @@ impl TrimCmd {
         match ctx.client()?.fetch_duration_from_id(id, max) {
             Ok(dur) => {
                 self.content = TCmdContent::Raw(dur);
+                ctx.kwargs.unset_max_items();
                 self.run(ctx)?;
             }
             Err(e) => bail!("Fetching URL failed: {e}"),
@@ -39,6 +40,10 @@ impl TrimCmd {
 
         match &mut self.content {
             TCmdContent::Raw(dur) => {
+                if ctx.kwargs.max_items() != 0 {
+                    bail!("--max-items cannot be used for regular durations.")
+                }
+
                 dur.trim(self.multiplier);
 
                 let remaining = crate::core::time::time_in_day_after(dur.seconds());

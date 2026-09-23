@@ -38,8 +38,8 @@ pub enum TCmd {
 }
 
 impl TCmd {
-    pub fn run(self, args: &TKeywordArgs) -> Result<()> {
-        let mut ctx = Ctx::new(args.color(), args);
+    pub fn run(self, args: TKeywordArgs) -> Result<()> {
+        let mut ctx = Ctx::new(args);
 
         match self {
             TCmd::Trim {
@@ -102,6 +102,10 @@ impl TKeywordArgs {
     #[must_use]
     pub fn max_items(&self) -> usize {
         self.max_items
+    }
+
+    pub fn unset_max_items(&mut self) {
+        self.max_items = 0;
     }
 
     fn parse_kwarg<T>(
