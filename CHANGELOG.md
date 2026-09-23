@@ -10,7 +10,7 @@ New features:
 
 Internal changes:
 
-- `TKeywordArgs` is now owned by the `Ctx` instance when executing `Ctx::new()`, as well as the `TCmd::run()` executing it.
+- `TKeywordArgs` is now owned by the `Ctx` instance when executing `Ctx::new`, as well as the `TCmd::run` executing it.
 
 ### v3.1.0
 
