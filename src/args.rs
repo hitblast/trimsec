@@ -1,4 +1,4 @@
-use std::{collections::HashSet, env, str::FromStr};
+use std::{collections::HashSet, env, fmt::Display, str::FromStr};
 
 use anyhow::{Result, anyhow, bail};
 
@@ -94,6 +94,33 @@ pub struct TKeywordArgs {
     max_items: usize,
 }
 
+fn parse_kwarg<T>(
+    arg: &str,
+    keyword: &str,
+    args: &[String],
+    skippable: &mut HashSet<usize>,
+    idx: usize,
+) -> Result<T>
+where
+    T: FromStr,
+    T::Err: Display,
+{
+    let x = if let Some(x) = arg.strip_prefix(&format!("{keyword}=")) {
+        x
+    } else if arg == keyword
+        && let Some(argval) = args.get(idx + 1)
+    {
+        argval.as_str()
+    } else {
+        bail!("Missing value for keyword argument: {keyword}")
+    };
+
+    skippable.insert(idx + 1);
+
+    Ok(x.parse::<T>()
+        .map_err(|e| anyhow!("Failed to parse from string: {e}"))?)
+}
+
 impl TKeywordArgs {
     #[must_use]
     pub fn color(&self) -> &ColorMode {
@@ -104,7 +131,7 @@ impl TKeywordArgs {
         self.max_items
     }
 
-    fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
+    fn parse<'a>(args: &[String]) -> Result<(Self, Vec<String>)> {
         let mut color = None;
         let mut max_items = None;
 
@@ -121,39 +148,15 @@ impl TKeywordArgs {
                     bail!("Multiple --color arguments provided.")
                 };
 
-                let x = if let Some(x) = arg.strip_prefix("--color=") {
-                    x
-                } else if arg == "--color"
-                    && let Some(argval) = args.get(idx + 1)
-                {
-                    argval
-                } else {
-                    bail!("Missing value for keyword argument: --color")
-                };
-
-                color = Some(ColorMode::from_str(x)?);
-                skippable.insert(idx + 1);
+                let x: ColorMode = parse_kwarg(arg, "--color", args, &mut skippable, idx)?;
+                color = Some(x);
             } else if arg.starts_with("--max-items") {
                 let None = max_items else {
                     bail!("Multiple --max-items arguments provided.")
                 };
 
-                let x = if let Some(x) = arg.strip_prefix("--max-items=") {
-                    x
-                } else if arg == "--max-items"
-                    && let Some(argval) = args.get(idx + 1)
-                {
-                    argval
-                } else {
-                    bail!("Missing value for keyword argument: --max-items")
-                };
-
-                let Ok(y) = x.parse::<usize>() else {
-                    bail!("Invalid --max-items value provided.")
-                };
-
-                max_items = Some(y);
-                skippable.insert(idx + 1);
+                let x: usize = parse_kwarg(arg, "--max-items", args, &mut skippable, idx)?;
+                max_items = Some(x);
             } else {
                 remaining.push(arg.clone());
             }

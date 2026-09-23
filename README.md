@@ -71,7 +71,7 @@ ts "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0
 For calculating based on the data of only a few items in the playlist, use:
 
 ```bash
-ts <PLAYLIST_URL> --max-items=7 1.8x
+ts <PLAYLIST_URL> --max-items 7 1.8x
 ```
 
 ### 2. Fit-Checking
@@ -88,7 +88,7 @@ ts 1h24m 2h4m
 ts "https://youtube.com/..." 2h4m
 
 # youtube playlist + item cap
-ts "https://youtu.be/..." --max-items=5
+ts "https://youtu.be/..." --max-items 5
 ```
 
 ### 3. Utility Commands

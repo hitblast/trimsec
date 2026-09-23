@@ -6,7 +6,7 @@ Active since v2.0.0.
 
 New features:
 
-- Add support for spaced values in keyword arg-parsing (for the deterministic parser).
+- Add support for spaced values in global kwarg-parsing, as well as some refinements in the parsing code itself.
 
 ### v3.1.0
 
