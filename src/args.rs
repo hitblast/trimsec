@@ -15,6 +15,7 @@ use crate::{
 pub enum TCmdContent {
     Raw(TDuration),
     YouTube(TYoutubeId),
+    TokenVec(Vec<Token>),
 }
 
 pub enum TCmd {
@@ -35,6 +36,8 @@ pub enum TCmd {
     Path {
         cmd: PathCmd,
     },
+    #[allow(unused)]
+    Unreachable,
 }
 
 impl TCmd {
@@ -61,6 +64,7 @@ impl TCmd {
             },
             TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Path { cmd } => cmd.run(&mut ctx),
+            TCmd::Unreachable => Ok(()),
         }
     }
 }
@@ -180,7 +184,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let argv: Vec<String> = env::args().skip(1).collect();
 
     let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
-    const POSSIBLE_FIRST_SUBCMDS: [&str; 8] = [
+    const SUBCMDS: [&str; 8] = [
         "key",
         "list",
         "ls",
@@ -193,55 +197,124 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
 
     let cmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
-        Some(x) if POSSIBLE_FIRST_SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(first) => parse_deterministic(first, &remaining)?,
+        Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
+        Some(_) => parse_deterministic(&remaining)?,
     };
 
     Ok((kwargs, cmd))
 }
 
-fn parse_deterministic(first: &str, args: &[String]) -> Result<TCmd> {
-    static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
-
-    if let Ok(x) = TDuration::parse_str(first) {
-        match args.get(1) {
-            Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-                content: TCmdContent::Raw(x),
-                budget: Some(y),
-            }),
-
-            Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-                content: TCmdContent::Raw(x),
-                mul: y,
-            }),
-
-            Some(_) => bail!(SARGERROR),
-
-            None => Ok(TCmd::Fit {
-                content: TCmdContent::Raw(x),
-                budget: None,
-            }),
-        }
-    } else if let Some(id) = get_youtube_id(first) {
-        match args.get(1) {
-            Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-                content: TCmdContent::YouTube(id),
-                mul: y,
-            }),
-
-            Some(arg2) if let Ok(budget) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-                content: TCmdContent::YouTube(id),
-                budget: Some(budget),
-            }),
-
-            Some(_) => bail!(SARGERROR),
-
-            None => Ok(TCmd::Fit {
-                content: TCmdContent::YouTube(id),
-                budget: None,
-            }),
-        }
-    } else {
-        bail!("First argument must be a subcommand, duration, or a YouTube URL.")
-    }
+#[derive(PartialEq)]
+pub enum Token {
+    Duration(TDuration),
+    Multiplier(f64),
+    YouTube(TYoutubeId),
 }
+
+fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
+    let mut vec: Vec<Token> = Vec::new();
+    let mut notrim = true;
+
+    for arg in args {
+        if let Ok(x) = TDuration::parse_str(arg) {
+            vec.push(Token::Duration(x));
+        } else if let Some(id) = get_youtube_id(arg) {
+            vec.push(Token::YouTube(id));
+        } else if let Ok(mul) = parse_multiplier(arg) {
+            if notrim {
+                notrim = false;
+            }
+            vec.push(Token::Multiplier(mul));
+        }
+    }
+
+    return (vec, notrim);
+}
+
+fn parse_deterministic(args: &[String]) -> Result<TCmd> {
+    let (tokens, notrim) = parse_tokens(args);
+
+    if tokens.is_empty() {
+        bail!("No meaningful arguments were passed.")
+    }
+
+    if notrim {
+        let durations: Vec<TDuration> = tokens
+            .iter()
+            .filter_map(|f| match f {
+                Token::Duration(tduration) => Some(tduration.clone()),
+                _ => None,
+            })
+            .collect();
+
+        let cmd = if durations.len() == tokens.len() {
+            if durations.len() == 2 {
+                TCmd::Fit {
+                    content: TCmdContent::Raw(durations[0].clone()),
+                    budget: Some(durations[1].clone()),
+                }
+            } else {
+                let sum = durations.into_iter().sum();
+                TCmd::Fit {
+                    content: TCmdContent::Raw(sum),
+                    budget: None,
+                }
+            }
+        } else {
+            TCmd::Fit {
+                content: TCmdContent::TokenVec(tokens),
+                budget: None,
+            }
+        };
+
+        return Ok(cmd);
+    }
+
+    Ok(TCmd::Unreachable)
+}
+
+// fn parse_deterministic(first: &str, args: &[String]) -> Result<TCmd> {
+//     static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
+
+//     if let Ok(x) = TDuration::parse_str(first) {
+//         match args.get(1) {
+//             Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
+//                 content: TCmdContent::Raw(x),
+//                 budget: Some(y),
+//             }),
+
+//             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
+//                 content: TCmdContent::Raw(x),
+//                 mul: y,
+//             }),
+
+//             Some(_) => bail!(SARGERROR),
+
+//             None => Ok(TCmd::Fit {
+//                 content: TCmdContent::Raw(x),
+//                 budget: None,
+//             }),
+//         }
+//     } else if let Some(id) = get_youtube_id(first) {
+//         match args.get(1) {
+//             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
+//                 content: TCmdContent::YouTube(id),
+//                 mul: y,
+//             }),
+
+//             Some(arg2) if let Ok(budget) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
+//                 content: TCmdContent::YouTube(id),
+//                 budget: Some(budget),
+//             }),
+
+//             Some(_) => bail!(SARGERROR),
+
+//             None => Ok(TCmd::Fit {
+//                 content: TCmdContent::YouTube(id),
+//                 budget: None,
+//             }),
+//         }
+//     } else {
+//         bail!("First argument must be a subcommand, duration, or a YouTube URL.")
+//     }
+// }
