@@ -79,6 +79,8 @@ impl TrimCmd {
                 let id = e.clone();
                 return self.yt_fallback(&id, ctx);
             }
+
+            _ => todo!(),
         }
 
         Ok(())

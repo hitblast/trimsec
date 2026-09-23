@@ -27,6 +27,22 @@ impl FitCmd {
                     .fetch_duration_from_id(&youtube_id, max)
                     .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
             }
+            TCmdContent::TokenVec(tokens) => {
+                let max = ctx.kwargs.max_items();
+                let client = ctx.client()?;
+                let total_duration: TDuration = tokens
+                    .into_iter()
+                    .filter_map(|f| match f {
+                        crate::args::Token::Duration(dur) => Some(dur),
+                        crate::args::Token::YouTube(id) => {
+                            client.fetch_duration_from_id(&id, max).ok()
+                        }
+                        _ => None,
+                    })
+                    .sum::<TDuration>();
+
+                total_duration
+            }
         };
 
         let cfg_budget = ctx
