@@ -97,7 +97,10 @@ impl FitCmd {
                 }
             };
 
-            format!("\n{status}\n(counted {} splits)\n", content_dur.splits())
+            format!(
+                "\n{status}\n({content_dur}; counted {} splits)\n",
+                content_dur.splits()
+            )
         };
 
         println!("{message}");

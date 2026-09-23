@@ -6,6 +6,7 @@ Active since v2.0.0.
 
 New features:
 
+- Overhauled the entire parsing algorithm for (almost) infinite combinations of content, durations and multipliers.
 - Add support for spaced values in global kwarg-parsing, as well as some refinements in the parsing code itself.
 
 Internal changes:
