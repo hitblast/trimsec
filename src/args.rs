@@ -180,11 +180,20 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let argv: Vec<String> = env::args().skip(1).collect();
 
     let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
+    const POSSIBLE_FIRST_SUBCMDS: [&str; 8] = [
+        "key",
+        "list",
+        "ls",
+        "path",
+        "-h",
+        "help",
+        "--help",
+        "--version",
+    ];
 
     let cmd = match remaining.first().map(String::as_str) {
-        Some("key" | "help" | "-h" | "--help" | "list" | "ls" | "path" | "--version") | None => {
-            parse_with_clap(&remaining)?
-        }
+        None => parse_with_clap(&remaining)?,
+        Some(x) if POSSIBLE_FIRST_SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
         Some(first) => parse_deterministic(first, &remaining)?,
     };
 
