@@ -81,10 +81,10 @@ impl TrimCmd {
                                 multiplier,
                             });
                         } else {
-                            bail!("Multiplier \"{multiplier}x\" found without a duration.")
+                            bail!("Unused multiplier: {multiplier}x")
                         }
-                    } else if let Some(unused) = cursor_duration {
-                        bail!("Unused duration: {unused}")
+                    } else if let Some(definitely_unused) = cursor_duration {
+                        bail!("Unused duration: {definitely_unused}")
                     }
                 }
             }
