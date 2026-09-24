@@ -59,8 +59,8 @@ impl TCmd {
                 x.run(&mut ctx)
             }
             TCmd::Key { subcmd: command } => match command {
-                KeySubcmd::Show(key_show_cmd) => key_show_cmd.run(&mut ctx),
-                KeySubcmd::Set(key_set_cmd) => key_set_cmd.run(&mut ctx),
+                KeySubcmd::Show(command) => command.run(&mut ctx),
+                KeySubcmd::Set(command) => command.run(&mut ctx),
             },
             TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Path { cmd } => cmd.run(&mut ctx),
@@ -300,49 +300,3 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
 
     Ok(TCmd::Unreachable)
 }
-
-// fn parse_deterministic(first: &str, args: &[String]) -> Result<TCmd> {
-//     static SARGERROR: &str = "Second argument must be either a duration or a multiplier.";
-
-//     if let Ok(x) = TDuration::parse_str(first) {
-//         match args.get(1) {
-//             Some(arg2) if let Ok(y) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-//                 content: TCmdContent::Raw(x),
-//                 budget: Some(y),
-//             }),
-
-//             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-//                 content: TCmdContent::Raw(x),
-//                 mul: y,
-//             }),
-
-//             Some(_) => bail!(SARGERROR),
-
-//             None => Ok(TCmd::Fit {
-//                 content: TCmdContent::Raw(x),
-//                 budget: None,
-//             }),
-//         }
-//     } else if let Some(id) = get_youtube_id(first) {
-//         match args.get(1) {
-//             Some(arg2) if let Ok(y) = parse_multiplier(arg2) => Ok(TCmd::Trim {
-//                 content: TCmdContent::YouTube(id),
-//                 mul: y,
-//             }),
-
-//             Some(arg2) if let Ok(budget) = TDuration::parse_str(arg2) => Ok(TCmd::Fit {
-//                 content: TCmdContent::YouTube(id),
-//                 budget: Some(budget),
-//             }),
-
-//             Some(_) => bail!(SARGERROR),
-
-//             None => Ok(TCmd::Fit {
-//                 content: TCmdContent::YouTube(id),
-//                 budget: None,
-//             }),
-//         }
-//     } else {
-//         bail!("First argument must be a subcommand, duration, or a YouTube URL.")
-//     }
-// }
