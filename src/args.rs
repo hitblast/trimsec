@@ -241,7 +241,7 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
     }
     vec.push(Token::EOL);
 
-    return (vec, trim);
+    (vec, trim)
 }
 
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
