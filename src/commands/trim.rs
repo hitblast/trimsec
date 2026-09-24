@@ -22,7 +22,7 @@ impl TrimCmd {
         while let Some(tok) = iterable.next() {
             match tok {
                 Token::Duration(dur) => match &mut cursor_duration {
-                    Some(total) => *total += &dur,
+                    Some(total) => *total += dur,
                     None => cursor_duration = Some(dur.clone()),
                 },
                 Token::BudgetDuration(_) => bail!(
