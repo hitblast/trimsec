@@ -1,38 +1,37 @@
 use crate::{
-    args::{TCmdContent, Token},
+    args::Token,
     core::{
         context::Ctx,
         time::{TDuration, ToStringTime, time_in_day_after},
-        youtils::TYoutubeId,
     },
 };
 use anyhow::{Result, bail};
 
 pub struct FitCmd {
-    content: TCmdContent,
+    duration: TDuration,
     determined_budget: Option<TDuration>,
 }
 
 impl FitCmd {
-    fn new(content: TCmdContent, determined_budget: Option<TDuration>) -> Self {
+    fn new(duration: TDuration, determined_budget: Option<TDuration>) -> Self {
         Self {
-            content,
+            duration,
             determined_budget,
         }
     }
 
-    pub fn delegate_tokens(tokens: Vec<Token>) -> Result<Self> {
+    pub fn delegate_tokens(ctx: &mut Ctx, tokens: Vec<Token>) -> Result<Self> {
         let mut budget_duration: Option<TDuration> = None;
-        let mut yt_ids: Vec<TYoutubeId> = Vec::new();
+        let max = ctx.kwargs.max_items();
 
-        let bare_durations: Vec<TDuration> = tokens
+        let durations: Vec<TDuration> = tokens
             .iter()
             .filter_map(|f| match f {
                 Token::Duration(dur) => Some(dur.clone()),
-                Token::YouTube(id) => {
-                    yt_ids.push(id.clone());
-                    None
-                }
+                Token::YouTube(id) => ctx
+                    .client()
+                    .ok()
+                    .and_then(|f| f.fetch_duration_from_id(id, max).ok()),
                 Token::BudgetDuration(dur) => {
                     match &mut budget_duration {
                         Some(existing) => *existing += dur,
@@ -44,52 +43,22 @@ impl FitCmd {
             })
             .collect();
 
-        if bare_durations.is_empty() {
+        if durations.is_empty() {
             bail!("Missing content duration for fit-check.")
         }
 
-        let cmd: Self = if bare_durations.len() + 1 == tokens.len() {
-            if bare_durations.len() == 2 {
-                Self::new(
-                    TCmdContent::Raw(bare_durations[0].clone()),
-                    Some(bare_durations[1].clone()),
-                )
-            } else {
-                let sum = bare_durations.into_iter().sum();
-                Self::new(TCmdContent::Raw(sum), budget_duration)
-            }
+        let cmd = if durations.len() + 1 == tokens.len() && durations.len() == 2 {
+            FitCmd::new(durations[0].clone(), Some(durations[1].clone()))
         } else {
-            Self::new(
-                TCmdContent::Complex((bare_durations, yt_ids)),
-                budget_duration,
-            )
+            let sum = durations.into_iter().sum();
+            FitCmd::new(sum, budget_duration)
         };
 
         Ok(cmd)
     }
 
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let content_dur = match self.content {
-            TCmdContent::Raw(tduration) => tduration,
-            TCmdContent::YouTube(youtube_id) => {
-                let max = ctx.kwargs.max_items();
-                ctx.client()?
-                    .fetch_duration_from_id(&youtube_id, max)
-                    .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
-            }
-            TCmdContent::Complex((mut durations, yt_ids)) => {
-                let max = ctx.kwargs.max_items();
-                let client = ctx.client()?;
-
-                let total_yt_duration: TDuration = yt_ids
-                    .iter()
-                    .filter_map(|id| client.fetch_duration_from_id(id, max).ok())
-                    .sum::<TDuration>();
-
-                durations.push(total_yt_duration);
-                durations.into_iter().sum()
-            }
-        };
+        let content_duration = self.duration;
 
         let cfg_budget = ctx
             .config()?
@@ -107,25 +76,25 @@ impl FitCmd {
 
         let message = {
             let status = if let Some(budget) = budget {
-                if budget > &content_dur {
+                if budget > &content_duration {
                     format!(
                         "{}Fits in budget!{}\n\nExtra time left: {}",
                         ctx.style.boldgreen(),
                         ctx.style.reset(),
-                        budget - &content_dur
+                        budget - &content_duration
                     )
-                } else if budget < &content_dur {
+                } else if budget < &content_duration {
                     format!(
                         "{}Time overrun by {}!{}",
                         ctx.style.boldred(),
-                        &content_dur - budget,
+                        &content_duration - budget,
                         ctx.style.reset()
                     )
                 } else {
                     "Duration match! Would finish on time.".to_string()
                 }
             } else {
-                let time_left = time_in_day_after(content_dur.seconds());
+                let time_left = time_in_day_after(content_duration.seconds());
 
                 if time_left != 0.0 {
                     format!(
@@ -144,8 +113,8 @@ impl FitCmd {
             };
 
             format!(
-                "\n{status}\n({content_dur}; counted {} splits)\n",
-                content_dur.splits()
+                "\n{status}\n({content_duration}; counted {} splits)\n",
+                content_duration.splits()
             )
         };
 
