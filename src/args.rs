@@ -15,7 +15,7 @@ use crate::{
 pub enum TCmdContent {
     Raw(TDuration),
     YouTube(TYoutubeId),
-    TokenVec(Vec<Token>),
+    Complex((Vec<TDuration>, Vec<TYoutubeId>)),
 }
 
 pub enum TCmd {
@@ -24,8 +24,7 @@ pub enum TCmd {
         mul: f64,
     },
     Fit {
-        content: TCmdContent,
-        budget: Option<TDuration>,
+        tokens: Vec<Token>,
     },
     Key {
         subcmd: KeySubcmd,
@@ -53,10 +52,9 @@ impl TCmd {
 
                 x.run(&mut ctx)
             }
-            TCmd::Fit { content, budget } => {
-                let x = FitCmd::new(content, budget);
-
-                x.run(&mut ctx)
+            TCmd::Fit { tokens } => {
+                let cmd = FitCmd::delegate_tokens(tokens)?;
+                cmd.run(&mut ctx)
             }
             TCmd::Key { subcmd: command } => match command {
                 KeySubcmd::Show(command) => command.run(&mut ctx),
@@ -253,50 +251,11 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
         bail!("No meaningful arguments were passed.")
     }
 
-    if !trim {
-        let mut budget_duration: Option<TDuration> = None;
+    let cmd = if !trim {
+        TCmd::Fit { tokens }
+    } else {
+        TCmd::Unreachable
+    };
 
-        let durations: Vec<TDuration> = tokens
-            .iter()
-            .filter_map(|f| match f {
-                Token::Duration(dur) => Some(dur.clone()),
-                Token::BudgetDuration(dur) => {
-                    match &mut budget_duration {
-                        Some(existing) => *existing += dur,
-                        None => budget_duration = Some(dur.clone()),
-                    }
-                    None
-                }
-                _ => None,
-            })
-            .collect();
-
-        if durations.is_empty() {
-            bail!("Missing content duration for fit-check.")
-        }
-
-        let cmd = if durations.len() + 1 == tokens.len() {
-            if durations.len() == 2 {
-                TCmd::Fit {
-                    content: TCmdContent::Raw(durations[0].clone()),
-                    budget: Some(durations[1].clone()),
-                }
-            } else {
-                let sum = durations.into_iter().sum();
-                TCmd::Fit {
-                    content: TCmdContent::Raw(sum),
-                    budget: budget_duration,
-                }
-            }
-        } else {
-            TCmd::Fit {
-                content: TCmdContent::TokenVec(tokens),
-                budget: budget_duration,
-            }
-        };
-
-        return Ok(cmd);
-    }
-
-    Ok(TCmd::Unreachable)
+    Ok(cmd)
 }

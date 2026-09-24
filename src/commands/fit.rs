@@ -1,11 +1,12 @@
 use crate::{
-    args::TCmdContent,
+    args::{TCmdContent, Token},
     core::{
         context::Ctx,
         time::{TDuration, ToStringTime, time_in_day_after},
+        youtils::TYoutubeId,
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 
 pub struct FitCmd {
     content: TCmdContent,
@@ -13,12 +14,58 @@ pub struct FitCmd {
 }
 
 impl FitCmd {
-    #[must_use]
-    pub fn new(content: TCmdContent, determined_budget: Option<TDuration>) -> Self {
+    fn new(content: TCmdContent, determined_budget: Option<TDuration>) -> Self {
         Self {
             content,
             determined_budget,
         }
+    }
+
+    pub fn delegate_tokens(tokens: Vec<Token>) -> Result<Self> {
+        let mut budget_duration: Option<TDuration> = None;
+        let mut yt_ids: Vec<TYoutubeId> = Vec::new();
+
+        let bare_durations: Vec<TDuration> = tokens
+            .iter()
+            .filter_map(|f| match f {
+                Token::Duration(dur) => Some(dur.clone()),
+                Token::YouTube(id) => {
+                    yt_ids.push(id.clone());
+                    None
+                }
+                Token::BudgetDuration(dur) => {
+                    match &mut budget_duration {
+                        Some(existing) => *existing += dur,
+                        None => budget_duration = Some(dur.clone()),
+                    }
+                    None
+                }
+                _ => None,
+            })
+            .collect();
+
+        if bare_durations.is_empty() {
+            bail!("Missing content duration for fit-check.")
+        }
+
+        let cmd: Self = if bare_durations.len() + 1 == tokens.len() {
+            if bare_durations.len() == 2 {
+                Self::new(
+                    TCmdContent::Raw(bare_durations[0].clone()),
+                    Some(bare_durations[1].clone()),
+                )
+            } else {
+                let sum = bare_durations.into_iter().sum();
+                Self::new(TCmdContent::Raw(sum), budget_duration)
+            }
+        } else {
+            Self::new(
+                TCmdContent::Complex((bare_durations, yt_ids)),
+                budget_duration,
+            )
+        };
+
+        Ok(cmd)
     }
 
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
@@ -30,22 +77,17 @@ impl FitCmd {
                     .fetch_duration_from_id(&youtube_id, max)
                     .map_err(|e| anyhow::anyhow!("Failed to fetch details from URL: {e}"))?
             }
-            TCmdContent::TokenVec(tokens) => {
+            TCmdContent::Complex((mut durations, yt_ids)) => {
                 let max = ctx.kwargs.max_items();
                 let client = ctx.client()?;
 
-                let total_duration: TDuration = tokens
-                    .into_iter()
-                    .filter_map(|f| match f {
-                        crate::args::Token::Duration(dur) => Some(dur),
-                        crate::args::Token::YouTube(id) => {
-                            client.fetch_duration_from_id(&id, max).ok()
-                        }
-                        _ => None,
-                    })
+                let total_yt_duration: TDuration = yt_ids
+                    .iter()
+                    .filter_map(|id| client.fetch_duration_from_id(id, max).ok())
                     .sum::<TDuration>();
 
-                total_duration
+                durations.push(total_yt_duration);
+                durations.into_iter().sum()
             }
         };
 
