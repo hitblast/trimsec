@@ -7,20 +7,22 @@ use crate::{
 };
 use anyhow::{Result, bail};
 
-pub struct FitCmd {
+pub struct FitCmd<'a> {
+    ctx: &'a mut Ctx,
     duration: TDuration,
     determined_budget: Option<TDuration>,
 }
 
-impl FitCmd {
-    fn new(duration: TDuration, determined_budget: Option<TDuration>) -> Self {
+impl<'a> FitCmd<'a> {
+    fn new(ctx: &'a mut Ctx, duration: TDuration, determined_budget: Option<TDuration>) -> Self {
         Self {
+            ctx,
             duration,
             determined_budget,
         }
     }
 
-    pub fn delegate_tokens(ctx: &mut Ctx, tokens: Vec<Token>) -> Result<Self> {
+    pub fn delegate(ctx: &'a mut Ctx, tokens: Vec<Token>) -> Result<Self> {
         let mut budget_duration: Option<TDuration> = None;
         let max = ctx.kwargs.max_items();
 
@@ -48,17 +50,18 @@ impl FitCmd {
         }
 
         let cmd = if durations.len() + 1 == tokens.len() && durations.len() == 2 {
-            FitCmd::new(durations[0].clone(), Some(durations[1].clone()))
+            FitCmd::new(ctx, durations[0].clone(), Some(durations[1].clone()))
         } else {
             let sum = durations.into_iter().sum();
-            FitCmd::new(sum, budget_duration)
+            FitCmd::new(ctx, sum, budget_duration)
         };
 
         Ok(cmd)
     }
 
-    pub fn run(self, ctx: &mut Ctx) -> Result<()> {
+    pub fn run(self) -> Result<()> {
         let content_duration = self.duration;
+        let ctx = self.ctx;
 
         let cfg_budget = ctx
             .config()?
