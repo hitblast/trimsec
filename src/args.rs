@@ -53,8 +53,8 @@ impl TCmd {
                 x.run(&mut ctx)
             }
             TCmd::Fit { tokens } => {
-                let cmd = FitCmd::delegate_tokens(&mut ctx, tokens)?;
-                cmd.run(&mut ctx)
+                let cmd = FitCmd::delegate(&mut ctx, tokens)?;
+                cmd.run()
             }
             TCmd::Key { subcmd: command } => match command {
                 KeySubcmd::Show(command) => command.run(&mut ctx),
