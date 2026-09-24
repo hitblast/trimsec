@@ -30,9 +30,9 @@ impl TrimCmd {
                 ),
                 Token::Multiplier(new) => match &mut cursor_multiplier {
                     Some(existing) => {
-                        if let Some(dur) = cursor_duration.take() {
+                        if let Some(duration) = cursor_duration.take() {
                             runnables.push(Self {
-                                duration: dur.clone(),
+                                duration,
                                 multiplier: *existing,
                             });
                             cursor_multiplier = Some(*new);
@@ -42,7 +42,9 @@ impl TrimCmd {
                                     cursor_multiplier = Some(*new)
                                 }
                                 Some(_) | None => {
-                                    bail!("Multiplier given but duration does not exist.")
+                                    bail!(
+                                        "Multiplier \"{existing}x, {new}x\" given but duration does not exist."
+                                    )
                                 }
                             }
                         }
@@ -79,7 +81,7 @@ impl TrimCmd {
                                 multiplier,
                             });
                         } else {
-                            bail!("Multiplier {multiplier}x found without a duration.")
+                            bail!("Multiplier \"{multiplier}x\" found without a duration.")
                         }
                     }
                 }
@@ -99,6 +101,7 @@ impl TrimCmd {
             bail!("--max-items cannot be used for regular durations.")
         }
 
+        println!("{} -> {}x\n-----------", self.duration, self.multiplier);
         let dur = &mut self.duration;
         dur.trim(self.multiplier);
 
