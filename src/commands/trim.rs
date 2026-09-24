@@ -30,12 +30,11 @@ impl TrimCmd {
                 ),
                 Token::Multiplier(new) => match &mut cursor_multiplier {
                     Some(existing) => {
-                        if let Some(dur) = &mut cursor_duration {
+                        if let Some(dur) = cursor_duration.take() {
                             runnables.push(Self {
                                 duration: dur.clone(),
                                 multiplier: *existing,
                             });
-                            cursor_duration = None;
                             cursor_multiplier = Some(*new);
                         } else {
                             match iterable.peek() {
