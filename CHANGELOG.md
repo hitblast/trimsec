@@ -8,7 +8,7 @@ New features:
 
 - Overhauled the entire parsing algorithm for (almost) infinite combinations of content, durations and multipliers.
 - Add support for spaced values in global kwarg-parsing, as well as some refinements in the parsing code itself.
-- Add a new global `--budget` flag which overrides the traditional time-budget configuration (even the user-configuration) for the `fit` command.
+- Users can now specify budget-durations for running the `fit` command by prefixing one or multiple durations with the `b` letter (e.g. `b12h30m`).
 
 Internal changes:
 

@@ -27,8 +27,6 @@ Keyword Arguments:
   2. Color mode:
     --color <ColorMode>                 e.g. --color auto
                                              (modes: always, auto, never)
-  3. Budget configuration override:
-    --budget <Duration>                 e.g. --budget 2h12m1s
 "#
 )]
 pub struct Args {
