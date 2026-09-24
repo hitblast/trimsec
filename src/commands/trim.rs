@@ -7,38 +7,96 @@ use crate::{
 };
 use anyhow::{Result, bail};
 
-pub struct TrimCmd<'a> {
-    ctx: &'a mut Ctx,
+pub struct TrimCmd {
     duration: TDuration,
     multiplier: f64,
 }
 
-impl<'a> TrimCmd<'a> {
-    fn new(ctx: &'a mut Ctx, duration: TDuration, multiplier: f64) -> Self {
-        Self {
-            ctx,
-            duration,
-            multiplier,
+impl TrimCmd {
+    pub fn delegate(ctx: &mut Ctx, tokens: Vec<Token>) -> Result<Vec<Self>> {
+        let mut cursor_duration: Option<TDuration> = None;
+        let mut cursor_multiplier: Option<f64> = None;
+        let mut runnables: Vec<Self> = Vec::new();
+
+        let mut iterable = tokens.iter().peekable();
+        while let Some(tok) = iterable.next() {
+            match tok {
+                Token::Duration(dur) => match &mut cursor_duration {
+                    Some(total) => *total += &dur,
+                    None => cursor_duration = Some(dur.clone()),
+                },
+                Token::BudgetDuration(_) => bail!(
+                    "Budget duration cannot be present inside an expression which prioritizes multipliers."
+                ),
+                Token::Multiplier(new) => match &mut cursor_multiplier {
+                    Some(existing) => {
+                        if let Some(dur) = &mut cursor_duration {
+                            runnables.push(Self {
+                                duration: dur.clone(),
+                                multiplier: *existing,
+                            });
+                            cursor_duration = None;
+                            cursor_multiplier = Some(*new);
+                        } else {
+                            match iterable.peek() {
+                                Some(Token::Duration(_)) | Some(Token::YouTube(_)) => {
+                                    cursor_multiplier = Some(*new)
+                                }
+                                Some(_) | None => {
+                                    bail!("Multiplier given but duration does not exist.")
+                                }
+                            }
+                        }
+                    }
+                    None => match cursor_duration.take() {
+                        Some(duration) => {
+                            runnables.push(Self {
+                                duration,
+                                multiplier: *new,
+                            });
+                        }
+                        None => cursor_multiplier = Some(*new),
+                    },
+                },
+                Token::YouTube(id) => {
+                    let max = ctx.kwargs.max_items();
+                    let dur = ctx
+                        .client()
+                        .ok()
+                        .and_then(|f| f.fetch_duration_from_id(id, max).ok());
+
+                    if let Some(dur) = dur {
+                        match &mut cursor_duration {
+                            Some(total) => *total += &dur,
+                            None => cursor_duration = Some(dur.clone()),
+                        }
+                    }
+                }
+                Token::EOL => {
+                    if let Some(multiplier) = cursor_multiplier {
+                        if let Some(duration) = cursor_duration.take() {
+                            runnables.push(Self {
+                                duration,
+                                multiplier,
+                            });
+                        } else {
+                            bail!("Multiplier {multiplier}x found without a duration.")
+                        }
+                    }
+                }
+            }
         }
-    }
-
-    pub fn delegate(ctx: &'a mut Ctx, tokens: Vec<Token>) -> Result<Vec<Self>> {
-        let cur_dur: Option<TDuration> = None;
-        let cur_mul: Option<f64> = None;
-        let runnables: Vec<Self> = Vec::new();
-
-        while let Some(tok) = tokens.iter().next() {}
 
         Ok(runnables)
     }
 
-    pub fn run(&mut self) -> Result<()> {
+    pub fn run(&mut self, ctx: &mut Ctx) -> Result<()> {
         if self.multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
             return Ok(());
         }
 
-        if self.ctx.kwargs.max_items() != 0 {
+        if ctx.kwargs.max_items() != 0 {
             bail!("--max-items cannot be used for regular durations.")
         }
 
@@ -64,8 +122,8 @@ impl<'a> TrimCmd<'a> {
             },
             format!(
                 "{}Saved {saved}!{}\n\nTrimmed for {} item(s).",
-                self.ctx.style.boldgreen(),
-                self.ctx.style.reset(),
+                ctx.style.boldgreen(),
+                ctx.style.reset(),
                 dur.splits()
             ),
         ]
