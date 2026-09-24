@@ -25,9 +25,13 @@ impl TrimCmd {
                     Some(total) => *total += dur,
                     None => cursor_duration = Some(dur.clone()),
                 },
-                Token::BudgetDuration(_) => bail!(
-                    "Budget duration cannot be present inside an expression which prioritizes multipliers."
-                ),
+                Token::BudgetDuration(_) => {
+                    // This one is here for redundancy.
+                    // Token::BudgetDuration(_) variants are already filtered out during the first stage.
+                    bail!(
+                        "Budget duration cannot be present inside an expression which prioritizes multipliers."
+                    )
+                }
                 Token::Multiplier(new) => match &mut cursor_multiplier {
                     Some(existing) => {
                         if let Some(duration) = cursor_duration.take() {
