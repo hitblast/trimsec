@@ -218,9 +218,10 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     Ok((kwargs, cmd))
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Duration(TDuration),
+    BudgetDuration(TDuration),
     Multiplier(f64),
     YouTube(TYoutubeId),
     EOL,
@@ -228,42 +229,62 @@ pub enum Token {
 
 fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
     let mut vec: Vec<Token> = Vec::new();
-    let mut notrim = true;
+    let mut trim = false;
+    let mut budget_seen = false;
 
     for arg in args {
-        if let Ok(x) = TDuration::parse_str(arg) {
-            vec.push(Token::Duration(x));
-        } else if let Some(id) = get_youtube_id(arg) {
-            vec.push(Token::YouTube(id));
-        } else if let Ok(mul) = parse_multiplier(arg) {
-            if notrim {
-                notrim = false;
+        if !trim && arg.starts_with("b") {
+            if let Some(inner) = arg.strip_prefix("b")
+                && let Ok(x) = TDuration::parse_str(inner)
+            {
+                if !budget_seen {
+                    budget_seen = true;
+                }
+                vec.push(Token::BudgetDuration(x));
             }
-            vec.push(Token::Multiplier(mul));
+        } else {
+            if let Ok(x) = TDuration::parse_str(arg) {
+                vec.push(Token::Duration(x));
+            } else if let Some(id) = get_youtube_id(arg) {
+                vec.push(Token::YouTube(id));
+            } else if !budget_seen && let Ok(mul) = parse_multiplier(arg) {
+                if !trim {
+                    trim = true;
+                }
+                vec.push(Token::Multiplier(mul));
+            }
         }
     }
     vec.push(Token::EOL);
 
-    return (vec, notrim);
+    return (vec, trim);
 }
 
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
-    let (tokens, notrim) = parse_tokens(args);
+    let (tokens, trim) = parse_tokens(args);
 
     if tokens.is_empty() {
         bail!("No meaningful arguments were passed.")
     }
 
-    if notrim {
+    if !trim {
+        let mut budget_duration: Option<TDuration> = None;
         let durations: Vec<TDuration> = tokens
             .iter()
             .filter_map(|f| match f {
-                Token::Duration(tduration) => Some(tduration.clone()),
+                Token::Duration(dur) => Some(dur.clone()),
+                Token::BudgetDuration(dur) => {
+                    match &mut budget_duration {
+                        Some(existing) => *existing += dur,
+                        None => budget_duration = Some(dur.clone()),
+                    }
+                    None
+                }
                 _ => None,
             })
             .collect();
 
-        let cmd = if durations.len() == tokens.len() {
+        let cmd = if durations.len() + 1 == tokens.len() {
             if durations.len() == 2 {
                 TCmd::Fit {
                     content: TCmdContent::Raw(durations[0].clone()),
@@ -273,13 +294,13 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
                 let sum = durations.into_iter().sum();
                 TCmd::Fit {
                     content: TCmdContent::Raw(sum),
-                    budget: None,
+                    budget: budget_duration,
                 }
             }
         } else {
             TCmd::Fit {
                 content: TCmdContent::TokenVec(tokens),
-                budget: None,
+                budget: budget_duration,
             }
         };
 
