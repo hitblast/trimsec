@@ -10,15 +10,15 @@ use anyhow::{Result, bail};
 pub struct FitCmd<'a> {
     ctx: &'a mut Ctx,
     duration: TDuration,
-    determined_budget: Option<TDuration>,
+    budget: Option<TDuration>,
 }
 
 impl<'a> FitCmd<'a> {
-    fn new(ctx: &'a mut Ctx, duration: TDuration, determined_budget: Option<TDuration>) -> Self {
+    fn new(ctx: &'a mut Ctx, duration: TDuration, budget: Option<TDuration>) -> Self {
         Self {
             ctx,
             duration,
-            determined_budget,
+            budget,
         }
     }
 
@@ -70,8 +70,8 @@ impl<'a> FitCmd<'a> {
             .and_then(|f| f.default_fit_budget())
             .cloned();
 
-        let budget = if self.determined_budget.is_some() {
-            self.determined_budget.as_ref()
+        let budget = if self.budget.is_some() {
+            self.budget.as_ref()
         } else if cfg_budget.is_some() {
             cfg_budget.as_ref()
         } else {
