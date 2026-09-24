@@ -96,7 +96,6 @@ impl FromStr for ColorMode {
 pub struct TKeywordArgs {
     color: ColorMode,
     max_items: usize,
-    budget_override: Option<TDuration>,
 }
 
 impl TKeywordArgs {
@@ -107,10 +106,6 @@ impl TKeywordArgs {
     #[must_use]
     pub fn max_items(&self) -> usize {
         self.max_items
-    }
-    #[must_use]
-    pub fn budget_override(&self) -> Option<&TDuration> {
-        self.budget_override.as_ref()
     }
 
     pub fn unset_max_items(&mut self) {
@@ -147,7 +142,6 @@ impl TKeywordArgs {
     fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
         let mut color: Option<ColorMode> = None;
         let mut max_items: Option<usize> = None;
-        let mut budget_override: Option<TDuration> = None;
 
         let mut remaining = Vec::new();
         let mut skippable: HashSet<usize> = HashSet::new();
@@ -171,13 +165,6 @@ impl TKeywordArgs {
 
                 let x: usize = Self::parse_kwarg(arg, "--max-items", args, &mut skippable, idx)?;
                 max_items = Some(x);
-            } else if arg.starts_with("--budget") {
-                let None = budget_override else {
-                    bail!("Cannot have more than one budget at once.")
-                };
-
-                let x: TDuration = Self::parse_kwarg(arg, "--budget", args, &mut skippable, idx)?;
-                budget_override = Some(x);
             } else {
                 remaining.push(arg.clone());
             }
@@ -187,7 +174,6 @@ impl TKeywordArgs {
             Self {
                 color: color.unwrap_or_default(),
                 max_items: max_items.unwrap_or_default(),
-                budget_override,
             },
             remaining,
         ))

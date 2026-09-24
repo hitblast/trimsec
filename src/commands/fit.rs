@@ -54,9 +54,7 @@ impl FitCmd {
             .and_then(|f| f.default_fit_budget())
             .cloned();
 
-        let budget = if ctx.kwargs.budget_override().is_some() {
-            ctx.kwargs.budget_override()
-        } else if self.determined_budget.is_some() {
+        let budget = if self.determined_budget.is_some() {
             self.determined_budget.as_ref()
         } else if cfg_budget.is_some() {
             cfg_budget.as_ref()
