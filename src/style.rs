@@ -11,6 +11,8 @@ pub struct Style {
     bold: &'static str,
     green: &'static str,
     boldgreen: &'static str,
+    grey: &'static str,
+    boldgrey: &'static str,
 }
 
 macro_rules! getter {
@@ -47,6 +49,8 @@ impl Style {
         const BOLDRED: &str = concat!(RED, BOLD);
         const GREEN: &str = "\u{001b}[32m";
         const BOLDGREEN: &str = concat!(GREEN, BOLD);
+        const GREY: &str = "\u{001b}[90m";
+        const BOLDGREY: &str = concat!(GREY, BOLD);
         const RESET: &str = "\u{001b}[0m";
 
         Self {
@@ -56,6 +60,8 @@ impl Style {
             bold: BOLD,
             green: GREEN,
             boldgreen: BOLDGREEN,
+            grey: GREY,
+            boldgrey: BOLDGREY,
         }
     }
 
@@ -66,4 +72,6 @@ impl Style {
     getter!(boldred);
     getter!(green);
     getter!(boldgreen);
+    getter!(grey);
+    getter!(boldgrey);
 }

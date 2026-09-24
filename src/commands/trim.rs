@@ -83,6 +83,8 @@ impl TrimCmd {
                         } else {
                             bail!("Multiplier \"{multiplier}x\" found without a duration.")
                         }
+                    } else if let Some(unused) = cursor_duration {
+                        bail!("Unused duration: {unused}")
                     }
                 }
             }
@@ -101,7 +103,13 @@ impl TrimCmd {
             bail!("--max-items cannot be used for regular durations.")
         }
 
-        println!("{} -> {}x\n-----------", self.duration, self.multiplier);
+        println!(
+            "\n{}{} -> {}x{}",
+            ctx.style.grey(),
+            self.duration,
+            self.multiplier,
+            ctx.style.reset()
+        );
         let dur = &mut self.duration;
         dur.trim(self.multiplier);
 
@@ -110,12 +118,12 @@ impl TrimCmd {
 
         let message = [
             format!(
-                "\nFinishes in: {} ",
-                if dur.splits() > 1 {
-                    format!("{dur}")
-                } else {
-                    dur.to_string()
-                }
+                "\n{}Finishes in: {dur}{} {}({} items){}",
+                ctx.style.bold(),
+                ctx.style.reset(),
+                ctx.style.grey(),
+                dur.splits(),
+                ctx.style.reset(),
             ),
             if remaining != 0.0 {
                 format!("Time in day left: {} ", remaining.to_string_duration())
@@ -123,10 +131,9 @@ impl TrimCmd {
                 "Cannot finish today.".to_string()
             },
             format!(
-                "{}Saved {saved}!{}\n\nTrimmed for {} item(s).",
+                "{}Saved {saved}!{}\n",
                 ctx.style.boldgreen(),
                 ctx.style.reset(),
-                dur.splits()
             ),
         ]
         .join("\n");
