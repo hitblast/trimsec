@@ -41,7 +41,7 @@ impl TrimCmd {
                                 Some(Token::Duration(_)) | Some(Token::YouTube(_)) => {
                                     cursor_multiplier = Some(*new)
                                 }
-                                Some(_) | None => {
+                                _ => {
                                     bail!(
                                         "Multiplier \"{existing}x, {new}x\" given but duration does not exist."
                                     )
