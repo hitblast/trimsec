@@ -19,23 +19,11 @@ pub enum TCmdContent {
 }
 
 pub enum TCmd {
-    Trim {
-        tokens: Vec<Token>,
-    },
-    Fit {
-        tokens: Vec<Token>,
-    },
-    Key {
-        subcmd: KeySubcmd,
-    },
-    List {
-        cmd: ListCmd,
-    },
-    Path {
-        cmd: PathCmd,
-    },
-    #[allow(unused)]
-    Unreachable,
+    Trim { tokens: Vec<Token> },
+    Fit { tokens: Vec<Token> },
+    Key { subcmd: KeySubcmd },
+    List { cmd: ListCmd },
+    Path { cmd: PathCmd },
 }
 
 impl TCmd {
@@ -47,7 +35,7 @@ impl TCmd {
                 let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
 
                 for mut x in cmds {
-                    x.run()?
+                    x.run(&mut ctx)?
                 }
 
                 Ok(())
@@ -62,7 +50,6 @@ impl TCmd {
             },
             TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Path { cmd } => cmd.run(&mut ctx),
-            TCmd::Unreachable => Ok(()),
         }
     }
 }
@@ -254,7 +241,7 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
     let cmd = if !trim {
         TCmd::Fit { tokens }
     } else {
-        TCmd::Unreachable
+        TCmd::Trim { tokens }
     };
 
     Ok(cmd)
