@@ -20,8 +20,7 @@ pub enum TCmdContent {
 
 pub enum TCmd {
     Trim {
-        content: TCmdContent,
-        mul: f64,
+        tokens: Vec<Token>,
     },
     Fit {
         tokens: Vec<Token>,
@@ -44,13 +43,14 @@ impl TCmd {
         let mut ctx = Ctx::new(args);
 
         match self {
-            TCmd::Trim {
-                content,
-                mul: multiplier,
-            } => {
-                let mut x = TrimCmd::new(content, multiplier);
+            TCmd::Trim { tokens } => {
+                let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
 
-                x.run(&mut ctx)
+                for mut x in cmds {
+                    x.run()?
+                }
+
+                Ok(())
             }
             TCmd::Fit { tokens } => {
                 let cmd = FitCmd::delegate(&mut ctx, tokens)?;
