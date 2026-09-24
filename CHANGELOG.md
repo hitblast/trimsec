@@ -2,7 +2,7 @@
 
 Active since v2.0.0.
 
-### v3.2.0
+### v4.0.0
 
 The deterministic parser has been completed in this PR with major overhauls (see PR: https://github.com/hitblast/trimsec/pull/38).
 
