@@ -26,18 +26,19 @@ impl<'a> FitCmd<'a> {
         let mut budget_duration: Option<TDuration> = None;
         let max = ctx.kwargs.max_items();
 
+        let tokens_len = tokens.len();
         let durations: Vec<TDuration> = tokens
-            .iter()
+            .into_iter()
             .filter_map(|f| match f {
                 Token::Duration(dur) => Some(dur.clone()),
                 Token::YouTube(id) => ctx
                     .client()
                     .ok()
-                    .and_then(|f| f.fetch_duration_from_id(id, max).ok()),
+                    .and_then(|f| f.fetch_duration_from_id(&id, max).ok()),
                 Token::BudgetDuration(dur) => {
                     match &mut budget_duration {
-                        Some(existing) => *existing += dur,
-                        None => budget_duration = Some(dur.clone()),
+                        Some(existing) => *existing += &dur,
+                        None => budget_duration = Some(dur),
                     }
                     None
                 }
@@ -49,7 +50,7 @@ impl<'a> FitCmd<'a> {
             bail!("Missing content duration for fit-check.")
         }
 
-        let cmd = if durations.len() + 1 == tokens.len() && durations.len() == 2 {
+        let cmd = if durations.len() + 1 == tokens_len && durations.len() == 2 {
             FitCmd::new(ctx, durations[0].clone(), Some(durations[1].clone()))
         } else {
             let sum = durations.into_iter().sum();
