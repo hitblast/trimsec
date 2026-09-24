@@ -1,6 +1,11 @@
 use chrono::{Datelike, TimeZone};
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, iter::Sum, ops::Sub, str::FromStr};
+use std::{
+    fmt::Display,
+    iter::Sum,
+    ops::{AddAssign, Sub},
+    str::FromStr,
+};
 
 use crate::errors::TTimeError;
 
@@ -219,6 +224,14 @@ impl Sum for TDuration {
                 saved_time: x.saved_time + y.saved_time,
             },
         )
+    }
+}
+
+impl AddAssign<&TDuration> for TDuration {
+    fn add_assign(&mut self, rhs: &TDuration) {
+        self.seconds += rhs.seconds;
+        self.splits += rhs.splits;
+        self.saved_time += rhs.saved_time;
     }
 }
 
