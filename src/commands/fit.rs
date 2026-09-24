@@ -33,6 +33,7 @@ impl FitCmd {
             TCmdContent::TokenVec(tokens) => {
                 let max = ctx.kwargs.max_items();
                 let client = ctx.client()?;
+
                 let total_duration: TDuration = tokens
                     .into_iter()
                     .filter_map(|f| match f {
