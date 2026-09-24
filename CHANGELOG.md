@@ -4,15 +4,9 @@ Active since v2.0.0.
 
 ### v3.2.0
 
-New features:
+The deterministic parser has been completed in this PR with major overhauls (see PR: https://github.com/hitblast/trimsec/pull/38).
 
-- Overhauled the entire parsing algorithm for (almost) infinite combinations of content, durations and multipliers.
-- Add support for spaced values in global kwarg-parsing, as well as some refinements in the parsing code itself.
-- Users can now specify budget-durations for running the `fit` command by prefixing one or multiple durations with the `b` letter (e.g. `b12h30m`).
-
-Internal changes:
-
-- `TKeywordArgs` is now owned by the `Ctx` instance when executing `Ctx::new`, as well as the `TCmd::run` executing it.
+All other changes are either a subset or a biproduct of this change for this release, hence I'm not noting them down explicitly (too many things to cover). Full usage instructions are provided in trimsec's README, as always!
 
 ### v3.1.0
 
