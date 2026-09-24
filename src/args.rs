@@ -255,6 +255,7 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
 
     if !trim {
         let mut budget_duration: Option<TDuration> = None;
+
         let durations: Vec<TDuration> = tokens
             .iter()
             .filter_map(|f| match f {
@@ -269,6 +270,10 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
                 _ => None,
             })
             .collect();
+
+        if durations.is_empty() {
+            bail!("Missing content duration for fit-check.")
+        }
 
         let cmd = if durations.len() + 1 == tokens.len() {
             if durations.len() == 2 {
