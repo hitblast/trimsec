@@ -88,12 +88,21 @@ You can check whether a particular YouTube content fits in a given budget of tim
 ts 1h24m
 ts "https://youtube.com/..."
 
-# fixed duration: 2 hours and 4 minutes
+# fixed budget: 2 hours and 4 minutes
 ts 1h24m 2h4m
 ts "https://youtube.com/..." 2h4m
 
-# youtube playlist + item cap
-ts "https://youtu.be/..." --max-items 5
+# two items, explicit budget of 2h4m
+ts 1h24m 15m b2h4m
+
+# multiple args, budget is today
+ts <URL> 1h30m 2h <URL> 3h
+
+# multiple args, explicit budget of 15h
+ts <URL> 1h30m 2h <URL> 3h b15h
+
+# youtube playlist, item cap, budget of 5h
+ts "https://youtu.be/..." --max-items 5 b5h
 ```
 
 ### 3. Utility Commands
