@@ -14,16 +14,20 @@ pub struct TrimCmd {
 
 impl TrimCmd {
     pub fn delegate(ctx: &mut Ctx, tokens: Vec<Token>) -> Result<Vec<Self>> {
-        let mut cursor_duration: Option<TDuration> = None;
-        let mut cursor_multiplier: Option<f64> = None;
+        let mut cursor_duration: Option<(TDuration, usize)> = None;
+        let mut cursor_multiplier: Option<(f64, usize)> = None;
         let mut runnables: Vec<Self> = Vec::new();
 
-        let mut iterable = tokens.iter().peekable();
-        while let Some(tok) = iterable.next() {
+        let mut iterable = tokens.iter().enumerate().peekable();
+
+        while let Some((idx, tok)) = iterable.next() {
             match tok {
                 Token::Duration(dur) => match &mut cursor_duration {
-                    Some(total) => *total += dur,
-                    None => cursor_duration = Some(dur.clone()),
+                    Some((cursor_dur, cursor_dur_idx)) => {
+                        *cursor_dur += dur;
+                        *cursor_dur_idx = idx;
+                    }
+                    None => cursor_duration = Some((dur.clone(), idx)),
                 },
                 Token::BudgetDuration(_) => {
                     // This one is here for redundancy.
@@ -33,34 +37,34 @@ impl TrimCmd {
                     )
                 }
                 Token::Multiplier(new) => match &mut cursor_multiplier {
-                    Some(existing) => {
-                        if let Some(duration) = cursor_duration.take() {
+                    Some((cursor_mul, cursor_mul_idx)) => {
+                        if let Some((cursor_dur, _)) = cursor_duration.take() {
                             runnables.push(Self {
-                                duration,
-                                multiplier: *existing,
+                                duration: cursor_dur,
+                                multiplier: *cursor_mul,
                             });
-                            cursor_multiplier = Some(*new);
+                            cursor_multiplier = Some((*new, idx));
                         } else {
                             match iterable.peek() {
-                                Some(Token::Duration(_)) | Some(Token::YouTube(_)) => {
-                                    cursor_multiplier = Some(*new)
+                                Some((_, Token::Duration(_))) | Some((_, Token::YouTube(_))) => {
+                                    cursor_multiplier = Some((*new, idx))
                                 }
                                 _ => {
                                     bail!(
-                                        "Multiplier \"{existing}x, {new}x\" given but duration does not exist."
+                                        "Multiplier {cursor_mul}x (at index {cursor_mul_idx}), {new}x (at index {idx}) given but duration does not exist."
                                     )
                                 }
                             }
                         }
                     }
                     None => match cursor_duration.take() {
-                        Some(duration) => {
+                        Some((duration, _)) => {
                             runnables.push(Self {
                                 duration,
                                 multiplier: *new,
                             });
                         }
-                        None => cursor_multiplier = Some(*new),
+                        None => cursor_multiplier = Some((*new, idx)),
                     },
                 },
                 Token::YouTube(id) => {
@@ -72,23 +76,26 @@ impl TrimCmd {
 
                     if let Some(dur) = dur {
                         match &mut cursor_duration {
-                            Some(total) => *total += &dur,
-                            None => cursor_duration = Some(dur.clone()),
+                            Some((total, cursor_idx)) => {
+                                *total += &dur;
+                                *cursor_idx = idx;
+                            }
+                            None => cursor_duration = Some((dur.clone(), idx)),
                         }
                     }
                 }
                 Token::EOL => {
-                    if let Some(multiplier) = cursor_multiplier {
-                        if let Some(duration) = cursor_duration.take() {
+                    if let Some((cursor_mul, cursor_mul_idx)) = cursor_multiplier {
+                        if let Some((duration, _)) = cursor_duration.take() {
                             runnables.push(Self {
                                 duration,
-                                multiplier,
+                                multiplier: cursor_mul,
                             });
                         } else {
-                            bail!("Unused multiplier: {multiplier}x")
+                            bail!("Unused multiplier: {cursor_mul}x at index: {cursor_mul_idx}")
                         }
-                    } else if let Some(definitely_unused) = cursor_duration {
-                        bail!("Unused duration: {definitely_unused}")
+                    } else if let Some((unused_dur, unused_idx)) = cursor_duration {
+                        bail!("Unused duration: {unused_dur} at index: {unused_idx}")
                     }
                 }
             }
