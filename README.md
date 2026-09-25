@@ -2,6 +2,8 @@
 
 # <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/rust/rust.png" width="40px"> trimsec
 
+![Crates.io Total Downloads](https://img.shields.io/crates/d/trimsec?color=black)
+
 ## Table of Contents
 
 - [Overview](#overview)
