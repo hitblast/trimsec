@@ -234,9 +234,7 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
     let (tokens, trim) = parse_tokens(args);
 
-    if tokens.len() == 1
-        && let Some(Token::EOL) = tokens.get(0)
-    {
+    if let Some(Token::EOL) = tokens.get(0) {
         bail!("No meaningful arguments were passed.")
     }
 
