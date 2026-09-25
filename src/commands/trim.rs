@@ -2,7 +2,7 @@ use crate::{
     args::Token,
     core::{
         context::Ctx,
-        time::{TDuration, ToStringTime},
+        time::{TDuration, ToStringTime, time_in_day_left},
     },
 };
 use anyhow::{Result, bail};
@@ -124,7 +124,7 @@ impl TrimCmd {
         let dur = &mut self.duration;
         dur.trim(self.multiplier);
 
-        let remaining = crate::core::time::time_in_day_after(dur.seconds());
+        let remaining = time_in_day_left() - dur.clone();
         let saved = dur.saved_time().to_string_duration();
 
         let message = [
@@ -136,10 +136,10 @@ impl TrimCmd {
                 dur.splits(),
                 ctx.style.reset(),
             ),
-            if remaining != 0.0 {
-                format!("Time in day left: {} ", remaining.to_string_duration())
+            if remaining.seconds() != 0.0 {
+                format!("Time in day left: {} ", remaining)
             } else {
-                "Cannot finish today.".to_string()
+                "No time in day after this.".to_string()
             },
             format!(
                 "{}Saved {saved}!{}\n",

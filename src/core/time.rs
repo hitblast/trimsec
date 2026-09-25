@@ -200,12 +200,12 @@ impl Sub<&TDuration> for &TDuration {
     }
 }
 
-impl From<(f64, u64)> for TDuration {
-    fn from(value: (f64, u64)) -> Self {
+impl From<f64> for TDuration {
+    fn from(value: f64) -> Self {
         TDuration {
-            seconds: value.0,
+            seconds: value,
             saved_time: 0.0,
-            splits: value.1,
+            splits: 1,
         }
     }
 }
@@ -238,18 +238,14 @@ impl AddAssign<&TDuration> for TDuration {
 impl Eq for TDuration {}
 
 #[must_use]
-pub fn time_in_day_after(duration: f64) -> f64 {
+pub fn time_in_day_left() -> TDuration {
     let now = chrono::Local::now();
     let end_of_day = chrono::Local
         .with_ymd_and_hms(now.year(), now.month(), now.day(), 23, 59, 59)
         .unwrap();
     let time_passed = end_of_day.signed_duration_since(now).num_seconds() as f64;
 
-    if time_passed > duration {
-        time_passed - duration
-    } else {
-        0.0
-    }
+    time_passed.into()
 }
 
 #[cfg(test)]
@@ -257,6 +253,16 @@ pub fn time_in_day_after(duration: f64) -> f64 {
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
+
+    impl From<(f64, u64)> for TDuration {
+        fn from(value: (f64, u64)) -> Self {
+            TDuration {
+                seconds: value.0,
+                saved_time: 0.0,
+                splits: value.1,
+            }
+        }
+    }
 
     #[test]
     fn test_parse_duration() {
