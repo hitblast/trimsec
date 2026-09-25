@@ -6,8 +6,8 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Basic Trimming](#1-basic-trimming)
-  - [Fit-Checking](#2-fit-checking)
+  - [Trimming](#1-trimming)
+  - [Fit-Check](#2-fit-check)
   - [Utility Commands](#3-utility-commands)
 - [Configuration](#configuration)
   - [Configuration Options](#configuration-options)
@@ -16,32 +16,37 @@
 
 ## Overview
 
-trimsec helps you plan your content consumption.
+trimsec helps you plan your content consumption via two primary features:
 
-It helps you trim your planned content using multipliers, check if it fits within a given duration or the remainder of the day, and do much more. trimsec supports YouTube data via Google's APIs, so you can even execute these operations for your online videos. It is oriented towards terminal-headed academic nerds who can't seem to get a grasp of their syllabus until the last night before the exam.
+1. Fitting if contents fit into the remaining day, or an explicit timeframe you give, and
+2. Trimming the content using multipliers and calculating how much time you'll save.
 
-trimsec will always be a work-in-progress.
+Everything else is cherry-on-top.
 
 ## Usage
 
-### 1. Basic Trimming
-
-#### For string-durations:
+### 1. Trimming
 
 To calculate saved time, you run the `trim` command as follows:
 
 ```bash
+# duration and multiplier used
 ts 1h 2x
 ```
 
-This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
+trimsec can receive an arbitrary amount of inputs and can output trims based on that:
 
 ```bash
-ts 1h30m 1.5x
-ts 1.5h30m 1.5x  # equivalent to 2 hours
+ts 1h30m 1.5x 3h 2x
+# or
+ts 1h30m 1.5x 1.2x 3h 2m
+# or even
+ts 3x 2h 2h 2h 1.25x 1h 2x 3.5h
 ```
 
-Combine multiple durations like this:
+Nearby durations based on the cursor are combined and checked against their common multipliers, to check a huge number of durations in a matter of seconds.
+
+You can also explicitly combine two durations like this:
 
 ```bash
 ts 1h30m+2h50m 1.25x
@@ -56,25 +61,25 @@ ts 1h30m+2h50m 1.25x
 > ts key set <API_KEY_HERE>
 > ```
 
-In place of the duration from before, now you just paste the YouTube video URL:
+trimsec can also process YouTube URLs and you trim videos just like you trimmed regular durations:
 
 ```bash
-ts https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+ts "https://www.youtube.com/watch?v=D4iiKkjGJmU" 1.25x
 ```
 
-You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
+Since it invokes the original [trimming function](#1-trimming) underneath, you can also combine durations, and provide an infinite amount of arguments:
+
+```bash
+ts <URL> 1h30m 1.25x 2h <URL> 2x
+```
+
+And, in case you're wondering, YouTube playlist URLs can also be thrown in as an argument!
 
 ```bash
 ts "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
 ```
 
-For calculating based on the data of only a few items in the playlist, use:
-
-```bash
-ts <PLAYLIST_URL> --max-items 7 1.8x
-```
-
-### 2. Fit-Checking
+### 2. Fit-Check
 
 You can check whether a particular YouTube content fits in a given budget of time like as follows:
 
