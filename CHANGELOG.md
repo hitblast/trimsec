@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.1.0
+
+Internal changss:
+
+- Implemented safe subtraction for `TDuration` by implementing `SubAssign<&TDuration>`, as well as limiting the internal subtraction of the `seconds` field to `0.0`.
+
 ### v4.0.2
 
 Changes:

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     fmt::Display,
     iter::Sum,
-    ops::{AddAssign, Sub},
+    ops::{AddAssign, Sub, SubAssign},
     str::FromStr,
 };
 
@@ -84,6 +84,10 @@ impl TDuration {
     #[must_use]
     pub fn saved_time(&self) -> f64 {
         self.saved_time
+    }
+    #[must_use]
+    pub fn is_zero(&self) -> bool {
+        self.seconds() <= 0.0
     }
 
     pub fn trim(&mut self, multiplier: f64) {
@@ -184,7 +188,7 @@ impl Sub for TDuration {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
-            seconds: self.seconds - rhs.seconds(),
+            seconds: (self.seconds - rhs.seconds()).max(0.0),
             saved_time: self.saved_time,
             splits: self.splits,
         }
@@ -196,10 +200,16 @@ impl Sub<&TDuration> for &TDuration {
 
     fn sub(self, rhs: &TDuration) -> Self::Output {
         TDuration {
-            seconds: self.seconds - rhs.seconds(),
+            seconds: (self.seconds - rhs.seconds()).max(0.0),
             saved_time: self.saved_time,
             splits: self.splits,
         }
+    }
+}
+
+impl SubAssign<&TDuration> for TDuration {
+    fn sub_assign(&mut self, rhs: &TDuration) {
+        self.seconds = (self.seconds - rhs.seconds).max(0.0);
     }
 }
 
