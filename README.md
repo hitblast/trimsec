@@ -6,8 +6,8 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Basic Trimming](#1-basic-trimming)
-  - [Fit-Checking](#2-fit-checking)
+  - [Trimming](#1-trimming)
+  - [Fit-Check](#2-fit-check)
   - [Utility Commands](#3-utility-commands)
 - [Configuration](#configuration)
   - [Configuration Options](#configuration-options)
@@ -16,32 +16,37 @@
 
 ## Overview
 
-trimsec helps you plan your content consumption.
+trimsec helps you plan your content consumption via two primary features:
 
-It helps you trim your planned content using multipliers, check if it fits within a given duration or the remainder of the day, and do much more. trimsec supports YouTube data via Google's APIs, so you can even execute these operations for your online videos. It is oriented towards terminal-headed academic nerds who can't seem to get a grasp of their syllabus until the last night before the exam.
+1. Fitting if contents fit into the remaining day, or an explicit timeframe you give, and
+2. Trimming the content using multipliers and calculating how much time you'll save.
 
-trimsec will always be a work-in-progress.
+Everything else is cherry-on-top.
 
 ## Usage
 
-### 1. Basic Trimming
+### 1. Trimming
 
-#### For string-durations:
-
-To calculate saved time, you run the `trim` command as follows:
+To calculate saved time, you run trimsec in this pattern:
 
 ```bash
+# duration and multiplier used
 ts 1h 2x
 ```
 
-This command outputs the time you saved by watching an hour-long video at 2x the speed. This works for any integer or floating-point combination on either the duration or the multiplier:
+trimsec can receive an arbitrary amount of inputs and can output trims based on that:
 
 ```bash
-ts 1h30m 1.5x
-ts 1.5h30m 1.5x  # equivalent to 2 hours
+ts 1h30m 1.5x 3h 2x
+# or
+ts 1h30m 1.5x 1.2x 3h 2m
+# or even
+ts 3x 2h 2h 2h 1.25x 1h 2x 3.5h
 ```
 
-Combine multiple durations like this:
+Nearby durations based on the cursor are combined and checked against their common multipliers. This allows checking a huge number of durations in a matter of seconds.
+
+You can also explicitly combine two durations like this:
 
 ```bash
 ts 1h30m+2h50m 1.25x
@@ -56,48 +61,62 @@ ts 1h30m+2h50m 1.25x
 > ts key set <API_KEY_HERE>
 > ```
 
-In place of the duration from before, now you just paste the YouTube video URL:
+trimsec can also process YouTube URLs and trim videos just like trimming regular durations:
 
 ```bash
-ts https://www.youtube.com/watch?v=D4iiKkjGJmU 1.25x
+ts "https://www.youtube.com/watch?v=D4iiKkjGJmU" 1.25x
 ```
 
-You can also throw in a YouTube playlist in (almost) any format you want, and it'd show the total time saved based on the multiplier:
+Since it invokes the original [trimming function](#1-trimming) underneath, you can also combine durations, and provide an infinite amount of such arguments:
 
 ```bash
-ts "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS" 1.8x
+ts <URL> 1h30m 1.25x 2h <URL> 2x
 ```
 
-For calculating based on the data of only a few items in the playlist, use:
+YouTube playlist URLs are also supported and can be combined with other durations too if needed:
 
 ```bash
-ts <PLAYLIST_URL> --max-items 7 1.8x
+ts 1.8x "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
 ```
 
-### 2. Fit-Checking
+### 2. Fit-Check
 
-You can check whether a particular YouTube content fits in a given budget of time like as follows:
+You can check whether a particular YouTube content fits within a budget using this pattern:
 
 ```bash
 # budget is today
 ts 1h24m
 ts "https://youtube.com/..."
 
-# fixed duration: 2 hours and 4 minutes
+# fixed budget: 2 hours and 4 minutes
 ts 1h24m 2h4m
 ts "https://youtube.com/..." 2h4m
 
-# youtube playlist + item cap
-ts "https://youtu.be/..." --max-items 5
+# two items, explicit budget of 2h4m
+ts 1h24m 15m b2h4m
+
+# multiple args, budget is today
+ts <URL> 1h30m 2h <URL> 3h
+
+# multiple args, explicit budget of 15h
+ts <URL> 1h30m 2h <URL> 3h b15h
+
+# youtube playlist, item cap, budget of 5h
+ts "https://youtu.be/..." --max-items 5 5h
+
+# youtube playlist, item cap, and other content
+ts "https://youtu.be/..." 3h20m --max-items 5 b5h
 ```
+
+Combination rules explained in [1. Trimming](#1-trimming) apply here as well, so other combinations of arguments are also possible outside of this collection.
 
 ### 3. Utility Commands
 
-- For listing the contents in a YouTube playlist:
+trimsec also contains utility commands coherent with the two primary features to help you do more:
 
-```bash
-ts list <PLAYLIST_URL>  # or: ts ls <PLAYLIST_URL>
-```
+- `ts list <URL>`: List contents in a YouTube playlist.
+
+(more to be added)
 
 ## Configuration
 
