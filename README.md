@@ -27,7 +27,7 @@ Everything else is cherry-on-top.
 
 ### 1. Trimming
 
-To calculate saved time, you run the `trim` command as follows:
+To calculate saved time, you run trimsec in this pattern:
 
 ```bash
 # duration and multiplier used
@@ -44,7 +44,7 @@ ts 1h30m 1.5x 1.2x 3h 2m
 ts 3x 2h 2h 2h 1.25x 1h 2x 3.5h
 ```
 
-Nearby durations based on the cursor are combined and checked against their common multipliers, to check a huge number of durations in a matter of seconds.
+Nearby durations based on the cursor are combined and checked against their common multipliers. This allows checking a huge number of durations in a matter of seconds.
 
 You can also explicitly combine two durations like this:
 
@@ -67,7 +67,7 @@ trimsec can also process YouTube URLs and you trim videos just like you trimmed 
 ts "https://www.youtube.com/watch?v=D4iiKkjGJmU" 1.25x
 ```
 
-Since it invokes the original [trimming function](#1-trimming) underneath, you can also combine durations, and provide an infinite amount of arguments:
+Since it invokes the original [trimming function](#1-trimming) underneath, you can also combine durations, and provide an infinite amount of such arguments:
 
 ```bash
 ts <URL> 1h30m 1.25x 2h <URL> 2x
