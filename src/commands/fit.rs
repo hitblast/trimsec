@@ -1,9 +1,6 @@
 use crate::{
     args::Token,
-    core::{
-        context::Ctx,
-        time::{TDuration, time_in_day_left},
-    },
+    core::{context::Ctx, time::TDuration, timeutils::time_in_day_left},
 };
 use anyhow::{Result, bail};
 

@@ -2,7 +2,8 @@ use crate::{
     args::Token,
     core::{
         context::Ctx,
-        time::{TDuration, ToStringTime, time_in_day_left},
+        time::{TDuration, ToStringTime},
+        timeutils::time_in_day_left,
     },
 };
 use anyhow::{Result, bail};
