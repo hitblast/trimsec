@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v4.0.2
+
+Changes:
+
+- trimsec now explicitly states it if it omits using a multiplier from the expression.
+- Ambiguous multiplier positioning now shows a "learning" message for the users.
+
 ### v4.0.1
 
 Bug fixes:
