@@ -21,17 +21,16 @@ impl<'a> FitCmd<'a> {
 
     pub fn delegate(ctx: &'a mut Ctx, tokens: Vec<Token>) -> Result<Self> {
         let mut budget_duration: Option<TDuration> = None;
-        let max = ctx.kwargs.max_items();
 
         let tokens_len = tokens.len();
         let durations: Vec<TDuration> = tokens
             .into_iter()
             .filter_map(|f| match f {
                 Token::Duration(dur) => Some(dur.clone()),
-                Token::YouTube(id) => ctx
+                Token::YouTube((id, max_items)) => ctx
                     .client()
                     .ok()
-                    .and_then(|f| f.fetch_duration_from_id(&id, max).ok()),
+                    .and_then(|f| f.fetch_duration_from_id(&id, max_items).ok()),
                 Token::BudgetDuration(dur) => {
                     match &mut budget_duration {
                         Some(existing) => *existing += &dur,

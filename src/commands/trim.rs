@@ -75,12 +75,11 @@ impl TrimCmd {
                         None => cursor_multiplier = Some((*new, idx)),
                     },
                 },
-                Token::YouTube(id) => {
-                    let max = ctx.kwargs.max_items();
+                Token::YouTube((id, max_items)) => {
                     let dur = ctx
                         .client()
                         .ok()
-                        .and_then(|f| f.fetch_duration_from_id(id, max).ok());
+                        .and_then(|f| f.fetch_duration_from_id(id, *max_items).ok());
 
                     if let Some(dur) = dur {
                         match &mut cursor_duration {
@@ -119,10 +118,6 @@ impl TrimCmd {
         if self.multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
             return Ok(());
-        }
-
-        if ctx.kwargs.max_items() != 0 {
-            bail!("--max-items cannot be used for regular durations.")
         }
 
         println!(

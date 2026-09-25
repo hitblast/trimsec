@@ -7,6 +7,12 @@ Active since v2.0.0.
 New features:
 
 - The `trim` command now displays remaining time in day in a decreasing manner if multiple durations and multipliers are passed.
+- Setting individual max-items threshold for YouTube playlist URLs is now supported.
+
+Changes:
+
+- Help command has been improved with better usage documentation.
+- Removed global `--max-items` keyword argument.
 
 Internal changss:
 

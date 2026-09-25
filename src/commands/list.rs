@@ -20,10 +20,9 @@ impl ListCmd {
             None => bail!("No YouTube playlist ID was found in this link."),
         };
 
-        let max = ctx.kwargs.max_items();
         let ids = ctx
             .client()?
-            .expand_id(&id, max)
+            .expand_id(&id, 0)
             .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;
         let videos = ctx
             .client()?

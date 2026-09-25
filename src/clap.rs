@@ -12,20 +12,27 @@ use crate::{
     override_usage = r#"
 ts [ARGS | COMMAND]
 
-Dynamic Arguments:
-  ts 1h24m 1.25x                        # trim mode
-  ts https://youtube.com/... 1.25x      # trim mode (yt)
+Usage Syntax:
+  ts [ARGS]:
+    ts 1h24m 2h 1.25x                        # trim mode (implicit combination)
+    ts 1h24m+2h+1m 1.25x                                 (explicit comb.)
+    ts 1h24m 1.25x <URL> 2h30m 1.25x ...                 (arbitrary arguments)
 
-  ts 1h24m 3h                           # fit-check (fixed duration)
-  ts https://youtu.be/... 3h            # fit-check (yt, fixed duration)
-  ts 1h24m                              # fit-check (remaining day as duration)
-  ts https://youtu.be/...               # fit-check (yt, remaining day as duration)
+    ts 1h24m                                 # fit-check (remaining day-time as budget)
+    ts 1h24m+20m+30m b12h                                (explicit combination and budget)
+    ts 1h24m 2h                                          (second argument as budget -> 2h)
+    ts <URL> 3h20m <URL> ...                             (arbitrary arguments)
+    ts <URL> 1h13m1.5s <URL> ... b12h                    (explicit 12h budget via 'b' prefix)
+
+  ts [COMMAND]: See commands below.
+
+Substitute:
+  <URL>    -> Any YouTube URL (videos/music/Shorts).
 
 Keyword Arguments:
-  1. Playlist traverse limit:
-    --max-items <uint>                  e.g. --max-items 7
-  2. Color mode:
+  1. Color mode:
     --color <ColorMode>                 e.g. --color auto
+                                         or, --color=auto
                                              (modes: always, auto, never)
 "#
 )]

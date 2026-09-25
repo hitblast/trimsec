@@ -101,11 +101,11 @@ ts <URL> 1h30m 2h <URL> 3h
 # multiple args, explicit budget of 15h
 ts <URL> 1h30m 2h <URL> 3h b15h
 
-# youtube playlist, item cap, budget of 5h
-ts "https://youtu.be/..." --max-items 5 5h
+# youtube playlist, budget of 5h
+ts "https://youtu.be/..." 5h
 
 # youtube playlist, item cap, and other content
-ts "https://youtu.be/..." 3h20m --max-items 5 b5h
+ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
 
 Combination rules explained in [1. Trimming](#1-trimming) apply here as well, so other combinations of arguments are also possible outside of this collection.

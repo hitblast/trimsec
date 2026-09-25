@@ -82,21 +82,12 @@ impl FromStr for ColorMode {
 #[derive(Default)]
 pub struct TKeywordArgs {
     color: ColorMode,
-    max_items: usize,
 }
 
 impl TKeywordArgs {
     #[must_use]
     pub fn color(&self) -> &ColorMode {
         &self.color
-    }
-    #[must_use]
-    pub fn max_items(&self) -> usize {
-        self.max_items
-    }
-
-    pub fn unset_max_items(&mut self) {
-        self.max_items = 0;
     }
 
     fn parse_kwarg<T>(
@@ -128,7 +119,6 @@ impl TKeywordArgs {
 
     fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
         let mut color: Option<ColorMode> = None;
-        let mut max_items: Option<usize> = None;
 
         let mut remaining = Vec::new();
         let mut skippable: HashSet<usize> = HashSet::new();
@@ -145,13 +135,6 @@ impl TKeywordArgs {
 
                 let x: ColorMode = Self::parse_kwarg(arg, "--color", args, &mut skippable, idx)?;
                 color = Some(x);
-            } else if arg.starts_with("--max-items") {
-                let None = max_items else {
-                    bail!("Multiple --max-items arguments provided.")
-                };
-
-                let x: usize = Self::parse_kwarg(arg, "--max-items", args, &mut skippable, idx)?;
-                max_items = Some(x);
             } else {
                 remaining.push(arg.clone());
             }
@@ -160,7 +143,6 @@ impl TKeywordArgs {
         Ok((
             Self {
                 color: color.unwrap_or_default(),
-                max_items: max_items.unwrap_or_default(),
             },
             remaining,
         ))
@@ -196,7 +178,7 @@ pub enum Token {
     Duration(TDuration),
     BudgetDuration(TDuration),
     Multiplier(f64),
-    YouTube(TYoutubeId),
+    YouTube((TYoutubeId, usize)),
     EOL,
 }
 
@@ -219,7 +201,17 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
             if let Ok(x) = TDuration::parse_str(arg) {
                 vec.push(Token::Duration(x));
             } else if let Some(id) = get_youtube_id(arg) {
-                vec.push(Token::YouTube(id));
+                vec.push(Token::YouTube((id, 0)));
+            } else if let Some(inner) = arg.strip_prefix("max:") {
+                let split: Vec<&str> = inner.split("::").collect();
+
+                if split.len() == 2
+                    && let Some(first) = split.get(0).and_then(|f| f.parse::<usize>().ok())
+                    && let Some(second) = split.get(1).and_then(|f| get_youtube_id(f))
+                    && second.is_playlist()
+                {
+                    vec.push(Token::YouTube((second.clone(), first)));
+                }
             } else if !budget_seen && let Ok(mul) = parse_multiplier(arg) {
                 if !trim {
                     trim = true;
