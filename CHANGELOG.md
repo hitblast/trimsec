@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v4.1.0
 
+New features:
+
+- The `trim` command now displays remaining time in day in a decreasing manner if multiple durations and multipliers are passed.
+
 Internal changss:
 
 - Implemented safe subtraction for `TDuration` by implementing `SubAssign<&TDuration>`, as well as limiting the internal subtraction of the `seconds` field to `0.0`.

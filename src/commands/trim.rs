@@ -3,7 +3,6 @@ use crate::{
     core::{
         context::Ctx,
         time::{TDuration, ToStringTime},
-        timeutils::time_in_day_left,
     },
 };
 use anyhow::{Result, bail};
@@ -116,7 +115,7 @@ impl TrimCmd {
         Ok(runnables)
     }
 
-    pub fn run(&mut self, ctx: &mut Ctx) -> Result<()> {
+    pub fn run(&mut self, ctx: &mut Ctx, remaining: &mut TDuration) -> Result<()> {
         if self.multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
             return Ok(());
@@ -136,8 +135,7 @@ impl TrimCmd {
         let dur = &mut self.duration;
         dur.trim(self.multiplier);
 
-        let remaining = time_in_day_left() - dur.clone();
-        let saved = dur.saved_time().to_string_duration();
+        *remaining -= &dur;
 
         let message = [
             format!(
@@ -148,14 +146,19 @@ impl TrimCmd {
                 dur.splits(),
                 ctx.style.reset(),
             ),
-            if remaining.seconds() != 0.0 {
+            if !remaining.is_zero() {
                 format!("Time in day left: {} ", remaining)
             } else {
-                "No time in day after this.".to_string()
+                format!(
+                    "{}No time in day after this.{}",
+                    ctx.style.boldred(),
+                    ctx.style.reset()
+                )
             },
             format!(
-                "{}Saved {saved}!{}\n",
+                "{}Saved {}!{}\n",
                 ctx.style.boldgreen(),
+                dur.saved_time().to_string_duration(),
                 ctx.style.reset(),
             ),
         ]

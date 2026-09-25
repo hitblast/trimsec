@@ -8,6 +8,7 @@ use crate::{
     core::{
         context::Ctx,
         time::{TDuration, parse_multiplier},
+        timeutils::time_in_day_left,
         youtils::{TYoutubeId, get_youtube_id},
     },
 };
@@ -33,9 +34,10 @@ impl TCmd {
         match self {
             TCmd::Trim { tokens } => {
                 let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
+                let mut remaining = time_in_day_left();
 
                 for mut x in cmds {
-                    x.run(&mut ctx)?
+                    x.run(&mut ctx, &mut remaining)?
                 }
 
                 Ok(())
