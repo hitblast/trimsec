@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.0.1
+
+Bug fixes:
+
+- Fixed a bug which led to `b` being interpreted as an empty budget-duration for fit-checks.
+
 ### v4.0.0
 
 The deterministic parser has been completed in this PR with major overhauls (see PR: https://github.com/hitblast/trimsec/pull/38).

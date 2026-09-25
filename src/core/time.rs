@@ -96,6 +96,10 @@ impl TDuration {
         let mut seconds = 0f64;
         let mut splits = 0;
 
+        if duration_str.is_empty() {
+            return Err(TTimeError::EmptyDurationString);
+        }
+
         for part in duration_str.split('+') {
             let mut current_number = String::new();
             let mut part_seconds = 0f64;

@@ -37,6 +37,7 @@ pub enum TTimeError {
     InvalidTimeUnit,
     NegativeDuration,
     InvalidMultiplierFormat,
+    EmptyDurationString,
     MultiplierOutOfRange,
 }
 
@@ -54,6 +55,9 @@ impl Display for TTimeError {
             }
             Self::MultiplierOutOfRange => {
                 write!(f, "multiplier must be greater than 1x and less than 100x.")
+            }
+            Self::EmptyDurationString => {
+                write!(f, "empty duration-string passed.")
             }
         }
     }
