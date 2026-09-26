@@ -4,6 +4,10 @@ Active since v2.0.0.
 
 ### v4.3.4
 
+Bug fixes:
+
+- Fixed a bug which caused `"Error: "` to appear in the command-line even for non-destructive (but with exit code 1) outputs (e.g. the `help` section, or `ts --version`).
+
 Improvements:
 
 - Standardized error messages across the codebase.

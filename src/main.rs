@@ -1,9 +1,19 @@
-use anyhow::Result;
 use trimsec::args::get_cur_cmd;
 
-fn main() -> Result<()> {
-    let (args, cmd) = get_cur_cmd()?;
-    cmd.run(args)?;
+fn main() {
+    let eexit = |e, is_error| {
+        eprintln!("{}{e}", if is_error { "Error: " } else { "" });
+        std::process::exit(1);
+    };
 
-    Ok(())
+    match get_cur_cmd() {
+        Ok((args, cmd)) => {
+            if let Err(e) = cmd.run(args) {
+                eexit(e, true);
+            }
+        }
+        Err(e) => {
+            eexit(e, false);
+        }
+    }
 }
