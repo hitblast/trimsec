@@ -1,5 +1,5 @@
 use crate::{
-    args::Token,
+    args::Token::{self},
     core::{context::Ctx, time::TDuration, timeutils::time_in_day_left},
 };
 use anyhow::{Result, bail};
@@ -23,24 +23,26 @@ impl<'a> FitCmd<'a> {
         let mut budget_duration: Option<TDuration> = None;
 
         let tokens_len = tokens.len();
-        let durations: Vec<TDuration> = tokens
-            .into_iter()
-            .filter_map(|f| match f {
-                Token::Duration(dur) => Some(dur.clone()),
-                Token::YouTube((id, max_items)) => ctx
-                    .client()
-                    .ok()
-                    .and_then(|f| f.fetch_duration_from_id(&id, max_items).ok()),
-                Token::BudgetDuration(dur) => {
-                    match &mut budget_duration {
-                        Some(existing) => *existing += &dur,
-                        None => budget_duration = Some(dur),
-                    }
-                    None
-                }
-                _ => None,
-            })
-            .collect();
+        let mut durations: Vec<TDuration> = Vec::new();
+
+        let mut iterable = tokens.into_iter();
+        while let Some(tok) = iterable.next() {
+            match tok {
+                Token::Duration(dur) => durations.push(dur),
+                Token::BudgetDuration(dur) => match &mut budget_duration {
+                    Some(existing) => *existing += &dur,
+                    None => budget_duration = Some(dur),
+                },
+                Token::YouTube((id, max_items)) => match ctx.client() {
+                    Ok(client) => match client.fetch_duration_from_id(&id, max_items) {
+                        Ok(dur) => durations.push(dur),
+                        Err(e) => bail!("failed to fetch duration: {e}"),
+                    },
+                    Err(e) => bail!("client failed: {e}"),
+                },
+                _ => {}
+            }
+        }
 
         if durations.is_empty() {
             bail!("missing content duration for fit-check.")
