@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.3.3
+
+Bug fixes:
+
+- Fixed some overlapping-related issues in the terminal-drawing API.
+
 ### v4.3.2
 
 Bug fixes:

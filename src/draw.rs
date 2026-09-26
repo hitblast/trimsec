@@ -38,16 +38,18 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>) 
     if let Some(w) = *TERM_WIDTH
         && JOINED_ARGS.len() > w as usize
     {
-        let arg: &str = &RAW_ARGS[idx];
+        let print_width = (w - 20).min(arg_len);
+        let arg: &str = &RAW_ARGS[idx][0..print_width];
         println!(
-            "\n{}... {}{}{} ... {}\n    {}{}{}",
+            "\n{}... {}{}{}{}...{}\n    {}{}{}",
             style.grey(),
             style.reset(),
             arg,
+            if print_width == arg_len { " " } else { "" },
             style.grey(),
             style.reset(),
             style.boldred(),
-            "^".repeat(arg.len()),
+            "^".repeat(print_width),
             style.reset()
         );
     } else {
