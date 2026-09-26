@@ -1,4 +1,4 @@
-use crate::core::{context::Ctx, youtils::TYoutubeId};
+use crate::core::{api::ApiClient, context::Ctx, youtils::TYoutubeId};
 use anyhow::{Result, bail};
 use clap::Args;
 
@@ -14,8 +14,11 @@ pub struct KeySetCmd {
 
 impl KeySetCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
+        if self.api_key.is_empty() || self.api_key.replace(" ", "").is_empty() {
+            bail!("Given key is empty!");
+        }
         if ctx.config()?.api_key().is_some_and(|f| f == self.api_key) {
-            println!("Key is already installed.");
+            eprintln!("Key is already installed.");
             return Ok(());
         }
 
@@ -23,8 +26,9 @@ impl KeySetCmd {
             println!("Testing key... (use --no-check to skip)");
 
             let id: TYoutubeId = TYoutubeId::new("dQw4w9WgXcQ", false);
+            let client = ApiClient::new(&self.api_key);
 
-            if ctx.client()?.fetch_duration_from_id(&id, 1).is_err() {
+            if client.fetch_duration_from_id(&id, 1).is_err() {
                 bail!(
                     "{}Invalid API key passed!{}",
                     ctx.style.red(),

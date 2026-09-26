@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v4.3.2
+
+Bug fixes:
+
+- Fixed a bug which led to `key set` using the "existing client" for testing rather than temporarily creating a new one with the new API key.
+- Fixed a bug which led to `key set` evaluating both empty and whitespace-filled keys as valid keys.
+
 ### v4.3.1
 
 Minor optimizations, nothing too fancy.
