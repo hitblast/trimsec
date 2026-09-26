@@ -9,6 +9,10 @@ Improvements:
 - Standardized error messages across the codebase.
 - API errors now properly propagate upwards again after the pre-parser versions.
 
+Internal changes:
+
+- Slightly changed the error message for the now `TYoutubeError::InvalidResponseBody` error-variant.
+
 ### v4.3.3
 
 Bug fixes:
