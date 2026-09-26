@@ -76,7 +76,7 @@ impl TrimCmd {
                     },
                 },
                 Token::YouTube((id, max_items)) => {
-                    let dur = ctx
+                    let dur: Option<TDuration> = ctx
                         .client()
                         .ok()
                         .and_then(|f| f.fetch_duration_from_id(id, *max_items).ok());

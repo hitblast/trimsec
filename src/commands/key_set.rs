@@ -22,7 +22,7 @@ impl KeySetCmd {
         if !self.no_check {
             println!("Testing key... (use --no-check to skip)");
 
-            let id = TYoutubeId::new("dQw4w9WgXcQ", false);
+            let id: TYoutubeId = TYoutubeId::new("dQw4w9WgXcQ", false);
 
             if ctx.client()?.fetch_duration_from_id(&id, 1).is_err() {
                 bail!(

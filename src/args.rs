@@ -29,7 +29,7 @@ pub enum TCmd {
 
 impl TCmd {
     pub fn run(self, args: TKeywordArgs) -> Result<()> {
-        let mut ctx = Ctx::new(args);
+        let mut ctx: Ctx = Ctx::new(args);
 
         match self {
             TCmd::Trim { tokens } => {
@@ -152,7 +152,7 @@ impl TKeywordArgs {
 pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let argv: Vec<String> = env::args().skip(1).collect();
 
-    let (kwargs, remaining) = TKeywordArgs::parse(&argv)?;
+    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse(&argv)?;
     const SUBCMDS: [&str; 8] = [
         "key",
         "list",
@@ -164,7 +164,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
         "--version",
     ];
 
-    let cmd = match remaining.first().map(String::as_str) {
+    let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
         Some(_) => parse_deterministic(&remaining)?,
@@ -226,13 +226,13 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
 }
 
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
-    let (tokens, trim) = parse_tokens(args);
+    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(args);
 
     if let Some(Token::EOL) = tokens.get(0) {
         bail!("No meaningful arguments were passed.")
     }
 
-    let cmd = if !trim {
+    let cmd: TCmd = if !trim {
         TCmd::Fit { tokens }
     } else {
         TCmd::Trim { tokens }

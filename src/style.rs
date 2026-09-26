@@ -27,7 +27,7 @@ macro_rules! getter {
 impl Style {
     #[must_use]
     pub fn new(color_mode: &ColorMode) -> Self {
-        let colors = if env::var("NO_COLOR").ok().is_some() {
+        let colors: bool = if env::var("NO_COLOR").ok().is_some() {
             false
         } else {
             match color_mode {

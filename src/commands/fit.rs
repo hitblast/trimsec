@@ -46,7 +46,7 @@ impl<'a> FitCmd<'a> {
             bail!("Missing content duration for fit-check.")
         }
 
-        let cmd = if durations.len() + 1 == tokens_len && durations.len() == 2 {
+        let cmd: FitCmd<'_> = if durations.len() + 1 == tokens_len && durations.len() == 2 {
             FitCmd::new(ctx, durations[0].clone(), Some(durations[1].clone()))
         } else {
             let sum = durations.into_iter().sum();
@@ -57,8 +57,8 @@ impl<'a> FitCmd<'a> {
     }
 
     pub fn run(self) -> Result<()> {
-        let content_duration = self.duration;
-        let ctx = self.ctx;
+        let content_duration: TDuration = self.duration;
+        let ctx: &'a mut Ctx = self.ctx;
 
         let cfg_budget = ctx
             .config()?
@@ -76,8 +76,8 @@ impl<'a> FitCmd<'a> {
             time_in_day_left()
         };
 
-        let message = {
-            let header = format!(
+        let message: String = {
+            let header: String = format!(
                 "{}{} / {}{}",
                 ctx.style.grey(),
                 content_duration,

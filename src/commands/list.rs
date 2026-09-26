@@ -1,4 +1,7 @@
-use crate::core::{context::Ctx, youtils::get_youtube_id};
+use crate::core::{
+    context::Ctx,
+    youtils::{TYoutubeId, get_youtube_id},
+};
 use anyhow::{Result, bail};
 use clap::Args;
 
@@ -10,7 +13,7 @@ pub struct ListCmd {
 
 impl ListCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let id = match get_youtube_id(&self.link) {
+        let id: TYoutubeId = match get_youtube_id(&self.link) {
             Some(id) => {
                 if !id.is_playlist() {
                     bail!("Not a valid YouTube playlist ID!")
@@ -20,7 +23,7 @@ impl ListCmd {
             None => bail!("No YouTube playlist ID was found in this link."),
         };
 
-        let ids = ctx
+        let ids: Vec<String> = ctx
             .client()?
             .expand_id(&id, 0)
             .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;
