@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.2.0
+
+New features:
+
+- The `trim` parser delegate now pinpoints to unused durations/multipliers.
+
 ### v4.1.0
 
 New features:

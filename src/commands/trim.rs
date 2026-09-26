@@ -4,6 +4,7 @@ use crate::{
         context::Ctx,
         time::{TDuration, ToStringTime},
     },
+    draw::draw_args_arrow,
 };
 use anyhow::{Result, bail};
 
@@ -21,8 +22,8 @@ impl TrimCmd {
         let mut iterable = tokens.iter().enumerate().peekable();
 
         while let Some((idx, tok)) = iterable.next() {
-            const LEARN_PLACEMENT_MSG: &str = "If you meant to apply different multipliers to separate durations, \
-                                                make the placement explicit, e.g. `1h 1.25x 3h 1.3x`.";
+            const TIP_EXPLICIT_PLACEMENT: &str =
+                "TIP: Make the placement explicit, e.g. `1h 1.25x 3h 1.3x`.";
 
             match tok {
                 Token::Duration(dur) => match &mut cursor_duration {
@@ -59,7 +60,7 @@ impl TrimCmd {
                                     bail!(
                                         "Multiplier {cursor_mul}x (at index {cursor_mul_idx}), \
                                          {new}x (at index {idx}) given but duration does not exist.\n\n \
-                                         {LEARN_PLACEMENT_MSG}"
+                                         {TIP_EXPLICIT_PLACEMENT}"
                                     )
                                 }
                             }
@@ -99,13 +100,12 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            bail!(
-                                "Unused multiplier: {cursor_mul}x at index: {cursor_mul_idx}.\n\n \
-                                 {LEARN_PLACEMENT_MSG}"
-                            )
+                            draw_args_arrow(cursor_mul_idx, &ctx.style);
+                            bail!("Unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
-                    } else if let Some((unused_dur, unused_idx)) = cursor_duration {
-                        bail!("Unused duration: {unused_dur} at index: {unused_idx}")
+                    } else if let Some((_, unused_idx)) = cursor_duration {
+                        draw_args_arrow(unused_idx, &ctx.style);
+                        bail!("Unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                     }
                 }
             }
