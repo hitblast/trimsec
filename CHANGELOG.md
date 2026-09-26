@@ -2,6 +2,13 @@
 
 Active since v2.0.0.
 
+### v4.3.4
+
+Improvements:
+
+- Standardized error messages across the codebase.
+- API errors now properly propagate upwards again after the pre-parser versions.
+
 ### v4.3.3
 
 Bug fixes:
