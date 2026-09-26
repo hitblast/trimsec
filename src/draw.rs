@@ -46,7 +46,7 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>) 
             arg,
             style.grey(),
             style.reset(),
-            style.red(),
+            style.boldred(),
             "^".repeat(arg.len()),
             style.reset()
         );
