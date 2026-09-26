@@ -38,11 +38,12 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>) 
     if let Some(w) = *TERM_WIDTH
         && JOINED_ARGS.len() > w as usize
     {
-        let arg = RAW_ARGS[idx].clone();
+        let arg: &str = &RAW_ARGS[idx];
         println!(
-            "\n{}... {}{arg}{} ... {}\n    {}{}{}",
+            "\n{}... {}{}{} ... {}\n    {}{}{}",
             style.grey(),
             style.reset(),
+            arg,
             style.grey(),
             style.reset(),
             style.red(),
