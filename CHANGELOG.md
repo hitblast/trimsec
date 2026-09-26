@@ -10,6 +10,7 @@ Changes:
 
 Improvements:
 
+- The new `draw` module (the tiny terminal-drawing API for trimsec, for errors) is now even more stable, since it now adjusts printing based on the terminal's max width.
 - The error arrow is now (slightly) more precise, sometimes even attempting to pinpoint to the exact index of an error-causing argument.
 - The parser delegate for the `trim` command now ignores arguments invalid to its context rather than bailing out - this case is covered by the first-stage parser itself.
 
