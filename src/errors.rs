@@ -67,7 +67,7 @@ impl Display for TTimeError {
 pub enum TYoutubeError {
     UreqError(ureq::Error),
     RequestUriParseError(String),
-    ResponseBodyParseFailure,
+    InvalidResponseBody,
     ItemNotFound,
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
@@ -94,7 +94,7 @@ impl Display for TYoutubeError {
                     "max items ({given}) is larger than the length of the playlist ({max})."
                 )
             }
-            TYoutubeError::ResponseBodyParseFailure => write!(f, "failed to parse response body."),
+            TYoutubeError::InvalidResponseBody => write!(f, "response body invalid."),
         }
     }
 }
