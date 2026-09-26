@@ -18,9 +18,9 @@
 
 ## Overview
 
-trimsec helps you plan your content consumption via two primary features:
+trimsec helps you plan your content consumption with two primary functions:
 
-1. Fitting if contents fit into the remaining day, or an explicit timeframe you give, and
+1. Fit-checking contents for the remainder of the day, or a specific time-budget, and
 2. Trimming the content using multipliers and calculating how much time you'll save.
 
 Everything else is cherry-on-top.
@@ -29,7 +29,7 @@ Everything else is cherry-on-top.
 
 ### 1. Trimming
 
-To calculate saved time, you run trimsec in this pattern:
+To calculate saved time, you run a pattern like this:
 
 ```bash
 # duration and multiplier used
@@ -46,7 +46,7 @@ ts 1h30m 1.5x 1.2x 3h 2m
 ts 3x 2h 2h 2h 1.25x 1h 2x 3.5h
 ```
 
-Nearby durations based on the cursor are combined and checked against their common multipliers. This allows checking a huge number of durations in a matter of seconds.
+Nearby durations based on the cursor are combined and checked against their common multipliers. This allows checking a huge number of durations in a matter of seconds. trimsec will daisy-chain these commands and also output how much time you'll save by the end of the day/budget.
 
 You can also explicitly combine two durations like this:
 
@@ -63,13 +63,13 @@ ts 1h30m+2h50m 1.25x
 > ts key set <API_KEY_HERE>
 > ```
 
-trimsec can also process YouTube URLs and trim videos just like trimming regular durations:
+trimsec can also receive YouTube URLs as arguments alongside all the other durations and multipliers:
 
 ```bash
 ts "https://www.youtube.com/watch?v=D4iiKkjGJmU" 1.25x
 ```
 
-Since it invokes the original [trimming function](#1-trimming) underneath, you can also combine durations, and provide an infinite amount of such arguments:
+This leads to an infinite amount of combinations and daisy-chaining that you can do:
 
 ```bash
 ts <URL> 1h30m 1.25x 2h <URL> 2x
@@ -81,9 +81,18 @@ YouTube playlist URLs are also supported and can be combined with other duration
 ts 1.8x "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
 ```
 
+You can also prefix the playlist URL with `max:<n>::` to only calculate for the first `n` elements of the playlist:
+
+```bash
+# only the first 5 items
+ts 1.8x "max:5::https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+```
+
 ### 2. Fit-Check
 
-You can check whether a particular YouTube content fits within a budget using this pattern:
+For fit-checking, you may use the patterns mentioned below.
+
+Combination rules explained in [1. Trimming](#1-trimming) apply here as well, so other combinations of arguments are also possible outside of this collection.
 
 ```bash
 # budget is today
@@ -109,8 +118,6 @@ ts "https://youtu.be/..." 5h
 # youtube playlist, item cap, and other content
 ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
-
-Combination rules explained in [1. Trimming](#1-trimming) apply here as well, so other combinations of arguments are also possible outside of this collection.
 
 ### 3. Utility Commands
 
