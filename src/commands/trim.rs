@@ -50,6 +50,8 @@ impl TrimCmd {
                                     cursor_multiplier = Some((*new, idx))
                                 }
                                 _ => {
+                                    // TODO: make drawing API implementation for multiple-arg pointers
+                                    // point_at_arg(idx, &ctx.style, None);
                                     bail!(
                                         "multiplier {cursor_mul}x (at index {cursor_mul_idx}), \
                                          {new}x (at index {idx}) given but duration does not exist.\n\n \
