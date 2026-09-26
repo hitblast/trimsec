@@ -33,13 +33,6 @@ impl TrimCmd {
                     }
                     None => cursor_duration = Some((dur.clone(), idx)),
                 },
-                Token::BudgetDuration(_) => {
-                    // This one is here for redundancy.
-                    // Token::BudgetDuration(_) variants are already filtered out during the first stage.
-                    bail!(
-                        "Budget duration cannot be present inside an expression which prioritizes multipliers."
-                    )
-                }
                 Token::Multiplier(new) => match &mut cursor_multiplier {
                     Some((cursor_mul, cursor_mul_idx)) => {
                         if let Some((cursor_dur, _)) = cursor_duration.take() {
@@ -100,14 +93,15 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            draw_args_arrow(cursor_mul_idx, &ctx.style);
+                            draw_args_arrow(cursor_mul_idx, &ctx.style, None);
                             bail!("Unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((_, unused_idx)) = cursor_duration {
-                        draw_args_arrow(unused_idx, &ctx.style);
+                        draw_args_arrow(unused_idx, &ctx.style, None);
                         bail!("Unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                     }
                 }
+                _ => {}
             }
         }
 

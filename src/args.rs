@@ -11,6 +11,7 @@ use crate::{
         timeutils::time_in_day_left,
         youtils::{TYoutubeId, get_youtube_id},
     },
+    draw::draw_args_arrow,
 };
 
 pub enum TCmdContent {
@@ -31,8 +32,28 @@ impl TCmd {
     pub fn run(self, args: TKeywordArgs) -> Result<()> {
         let mut ctx: Ctx = Ctx::new(args);
 
+        let token_check = |tokens: &Vec<Token>| -> Result<()> {
+            let mut should_bail = false;
+
+            for tok in tokens {
+                if let Token::Invalid((idx, reason, specific_idx)) = tok {
+                    draw_args_arrow(*idx, &ctx.style, *specific_idx);
+                    println!("{reason}");
+                    should_bail = true;
+                }
+            }
+
+            if should_bail {
+                bail!("Invalid tokens found.")
+            }
+
+            Ok(())
+        };
+
         match self {
             TCmd::Trim { tokens } => {
+                token_check(&tokens)?;
+
                 let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
                 let mut remaining = time_in_day_left();
 
@@ -43,6 +64,8 @@ impl TCmd {
                 Ok(())
             }
             TCmd::Fit { tokens } => {
+                token_check(&tokens)?;
+
                 let cmd = FitCmd::delegate(&mut ctx, tokens)?;
                 cmd.run()
             }
@@ -179,7 +202,14 @@ pub enum Token {
     BudgetDuration(TDuration),
     Multiplier(f64),
     YouTube((TYoutubeId, usize)),
+    Invalid((usize, String, Option<usize>)),
     EOL,
+}
+
+macro_rules! invalid {
+    ($x:expr, $($arg:tt)*) => {
+        Token::Invalid(($x, format!($($arg)*), None))
+    };
 }
 
 fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
@@ -187,37 +217,72 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
     let mut trim = false;
     let mut budget_seen = false;
 
-    for arg in args {
+    for (idx, arg) in args.iter().enumerate() {
         if !trim && arg.starts_with("b") {
-            if let Some(inner) = arg.strip_prefix("b")
+            let tok = if let Some(inner) = arg.strip_prefix("b")
                 && let Ok(x) = TDuration::parse_str(inner)
             {
                 if !budget_seen {
                     budget_seen = true;
                 }
-                vec.push(Token::BudgetDuration(x));
-            }
+                Token::BudgetDuration(x)
+            } else {
+                invalid!(idx, "Did you mean to set a time-budget?")
+            };
+
+            vec.push(tok);
         } else {
-            if let Ok(x) = TDuration::parse_str(arg) {
-                vec.push(Token::Duration(x));
+            let tok = if let Ok(x) = TDuration::parse_str(arg) {
+                Token::Duration(x)
             } else if let Some(id) = get_youtube_id(arg) {
-                vec.push(Token::YouTube((id, 0)));
+                Token::YouTube((id, 0))
             } else if let Some(inner) = arg.strip_prefix("max:") {
                 let split: Vec<&str> = inner.split("::").collect();
 
-                if split.len() == 2
-                    && let Some(first) = split.get(0).and_then(|f| f.parse::<usize>().ok())
-                    && let Some(second) = split.get(1).and_then(|f| get_youtube_id(f))
-                    && second.is_playlist()
-                {
-                    vec.push(Token::YouTube((second.clone(), first)));
-                }
+                let tok = if split.len() == 2 {
+                    if let Some(first) = split.get(0).and_then(|f| f.parse::<usize>().ok()) {
+                        if let Some(second) = split.get(1).and_then(|f| get_youtube_id(f)) {
+                            if second.is_playlist() {
+                                Token::YouTube((second.clone(), first))
+                            } else {
+                                invalid!(
+                                    idx,
+                                    "Item-cap target must be a playlist, not a single video."
+                                )
+                            }
+                        } else {
+                            invalid!(
+                                idx,
+                                "Could not parse a valid YouTube id/playlist from the second part."
+                            )
+                        }
+                    } else {
+                        Token::Invalid((
+                            idx,
+                            "Item-cap must be a positive number, e.g. max:10::<playlist>."
+                                .to_string(),
+                            Some(4),
+                        ))
+                    }
+                } else {
+                    invalid!(
+                        idx,
+                        "Expected exactly 2 parts separated by '::' for an item-cap (got {}).",
+                        split.len()
+                    )
+                };
+
+                tok
             } else if !budget_seen && let Ok(mul) = parse_multiplier(arg) {
                 if !trim {
                     trim = true;
                 }
-                vec.push(Token::Multiplier(mul));
-            }
+                Token::Multiplier(mul)
+            } else {
+                invalid!(idx, "Unknown argument format.")
+            };
+
+            vec.push(tok);
         }
     }
     vec.push(Token::EOL);

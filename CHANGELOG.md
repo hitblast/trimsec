@@ -2,6 +2,17 @@
 
 Active since v2.0.0.
 
+### v4.3.0
+
+Changes:
+
+- Invalid arguments are not allowed anymore, and have explicit error-messages.
+
+Improvements:
+
+- The error arrow is now (slightly) more precise, sometimes even attempting to pinpoint to the exact index of an error-causing argument.
+- The parser delegate for the `trim` command now ignores arguments invalid to its context rather than bailing out - this case is covered by the first-stage parser itself.
+
 ### v4.2.0
 
 New features:

@@ -20,16 +20,32 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     hashed
 });
 
-pub fn draw_args_arrow(mut idx: usize, style: &Style) {
+pub fn draw_args_arrow(mut idx: usize, style: &Style, specific_idx: Option<usize>) {
     idx += 1;
     let (spacing, arg_len) = SPACES[&idx];
 
     println!(
-        "{}\n{}{}{}{}",
+        "{}\n{}{}",
         RAW_STR_ARGS.join(" "),
         " ".repeat(spacing),
-        style.boldred(),
-        "^".repeat(arg_len),
-        style.reset()
+        if let Some(s) = specific_idx {
+            format!(
+                "{}{}{}^{}{}{}",
+                style.boldgrey(),
+                "^".repeat(s),
+                style.boldred(),
+                style.boldgrey(),
+                "^".repeat(s),
+                // "^".repeat(arg_len - s - 1),
+                style.reset()
+            )
+        } else {
+            format!(
+                "{}{}{}",
+                style.boldred(),
+                "^".repeat(arg_len),
+                style.reset()
+            )
+        },
     );
 }
