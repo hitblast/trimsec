@@ -11,7 +11,7 @@ use crate::{
         timeutils::time_in_day_left,
         youtils::{TYoutubeId, get_youtube_id},
     },
-    draw::draw_args_arrow,
+    draw::point_at_arg,
 };
 
 pub enum TCmdContent {
@@ -37,7 +37,7 @@ impl TCmd {
 
             for tok in tokens {
                 if let Token::Invalid((idx, reason, specific_idx)) = tok {
-                    draw_args_arrow(*idx, &ctx.style, *specific_idx);
+                    point_at_arg(*idx, &ctx.style, *specific_idx);
                     println!("{reason}");
                     should_bail = true;
                 }

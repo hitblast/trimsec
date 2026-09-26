@@ -4,7 +4,7 @@ use crate::{
         context::Ctx,
         time::{TDuration, ToStringTime},
     },
-    draw::draw_args_arrow,
+    draw::point_at_arg,
 };
 use anyhow::{Result, bail};
 
@@ -93,11 +93,11 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            draw_args_arrow(cursor_mul_idx, &ctx.style, None);
+                            point_at_arg(cursor_mul_idx, &ctx.style, None);
                             bail!("Unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((_, unused_idx)) = cursor_duration {
-                        draw_args_arrow(unused_idx, &ctx.style, None);
+                        point_at_arg(unused_idx, &ctx.style, None);
                         bail!("Unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                     }
                 }
