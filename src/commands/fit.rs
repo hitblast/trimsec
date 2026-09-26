@@ -43,7 +43,7 @@ impl<'a> FitCmd<'a> {
             .collect();
 
         if durations.is_empty() {
-            bail!("Missing content duration for fit-check.")
+            bail!("missing content duration for fit-check.")
         }
 
         let cmd: FitCmd<'_> = if durations.len() + 1 == tokens_len && durations.len() == 2 {

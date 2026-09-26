@@ -15,7 +15,7 @@ pub struct KeySetCmd {
 impl KeySetCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         if self.api_key.is_empty() || self.api_key.replace(" ", "").is_empty() {
-            bail!("Given key is empty!");
+            bail!("given key is empty!");
         }
         if ctx.config()?.api_key().is_some_and(|f| f == self.api_key) {
             eprintln!("Key is already installed.");
@@ -29,11 +29,7 @@ impl KeySetCmd {
             let client = ApiClient::new(&self.api_key);
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
-                bail!(
-                    "{}Invalid API key passed!{}",
-                    ctx.style.red(),
-                    ctx.style.reset()
-                )
+                bail!("invalid API key passed!",)
             }
         }
 

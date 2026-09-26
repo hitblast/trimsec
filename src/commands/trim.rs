@@ -45,13 +45,13 @@ impl TrimCmd {
                             match iterable.peek() {
                                 Some((_, Token::Duration(_))) | Some((_, Token::YouTube(_))) => {
                                     println!(
-                                        "Omitting unused multiplier: {cursor_mul}x from index: {cursor_mul_idx}"
+                                        "omitting unused multiplier: {cursor_mul}x from index: {cursor_mul_idx}"
                                     );
                                     cursor_multiplier = Some((*new, idx))
                                 }
                                 _ => {
                                     bail!(
-                                        "Multiplier {cursor_mul}x (at index {cursor_mul_idx}), \
+                                        "multiplier {cursor_mul}x (at index {cursor_mul_idx}), \
                                          {new}x (at index {idx}) given but duration does not exist.\n\n \
                                          {TIP_EXPLICIT_PLACEMENT}"
                                     )
@@ -69,22 +69,19 @@ impl TrimCmd {
                         None => cursor_multiplier = Some((*new, idx)),
                     },
                 },
-                Token::YouTube((id, max_items)) => {
-                    let dur: Option<TDuration> = ctx
-                        .client()
-                        .ok()
-                        .and_then(|f| f.fetch_duration_from_id(id, *max_items).ok());
-
-                    if let Some(dur) = dur {
-                        match &mut cursor_duration {
+                Token::YouTube((id, max_items)) => match ctx.client() {
+                    Ok(client) => match client.fetch_duration_from_id(id, *max_items) {
+                        Ok(dur) => match &mut cursor_duration {
                             Some((total, cursor_idx)) => {
                                 *total += &dur;
                                 *cursor_idx = idx;
                             }
                             None => cursor_duration = Some((dur.clone(), idx)),
-                        }
-                    }
-                }
+                        },
+                        Err(e) => bail!("failed to fetch duration: {e}"),
+                    },
+                    Err(e) => bail!("client failed: {e}"),
+                },
                 Token::EOL => {
                     if let Some((cursor_mul, cursor_mul_idx)) = cursor_multiplier {
                         if let Some((duration, _)) = cursor_duration.take() {
@@ -94,11 +91,11 @@ impl TrimCmd {
                             });
                         } else {
                             point_at_arg(cursor_mul_idx, &ctx.style, None);
-                            bail!("Unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
+                            bail!("unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((_, unused_idx)) = cursor_duration {
                         point_at_arg(unused_idx, &ctx.style, None);
-                        bail!("Unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
+                        bail!("unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                     }
                 }
                 _ => {}

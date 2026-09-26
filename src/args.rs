@@ -44,7 +44,7 @@ impl TCmd {
             }
 
             if should_bail {
-                bail!("Invalid tokens found.")
+                bail!("invalid tokens found.")
             }
 
             Ok(())
@@ -131,7 +131,7 @@ impl TKeywordArgs {
         {
             argval.as_str()
         } else {
-            bail!("Missing value for keyword argument: {keyword}")
+            bail!("missing value for keyword argument: {keyword}")
         };
 
         skippable.insert(idx + 1);
@@ -153,7 +153,7 @@ impl TKeywordArgs {
 
             if arg.starts_with("--color") {
                 let None = color else {
-                    bail!("Multiple --color arguments provided.")
+                    bail!("multiple --color arguments provided.")
                 };
 
                 let x: ColorMode = Self::parse_kwarg(arg, "--color", args, &mut skippable, idx)?;
@@ -294,7 +294,7 @@ fn parse_deterministic(args: &[String]) -> Result<TCmd> {
     let (tokens, trim): (Vec<Token>, bool) = parse_tokens(args);
 
     if let Some(Token::EOL) = tokens.get(0) {
-        bail!("No meaningful arguments were passed.")
+        bail!("no meaningful arguments were passed.")
     }
 
     let cmd: TCmd = if !trim {

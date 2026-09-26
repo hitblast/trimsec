@@ -16,11 +16,11 @@ impl ListCmd {
         let id: TYoutubeId = match get_youtube_id(&self.link) {
             Some(id) => {
                 if !id.is_playlist() {
-                    bail!("Not a valid YouTube playlist ID!")
+                    bail!("not a valid YouTube playlist ID!")
                 }
                 id
             }
-            None => bail!("No YouTube playlist ID was found in this link."),
+            None => bail!("no YouTube playlist ID was found in this link."),
         };
 
         let ids: Vec<String> = ctx
