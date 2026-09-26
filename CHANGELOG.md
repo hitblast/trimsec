@@ -2,7 +2,7 @@
 
 Active since v2.0.0.
 
-### v4.3.4
+### v4.4.0
 
 Bug fixes:
 
@@ -10,6 +10,7 @@ Bug fixes:
 
 Improvements:
 
+- The drawing API now draws specific-index arg-pointers more carefully.
 - Standardized error messages across the codebase.
 - API errors now properly propagate upwards again after the pre-parser versions.
 

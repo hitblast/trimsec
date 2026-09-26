@@ -31,7 +31,7 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     hashed
 });
 
-pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>) {
+pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>, warn: bool) {
     idx += 1;
     let (spacing, arg_len) = SPACES[&idx];
 
@@ -41,37 +41,65 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>) 
         let print_width = (w - 20).min(arg_len);
         let arg: &str = &RAW_ARGS[idx][0..print_width];
         println!(
-            "\n{}... {}{}{}{}...{}\n    {}{}{}",
-            style.grey(),
+            "\n   {}... {}{}{}{}...{}\n       {}",
+            style.boldgrey(),
             style.reset(),
             arg,
             if print_width == arg_len { " " } else { "" },
-            style.grey(),
+            style.boldgrey(),
             style.reset(),
-            style.boldred(),
-            "^".repeat(print_width),
-            style.reset()
-        );
-    } else {
-        println!(
-            "\n{}\n{}{}",
-            *JOINED_ARGS,
-            " ".repeat(spacing),
             if let Some(s) = specific_idx {
+                let x = "^".repeat(s);
                 format!(
                     "{}{}{}^{}{}{}",
                     style.boldgrey(),
-                    "^".repeat(s),
+                    x,
                     style.boldred(),
                     style.boldgrey(),
-                    "^".repeat(s),
-                    // "^".repeat(arg_len - s - 1),
+                    x,
                     style.reset()
                 )
             } else {
                 format!(
                     "{}{}{}",
-                    style.boldred(),
+                    if warn {
+                        style.boldgrey()
+                    } else {
+                        style.boldred()
+                    },
+                    "^".repeat(print_width),
+                    style.reset()
+                )
+            },
+        );
+    } else {
+        println!(
+            "\n   {}\n   {}{}",
+            *JOINED_ARGS,
+            " ".repeat(spacing),
+            if let Some(s) = specific_idx {
+                let x = "^".repeat(s);
+                format!(
+                    "{}{}{}^{}{}{}",
+                    style.boldgrey(),
+                    x,
+                    if warn {
+                        style.boldgrey()
+                    } else {
+                        style.boldred()
+                    },
+                    style.boldgrey(),
+                    x,
+                    style.reset()
+                )
+            } else {
+                format!(
+                    "{}{}{}",
+                    if warn {
+                        style.boldgrey()
+                    } else {
+                        style.boldred()
+                    },
                     "^".repeat(arg_len),
                     style.reset()
                 )

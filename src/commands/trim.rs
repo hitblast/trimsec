@@ -44,9 +44,8 @@ impl TrimCmd {
                         } else {
                             match iterable.peek() {
                                 Some((_, Token::Duration(_))) | Some((_, Token::YouTube(_))) => {
-                                    println!(
-                                        "omitting unused multiplier: {cursor_mul}x from index: {cursor_mul_idx}"
-                                    );
+                                    point_at_arg(*cursor_mul_idx, &ctx.style, None, true);
+                                    println!("Omitting unused multiplier here.");
                                     cursor_multiplier = Some((*new, idx))
                                 }
                                 _ => {
@@ -92,11 +91,11 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            point_at_arg(cursor_mul_idx, &ctx.style, None);
+                            point_at_arg(cursor_mul_idx, &ctx.style, None, false);
                             bail!("unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((_, unused_idx)) = cursor_duration {
-                        point_at_arg(unused_idx, &ctx.style, None);
+                        point_at_arg(unused_idx, &ctx.style, None, false);
                         bail!("unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                     }
                 }

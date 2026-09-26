@@ -37,7 +37,7 @@ impl TCmd {
 
             for tok in tokens {
                 if let Token::Invalid((idx, reason, specific_idx)) = tok {
-                    point_at_arg(*idx, &ctx.style, *specific_idx);
+                    point_at_arg(*idx, &ctx.style, *specific_idx, false);
                     println!("{reason}");
                     should_bail = true;
                 }
