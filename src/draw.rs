@@ -38,7 +38,7 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>, 
     if let Some(w) = *TERM_WIDTH
         && JOINED_ARGS.len() > w
     {
-        let print_width = (w - 20).min(arg_len);
+        let print_width = (w - 20).min(arg_len); // opinionated number, don't worry
         let arg: &str = &RAW_ARGS[idx][0..print_width];
         println!(
             "\n   {}... {}{}{}{}...{}\n       {}",
