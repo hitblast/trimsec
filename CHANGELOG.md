@@ -6,7 +6,8 @@ Active since v2.0.0.
 
 New features:
 
-- Add new command: `ts key unset`
+- Added new command: `ts key unset`
+- Added support for piped inputs.
 
 Improvements:
 

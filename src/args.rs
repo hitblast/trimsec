@@ -1,4 +1,10 @@
-use std::{collections::HashSet, env, fmt::Display, str::FromStr};
+use std::{
+    collections::HashSet,
+    env,
+    fmt::Display,
+    io::{self, Read},
+    str::FromStr,
+};
 
 use anyhow::{Result, anyhow, bail};
 
@@ -177,7 +183,15 @@ impl TKeywordArgs {
 }
 
 pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
-    let argv: Vec<String> = env::args().skip(1).collect();
+    let mut argv: Vec<String> = env::args().skip(1).collect();
+
+    if !atty::is(atty::Stream::Stdin) {
+        let mut stdin = String::new();
+        io::stdin().read_to_string(&mut stdin)?;
+
+        let mut stdin_args: Vec<String> = stdin.split_whitespace().map(|f| f.to_string()).collect();
+        argv.append(&mut stdin_args);
+    }
 
     let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse(&argv)?;
     const SUBCMDS: [&str; 8] = [
