@@ -26,6 +26,8 @@ trimsec helps you plan your content consumption with two primary functions:
 
 Everything else is cherry-on-top.
 
+Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
+
 ## Usage
 
 ### Trimming
