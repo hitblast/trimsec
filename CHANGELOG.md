@@ -9,6 +9,10 @@ New features:
 - Added new command: `ts key unset`
 - Added support for piped inputs.
 
+Bug fixes:
+
+- Fixed a bug in the `fit` command which, if two YouTube URLs were passed in, would previously target the second URL's total duration as the "budget" duration. Courtesy: @furtidev
+
 Improvements:
 
 - Closed pipes should now terminate trimsec with `SIGPIPE` instead of panicking.

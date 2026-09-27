@@ -23,19 +23,19 @@ impl<'a> FitCmd<'a> {
         let mut budget_duration: Option<TDuration> = None;
 
         let tokens_len = tokens.len();
-        let mut durations: Vec<TDuration> = Vec::new();
+        let mut durations: Vec<(TDuration, bool)> = Vec::new();
 
         let mut iterable = tokens.into_iter();
         while let Some(tok) = iterable.next() {
             match tok {
-                Token::Duration(dur) => durations.push(dur),
+                Token::Duration(dur) => durations.push((dur, false)),
                 Token::BudgetDuration(dur) => match &mut budget_duration {
                     Some(existing) => *existing += &dur,
                     None => budget_duration = Some(dur),
                 },
                 Token::YouTube((id, max_items)) => match ctx.client() {
                     Ok(client) => match client.fetch_duration_from_id(&id, max_items) {
-                        Ok(dur) => durations.push(dur),
+                        Ok(dur) => durations.push((dur, true)),
                         Err(e) => bail!("failed to fetch duration: {e}"),
                     },
                     Err(e) => bail!("client failed: {e}"),
@@ -48,10 +48,14 @@ impl<'a> FitCmd<'a> {
             bail!("missing content duration for fit-check.")
         }
 
-        let cmd: FitCmd<'_> = if durations.len() + 1 == tokens_len && durations.len() == 2 {
-            FitCmd::new(ctx, durations[0].clone(), Some(durations[1].clone()))
+        let cmd: FitCmd<'_> = if durations.len() + 1 == tokens_len
+            && durations.len() == 2
+            && let (dur2, is_yt) = &durations[1]
+            && !is_yt
+        {
+            FitCmd::new(ctx, durations[0].0.clone(), Some(dur2.clone()))
         } else {
-            let sum = durations.into_iter().sum();
+            let sum = durations.into_iter().map(|f| f.0).sum();
             FitCmd::new(ctx, sum, budget_duration)
         };
 
