@@ -34,7 +34,7 @@ impl KeySetCmd {
         }
 
         ctx.config()?
-            .update_write_key(self.api_key)
+            .write_key(self.api_key)
             .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         println!("Key added successfully.");
 

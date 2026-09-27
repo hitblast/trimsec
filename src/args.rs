@@ -72,6 +72,7 @@ impl TCmd {
             TCmd::Key { subcmd: command } => match command {
                 KeySubcmd::Show(command) => command.run(&mut ctx),
                 KeySubcmd::Set(command) => command.run(&mut ctx),
+                KeySubcmd::Unset(command) => command.run(&mut ctx),
             },
             TCmd::List { cmd } => cmd.run(&mut ctx),
             TCmd::Path { cmd } => cmd.run(&mut ctx),

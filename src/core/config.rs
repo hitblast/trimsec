@@ -65,8 +65,13 @@ impl Config {
         }
     }
 
-    pub fn update_write_key(&mut self, new_key: String) -> Result<(), TConfigError> {
+    pub fn write_key(&mut self, new_key: String) -> Result<(), TConfigError> {
         self.api_key = Some(new_key);
+        self.save()?;
+        Ok(())
+    }
+    pub fn unset_key(&mut self) -> Result<(), TConfigError> {
+        self.api_key = None;
         self.save()?;
         Ok(())
     }

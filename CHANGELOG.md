@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.0
+
+New features:
+
+- Add new command: `ts key unset`
+
 ### v4.4.0
 
 Bug fixes:

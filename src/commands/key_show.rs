@@ -10,7 +10,7 @@ impl KeyShowCmd {
             "{}",
             decide_youtube_key(ctx.config()?)
                 .as_deref()
-                .unwrap_or("not set")
+                .unwrap_or("Not set.")
         );
         Ok(())
     }

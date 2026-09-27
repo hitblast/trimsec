@@ -3,7 +3,10 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     args::TCmd,
-    commands::{key_set::KeySetCmd, key_show::KeyShowCmd, list::ListCmd, path::PathCmd},
+    commands::{
+        key_set::KeySetCmd, key_show::KeyShowCmd, key_unset::KeyUnsetCmd, list::ListCmd,
+        path::PathCmd,
+    },
 };
 
 #[derive(Parser)]
@@ -155,6 +158,8 @@ pub enum KeySubcmd {
     Show(KeyShowCmd),
     /// Sets the current API key.
     Set(KeySetCmd),
+    /// Removes any existing key.
+    Unset(KeyUnsetCmd),
 }
 
 pub fn parse_with_clap(args: &[String]) -> Result<TCmd> {
