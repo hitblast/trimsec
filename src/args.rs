@@ -33,18 +33,21 @@ impl TCmd {
         let mut ctx: Ctx = Ctx::new(args);
 
         let token_check = |tokens: &Vec<Token>| -> Result<()> {
-            let mut should_bail = false;
+            let mut invalid_toks: usize = 0;
 
             for tok in tokens {
                 if let Token::Invalid((idx, reason, specific_idx)) = tok {
                     point_at_arg(*idx, &ctx.style, *specific_idx, false);
                     println!("{reason}");
-                    should_bail = true;
+                    invalid_toks += 1;
                 }
             }
 
-            if should_bail {
-                bail!("invalid tokens found.")
+            if invalid_toks > 0 {
+                bail!(
+                    "{invalid_toks} invalid {} found.",
+                    if invalid_toks == 1 { "token" } else { "tokens" }
+                )
             }
 
             Ok(())

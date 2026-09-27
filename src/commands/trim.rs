@@ -126,11 +126,18 @@ impl TrimCmd {
 
         let message = [
             format!(
-                "\n{}Finishes in: {dur}{} {}({} items){}",
+                "\n{}Finishes in: {dur}{}{}",
                 ctx.style.bold(),
-                ctx.style.reset(),
-                ctx.style.grey(),
-                dur.splits(),
+                if dur.splits() > 1 {
+                    format!(
+                        " {}({} items){}",
+                        ctx.style.grey(),
+                        dur.splits(),
+                        ctx.style.reset()
+                    )
+                } else {
+                    "".to_string()
+                },
                 ctx.style.reset(),
             ),
             if !remaining.is_zero() {

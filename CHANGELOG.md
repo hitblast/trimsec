@@ -8,6 +8,10 @@ New features:
 
 - Add new command: `ts key unset`
 
+Changes:
+
+- The `trim` command now does not display the item-count anymore if its 1.
+
 ### v4.4.0
 
 Bug fixes:
