@@ -8,9 +8,10 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Trimming](#1-trimming)
-  - [Fit-Check](#2-fit-check)
-  - [Utility Commands](#3-utility-commands)
+  - [Trimming](#trimming)
+  - [Fit-Check](#fit-check)
+  - [Explicit Commands](#explicit-commands)
+  - [Features](#features)
 - [Configuration](#configuration)
   - [Configuration Options](#configuration-options)
 - [Installation](#installation)
@@ -27,12 +28,11 @@ Everything else is cherry-on-top.
 
 ## Usage
 
-### 1. Trimming
+### Trimming
 
 To calculate saved time, you run a pattern like this:
 
 ```bash
-# duration and multiplier used
 ts 1h 2x
 ```
 
@@ -40,9 +40,7 @@ trimsec can receive an arbitrary amount of inputs and can output trims based on 
 
 ```bash
 ts 1h30m 1.5x 3h 2x
-# or
 ts 1h30m 1.5x 1.2x 3h 2m
-# or even
 ts 3x 2h 2h 2h 1.25x 1h 2x 3.5h
 ```
 
@@ -81,14 +79,13 @@ YouTube playlist URLs are also supported and can be combined with other duration
 ts 1.8x "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
 ```
 
-You can also prefix the playlist URL with `max:<n>::` to only calculate for the first `n` elements of the playlist:
+You can also prefix the playlist URL with `max:<n>::` to only calculate for the first `n` elements of the playlist. Here we demonstrate this by grabbing the first 5:
 
 ```bash
-# only the first 5 items
 ts 1.8x "max:5::https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
 ```
 
-### 2. Fit-Check
+### Fit-Check
 
 For fit-checking, you may use the patterns mentioned below.
 
@@ -119,23 +116,47 @@ ts "https://youtu.be/..." 5h
 ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
 
-### 3. Utility Commands
+### Explicit Commands
 
-trimsec also contains utility commands coherent with the two primary features to help you do more:
+trimsec uses the hybrid of a deterministic parser and [clap](https://github.com/clap-rs/clap), so explicit commands are also possible just like any typical command-line interface.
 
-- `ts list <URL>`: List contents in a YouTube playlist.
+Some notable commands are:
 
-(more to be added)
+- `ts list <PLAYLIST_URL>` - Lists the contents of a YouTube playlist.
+
+A few configuration-related commands are:
+
+- `ts path` - Shows the path to the configuration file.
+- `ts key <subcommand>` (used for Google Cloud Console API configuration for YouTube support)
+  - `ts key show` - Shows the configured API key.
+  - `ts key set <API_KEY>` - Sets a new API key.
+  - `ts key unset` - Unsets the configured API key.
+
+These are the most commonly-used ones. For viewing all of the commands, run `ts help` and see "Commands".
+
+> [!NOTE]
+> The deterministic parser will most likely have different grammar from clap's logic. For example, setting an item-cap for trimming would look something like `ts "max::10::https://youtube.com/..."`, but for the `ts list` command, it would look like `ts list --max-items 10 "https://youtube.com/...`.
+
+### Features
+
+> [!NOTE]
+> This is an expanding list as of now.
+
+Pipes are supported just like any other well-built Unix/Linux command-line interface.
+
+```bash
+echo "1h2m 1.25x" | ts 2h 3x
+```
 
 ## Configuration
 
-The config file for trimsec lies in the home directory of the user:
+The configuration file for trimsec lies in the home directory of the user:
 
 - Linux: `$HOME/.trimsecrc` (e.g. `/home/alice/.trimsecrc`)
 - macOS: `$HOME/.trimsecrc` (e.g. `/Users/hitblast/.trimsecrc`)
 - Windows: `C:\Users\<username>\.trimsecrc`
 
-The primary use of the config file is to store the [API key (see "For YouTube videos/playlists")](#for-youtube-videosplaylists) for Google Cloud Console, and to store configuration options for trimsec itself, which are described below.
+The primary use of the configuration file is to store the [API key (see "For YouTube videos/playlists")](#for-youtube-videosplaylists) for Google Cloud Console, and to store configuration options for trimsec itself, which are described below.
 
 ### Configuration Options
 
