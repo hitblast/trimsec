@@ -1,6 +1,11 @@
 use trimsec::args::get_cur_cmd;
 
 fn main() {
+    #[cfg(unix)]
+    unsafe {
+        libc::signal(libc::SIGPIPE, libc::SIG_DFL);
+    }
+
     let eexit = |e, is_error| {
         eprintln!("{}{e}", if is_error { "Error: " } else { "" });
         std::process::exit(1);

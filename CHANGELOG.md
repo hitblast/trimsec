@@ -8,9 +8,13 @@ New features:
 
 - Add new command: `ts key unset`
 
+Improvements:
+
+- Closed pipes should now terminate trimsec with `SIGPIPE` instead of panicking.
+
 Changes:
 
-- The `trim` command now does not display the item-count anymore if its 1.
+- The `trim` command now does not display the item-count anymore if its 1.boldgrey
 
 ### v4.4.0
 
