@@ -17,7 +17,7 @@ use crate::{
         timeutils::time_in_day_left,
         youtils::{TYoutubeId, get_youtube_id},
     },
-    draw::point_at_arg,
+    draw::{RAW_ARGS, point_at_arg},
 };
 
 pub enum TCmdContent {
@@ -150,7 +150,7 @@ impl TKeywordArgs {
             .map_err(|e| anyhow!("Failed to parse from string: {e}"))
     }
 
-    fn parse(args: &[String]) -> Result<(Self, Vec<String>)> {
+    fn parse(args: Vec<String>) -> Result<(Self, Vec<String>)> {
         let mut color: Option<ColorMode> = None;
 
         let mut remaining = Vec::new();
@@ -166,7 +166,7 @@ impl TKeywordArgs {
                     bail!("multiple --color arguments provided.")
                 };
 
-                let x: ColorMode = Self::parse_kwarg(arg, "--color", args, &mut skippable, idx)?;
+                let x: ColorMode = Self::parse_kwarg(arg, "--color", &args, &mut skippable, idx)?;
                 color = Some(x);
             } else {
                 remaining.push(arg.clone());
@@ -183,7 +183,8 @@ impl TKeywordArgs {
 }
 
 pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
-    let mut argv: Vec<String> = env::args().skip(1).collect();
+    // We do not use .skip(1) here.
+    let mut argv: Vec<String> = env::args().collect();
 
     if !atty::is(atty::Stream::Stdin) {
         let mut stdin = String::new();
@@ -193,7 +194,16 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
         argv.append(&mut stdin_args);
     }
 
-    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse(&argv)?;
+    #[allow(clippy::expect_used)]
+    RAW_ARGS
+        .set(argv.clone())
+        .expect("oncelock poisoned for setting raw raw args");
+
+    // We skip manually here because for drawing, we need that extra arg
+    // for drawing (pointing at args), but for parsing, we don't.
+    argv.remove(0);
+    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse(argv)?;
+
     const SUBCMDS: [&str; 8] = [
         "key",
         "list",

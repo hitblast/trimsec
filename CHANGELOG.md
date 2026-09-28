@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.1
+
+Bug fixes:
+
+- Fixed a bug which led to piped inputs not having the extra argument at the very first of the `RAW_ARGS` vector, leading to panics. **Note that the fix involves a `OnceLock<T>` instead of a `LazyLock<T>` so the design might need improvements later.**
+
 ### v4.5.0
 
 New features:
