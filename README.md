@@ -187,40 +187,17 @@ brew install trimsec
 cargo install trimsec
 ```
 
+- Using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
+
+```bash
+cargo binstall trimsec
+```
+
 - Using [mise](https://github.com/jdx/mise):
 
 ```bash
 mise use -g cargo:trimsec
 ```
-
-- Using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
-
-  macOS:
-
-  ```bash
-  cargo-binstall \
-          --pkg-url=https://github.com/hitblast/trimsec/releases/latest/download/trimsec-macos-latest.tar.gz \
-          --pkg-fmt=tgz \
-          trimsec
-  ```
-
-  Linux (x86_64):
-
-  ```bash
-  cargo-binstall \
-          --pkg-url=https://github.com/hitblast/trimsec/releases/latest/download/trimsec-ubuntu-latest.tar.gz \
-          --pkg-fmt=tgz \
-          trimsec
-  ```
-
-  Windows:
-
-  ```bash
-  cargo-binstall \
-          --pkg-url=https://github.com/hitblast/trimsec/releases/latest/download/trimsec-win-latest.zip \
-          --pkg-fmt=zip \
-          trimsec
-  ```
 
 - Or,
 

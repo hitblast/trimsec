@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Plan your content intake."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "4.5.6"
+version = "4.5.7"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"
@@ -48,3 +48,11 @@ unused_must_use = "deny"
 [profile.release]
 lto = "thin"
 codegen-units = 1
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }-v{ version }{ archive-suffix }"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-fmt = "zip"
