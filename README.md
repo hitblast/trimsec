@@ -193,7 +193,7 @@ cargo install trimsec
 mise use -g cargo:trimsec
 ```
 
-- Using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
+- Using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall):
 
   macOS:
 
