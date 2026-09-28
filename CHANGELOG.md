@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.3
+
+Bug fixes:
+
+- Fixed a critical bug in `args.rs` which would start passing improper arguments to the drawing API once it hit a keyword-argument, leading to faulty error-displays.
+
 ### v4.5.2
 
 Internal improvements:

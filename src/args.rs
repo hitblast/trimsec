@@ -106,7 +106,11 @@ impl FromStr for ColorMode {
             "auto" => Self::Auto,
             "always" => Self::Always,
             "never" => Self::Never,
-            _ => return Err(anyhow!("color mode must be one of: always, auto, never")),
+            s => {
+                return Err(anyhow!(
+                    "color mode must be one of: always, auto, never (got: {s})"
+                ));
+            }
         };
 
         Ok(x)
@@ -135,22 +139,22 @@ impl TKeywordArgs {
         T::Err: Display,
     {
         let x = if let Some(x) = arg.strip_prefix(&format!("{keyword}=")) {
+            skippable.insert(idx);
             x
         } else if arg == keyword
-            && let Some(argval) = SESSION_ARGS.get(idx + 1)
+            && let Some(argval) = SESSION_ARGS.get(idx + 2)
         {
+            skippable.extend([idx, idx + 1]);
             argval.as_str()
         } else {
             bail!("missing value for keyword argument: {keyword}")
         };
 
-        skippable.insert(idx + 1);
-
         x.parse::<T>()
             .map_err(|e| anyhow!("Failed to parse from string: {e}"))
     }
 
-    fn parse() -> Result<(Self, Vec<String>)> {
+    fn parse() -> Result<(Self, Vec<String>, HashSet<usize>)> {
         let mut color: Option<ColorMode> = None;
 
         let mut remaining = Vec::new();
@@ -178,6 +182,7 @@ impl TKeywordArgs {
                 color: color.unwrap_or_default(),
             },
             remaining,
+            skippable,
         ))
     }
 }
@@ -201,7 +206,7 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
 });
 
 pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
-    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse()?;
+    let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
 
     const SUBCMDS: [&str; 8] = [
         "key",
@@ -217,7 +222,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deterministic(&remaining)?,
+        Some(_) => parse_deterministic(&skippable)?,
     };
 
     Ok((kwargs, cmd))
@@ -239,12 +244,16 @@ macro_rules! invalid {
     };
 }
 
-fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
+fn parse_tokens(skippable: &HashSet<usize>) -> (Vec<Token>, bool) {
     let mut vec: Vec<Token> = Vec::new();
     let mut trim = false;
     let mut budget_seen = false;
 
-    for (idx, arg) in args.iter().enumerate() {
+    for (idx, arg) in SESSION_ARGS.iter().skip(1).enumerate() {
+        if skippable.contains(&idx) {
+            continue;
+        }
+
         if !trim && arg.starts_with("b") {
             let tok = if let Some(inner) = arg.strip_prefix("b")
                 && let Ok(x) = TDuration::parse_str(inner)
@@ -315,8 +324,8 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
     (vec, trim)
 }
 
-fn parse_deterministic(args: &[String]) -> Result<TCmd> {
-    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(args);
+fn parse_deterministic(skippable: &HashSet<usize>) -> Result<TCmd> {
+    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(skippable);
 
     if let Some(Token::EOL) = tokens.first() {
         bail!("no meaningful arguments were passed.")
