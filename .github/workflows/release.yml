@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      FILE_NAME: target/release/trimsec-win-latest.zip
+      FILE_NAME: trimsec-x86_64-pc-windows-msvc-${{ github.ref_name }}.zip
 
     steps:
       - uses: actions/checkout@v6
@@ -50,26 +50,37 @@ jobs:
   build-unix:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
 
     runs-on: ${{ matrix.os }}
 
     env:
-      FILE_NAME: target/release/trimsec-${{ matrix.os }}.tar.gz
+      FILE_NAME: trimsec-${{ matrix.target }}-${{ github.ref_name }}.tar.gz
 
     steps:
       - uses: actions/checkout@v6
 
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
       - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
       - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
-        run: cargo build --release --quiet --locked
+        run: cargo build --release --quiet --locked --target ${{ matrix.target }}
 
       - run: sccache --show-stats || true
 
       - name: Compress binary
-        run: tar -czf ${{ env.FILE_NAME }} -C target/release ts
+        run: tar -czf ${{ env.FILE_NAME }} -C target/${{ matrix.target }}/release ts
 
       - name: Upload compressed binary to release
         uses: svenstaro/upload-release-action@v2
