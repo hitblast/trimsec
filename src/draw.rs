@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::LazyLock};
+use std::{collections::HashMap, io::IsTerminal, sync::LazyLock};
 use terminal_size::{Width, terminal_size};
 
 use crate::{args::SESSION_ARGS, style::Style};
@@ -71,9 +71,12 @@ pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn
             },
         );
     } else {
+        let notty = !std::io::stdin().is_terminal();
         println!(
-            "\n   ts {}\n      {}{}",
+            "\n   {}{}\n{}   {}{}",
+            if notty { "" } else { "ts " },
             *JOINED_ARGS,
+            if !notty { "   " } else { "" },
             " ".repeat(spacing),
             if let Some(s) = specific_idx {
                 let x = "^".repeat(s);

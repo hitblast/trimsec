@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.6.0
+
+Improvements:
+
+- Removed dependency: `atty` (unmaintained; replaced with the `std::io::IsTerminal` trait)
+
 ### v4.5.8
 
 Bug fixes:

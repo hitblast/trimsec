@@ -2,7 +2,7 @@ use std::{
     collections::HashSet,
     env,
     fmt::Display,
-    io::{self, Read},
+    io::{self, IsTerminal, Read},
     str::FromStr,
     sync::LazyLock,
 };
@@ -191,7 +191,7 @@ impl TKeywordArgs {
 pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
     let mut argv: Vec<String> = env::args().skip(1).collect();
 
-    if !atty::is(atty::Stream::Stdin) {
+    if !io::stdin().is_terminal() {
         let mut stdin = String::new();
 
         #[allow(clippy::expect_used)]
