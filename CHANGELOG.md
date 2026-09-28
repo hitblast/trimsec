@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.2
+
+Internal improvements:
+
+- Removed `OnceLock<T>` uncertainties from `args.rs` and replaced the previous bug-fix with a `LazyLock<T>`-based implementation that does not rely on the position of preloading the data.
+
 ### v4.5.1
 
 Bug fixes:

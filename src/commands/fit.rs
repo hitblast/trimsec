@@ -25,8 +25,8 @@ impl<'a> FitCmd<'a> {
         let tokens_len = tokens.len();
         let mut durations: Vec<(TDuration, bool)> = Vec::new();
 
-        let mut iterable = tokens.into_iter();
-        while let Some(tok) = iterable.next() {
+        let iterable = tokens.into_iter();
+        for tok in iterable {
             match tok {
                 Token::Duration(dur) => durations.push((dur, false)),
                 Token::BudgetDuration(dur) => match &mut budget_duration {

@@ -1,14 +1,9 @@
-use std::{
-    collections::HashMap,
-    sync::{LazyLock, OnceLock},
-};
-
+use std::{collections::HashMap, sync::LazyLock};
 use terminal_size::{Width, terminal_size};
 
-use crate::style::Style;
+use crate::{args::SESSION_ARGS, style::Style};
 
-pub static RAW_ARGS: OnceLock<Vec<String>> = OnceLock::new();
-static JOINED_ARGS: LazyLock<String> = LazyLock::new(|| RAW_ARGS.get().unwrap().join(" "));
+static JOINED_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
 
 static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     if let Some((Width(w), _)) = terminal_size() {
@@ -22,14 +17,8 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     let mut hashed: HashMap<usize, (usize, usize)> = HashMap::new();
     let mut counter: usize = 0;
 
-    #[allow(clippy::unwrap_used)]
-    for (i, arg) in RAW_ARGS
-        .get()
-        .expect("could not get entries in raw args for the spaces index")
-        .iter()
-        .enumerate()
-    {
-        for (char_i, _) in arg.chars().into_iter().enumerate() {
+    for (i, arg) in SESSION_ARGS.iter().enumerate() {
+        for (char_i, _) in arg.chars().enumerate() {
             if char_i == 0 {
                 hashed.insert(i, (counter + i, arg.len()));
             }
@@ -48,11 +37,7 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>, 
         && JOINED_ARGS.len() > w
     {
         let print_width = (w - 20).min(arg_len); // opinionated number, don't worry
-
-        #[allow(clippy::unwrap_used)]
-        let arg: &str = &RAW_ARGS
-            .get()
-            .expect("could not get entries in raw args for drawing")[idx][0..print_width];
+        let arg: &str = &SESSION_ARGS[idx][0..print_width];
 
         println!(
             "\n   {}... {}{}{}{}...{}\n       {}",

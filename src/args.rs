@@ -4,6 +4,7 @@ use std::{
     fmt::Display,
     io::{self, Read},
     str::FromStr,
+    sync::LazyLock,
 };
 
 use anyhow::{Result, anyhow, bail};
@@ -17,7 +18,7 @@ use crate::{
         timeutils::time_in_day_left,
         youtils::{TYoutubeId, get_youtube_id},
     },
-    draw::{RAW_ARGS, point_at_arg},
+    draw::point_at_arg,
 };
 
 pub enum TCmdContent {
@@ -126,7 +127,6 @@ impl TKeywordArgs {
     fn parse_kwarg<T>(
         arg: &str,
         keyword: &str,
-        args: &[String],
         skippable: &mut HashSet<usize>,
         idx: usize,
     ) -> Result<T>
@@ -137,7 +137,7 @@ impl TKeywordArgs {
         let x = if let Some(x) = arg.strip_prefix(&format!("{keyword}=")) {
             x
         } else if arg == keyword
-            && let Some(argval) = args.get(idx + 1)
+            && let Some(argval) = SESSION_ARGS.get(idx + 1)
         {
             argval.as_str()
         } else {
@@ -150,13 +150,13 @@ impl TKeywordArgs {
             .map_err(|e| anyhow!("Failed to parse from string: {e}"))
     }
 
-    fn parse(args: Vec<String>) -> Result<(Self, Vec<String>)> {
+    fn parse() -> Result<(Self, Vec<String>)> {
         let mut color: Option<ColorMode> = None;
 
         let mut remaining = Vec::new();
         let mut skippable: HashSet<usize> = HashSet::new();
 
-        for (idx, arg) in args.iter().enumerate() {
+        for (idx, arg) in SESSION_ARGS.iter().skip(1).enumerate() {
             if skippable.contains(&idx) {
                 continue;
             }
@@ -166,7 +166,7 @@ impl TKeywordArgs {
                     bail!("multiple --color arguments provided.")
                 };
 
-                let x: ColorMode = Self::parse_kwarg(arg, "--color", &args, &mut skippable, idx)?;
+                let x: ColorMode = Self::parse_kwarg(arg, "--color", &mut skippable, idx)?;
                 color = Some(x);
             } else {
                 remaining.push(arg.clone());
@@ -182,27 +182,26 @@ impl TKeywordArgs {
     }
 }
 
-pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
-    // We do not use .skip(1) here.
+pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
     let mut argv: Vec<String> = env::args().collect();
 
     if !atty::is(atty::Stream::Stdin) {
         let mut stdin = String::new();
-        io::stdin().read_to_string(&mut stdin)?;
+
+        #[allow(clippy::expect_used)]
+        io::stdin()
+            .read_to_string(&mut stdin)
+            .expect("failed to read stdin inside lazylock");
 
         let mut stdin_args: Vec<String> = stdin.split_whitespace().map(|f| f.to_string()).collect();
         argv.append(&mut stdin_args);
     }
 
-    #[allow(clippy::expect_used)]
-    RAW_ARGS
-        .set(argv.clone())
-        .expect("oncelock poisoned for setting raw args");
+    argv
+});
 
-    // We skip manually here because for drawing, we need that extra arg
-    // for drawing (pointing at args), but for parsing, we don't.
-    argv.remove(0);
-    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse(argv)?;
+pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
+    let (kwargs, remaining): (TKeywordArgs, Vec<String>) = TKeywordArgs::parse()?;
 
     const SUBCMDS: [&str; 8] = [
         "key",
@@ -267,8 +266,8 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
             } else if let Some(inner) = arg.strip_prefix("max:") {
                 let split: Vec<&str> = inner.split("::").collect();
 
-                let tok = if split.len() == 2 {
-                    if let Some(first) = split.get(0).and_then(|f| f.parse::<usize>().ok()) {
+                if split.len() == 2 {
+                    if let Some(first) = split.first().and_then(|f| f.parse::<usize>().ok()) {
                         if let Some(second) = split.get(1).and_then(|f| get_youtube_id(f)) {
                             if second.is_playlist() {
                                 Token::YouTube((second.clone(), first))
@@ -298,9 +297,7 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
                         "Expected exactly 2 parts separated by '::' for an item-cap (got {}).",
                         split.len()
                     )
-                };
-
-                tok
+                }
             } else if !budget_seen && let Ok(mul) = parse_multiplier(arg) {
                 if !trim {
                     trim = true;
@@ -321,7 +318,7 @@ fn parse_tokens(args: &[String]) -> (Vec<Token>, bool) {
 fn parse_deterministic(args: &[String]) -> Result<TCmd> {
     let (tokens, trim): (Vec<Token>, bool) = parse_tokens(args);
 
-    if let Some(Token::EOL) = tokens.get(0) {
+    if let Some(Token::EOL) = tokens.first() {
         bail!("no meaningful arguments were passed.")
     }
 

@@ -122,7 +122,7 @@ impl TrimCmd {
         let dur = &mut self.duration;
         dur.trim(self.multiplier);
 
-        *remaining -= &dur;
+        *remaining -= dur;
 
         let message = [
             format!(
