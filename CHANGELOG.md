@@ -2,6 +2,10 @@
 
 Active since v2.0.0.
 
+### v4.5.6
+
+Test-release for [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) support.
+
 ### v4.5.5
 
 Bug fixes:
