@@ -10,6 +10,7 @@ use std::{
 use anyhow::{Result, anyhow, bail};
 
 use crate::{
+    args::Token::SkipThis,
     clap::{KeySubcmd, parse_with_clap},
     commands::{fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
@@ -142,7 +143,7 @@ impl TKeywordArgs {
             skippable.insert(idx);
             x
         } else if arg == keyword
-            && let Some(argval) = SESSION_ARGS.get(idx + 2)
+            && let Some(argval) = SESSION_ARGS.get(idx + 1)
         {
             skippable.extend([idx, idx + 1]);
             argval.as_str()
@@ -160,7 +161,7 @@ impl TKeywordArgs {
         let mut remaining = Vec::new();
         let mut skippable: HashSet<usize> = HashSet::new();
 
-        for (idx, arg) in SESSION_ARGS.iter().skip(1).enumerate() {
+        for (idx, arg) in SESSION_ARGS.iter().enumerate() {
             if skippable.contains(&idx) {
                 continue;
             }
@@ -188,7 +189,7 @@ impl TKeywordArgs {
 }
 
 pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
-    let mut argv: Vec<String> = env::args().collect();
+    let mut argv: Vec<String> = env::args().skip(1).collect();
 
     if !atty::is(atty::Stream::Stdin) {
         let mut stdin = String::new();
@@ -235,6 +236,7 @@ pub enum Token {
     Multiplier(f64),
     YouTube((TYoutubeId, usize)),
     Invalid((usize, String, Option<usize>)),
+    SkipThis,
     EOL,
 }
 
@@ -249,8 +251,9 @@ fn parse_tokens(skippable: &HashSet<usize>) -> (Vec<Token>, bool) {
     let mut trim = false;
     let mut budget_seen = false;
 
-    for (idx, arg) in SESSION_ARGS.iter().skip(1).enumerate() {
+    for (idx, arg) in SESSION_ARGS.iter().enumerate() {
         if skippable.contains(&idx) {
+            vec.push(SkipThis);
             continue;
         }
 
@@ -326,10 +329,6 @@ fn parse_tokens(skippable: &HashSet<usize>) -> (Vec<Token>, bool) {
 
 fn parse_deterministic(skippable: &HashSet<usize>) -> Result<TCmd> {
     let (tokens, trim): (Vec<Token>, bool) = parse_tokens(skippable);
-
-    if let Some(Token::EOL) = tokens.first() {
-        bail!("no meaningful arguments were passed.")
-    }
 
     let cmd: TCmd = if !trim {
         TCmd::Fit { tokens }

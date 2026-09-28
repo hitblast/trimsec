@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.4
+
+Bug fixes:
+
+- Reattempt the critical bugfix in `args.rs` from v4.5.3 which had led to incorrect error-representations due to improper arg-pointers.
+
 ### v4.5.3
 
 Bug fixes:

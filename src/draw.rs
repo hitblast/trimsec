@@ -29,8 +29,7 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     hashed
 });
 
-pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>, warn: bool) {
-    idx += 1;
+pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn: bool) {
     let (spacing, arg_len) = SPACES[&idx];
 
     if let Some(w) = *TERM_WIDTH
@@ -73,7 +72,7 @@ pub fn point_at_arg(mut idx: usize, style: &Style, specific_idx: Option<usize>, 
         );
     } else {
         println!(
-            "\n   {}\n   {}{}",
+            "\n   ts {}\n      {}{}",
             *JOINED_ARGS,
             " ".repeat(spacing),
             if let Some(s) = specific_idx {
