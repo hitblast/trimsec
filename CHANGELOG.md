@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.8
+
+Bug fixes:
+
+- Removed the mention of a misleading `login` command from one of the bail-messages.
+
 ### v4.5.7
 
 Test-release (2) for [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) support.

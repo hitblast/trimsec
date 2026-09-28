@@ -12,7 +12,7 @@ pub fn decide_youtube_key(cfg: &Config) -> YoutilsResult<String> {
         None => match cfg.api_key() {
             Some(k) => Ok(k.to_string()),
             None => {
-                bail!("API key not found in config! Please add it using the `login` command.")
+                bail!("API key not found! Set one using: ts key set [OPTIONS] <API_KEY>")
             }
         },
     }
