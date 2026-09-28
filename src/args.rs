@@ -197,7 +197,7 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     #[allow(clippy::expect_used)]
     RAW_ARGS
         .set(argv.clone())
-        .expect("oncelock poisoned for setting raw raw args");
+        .expect("oncelock poisoned for setting raw args");
 
     // We skip manually here because for drawing, we need that extra arg
     // for drawing (pointing at args), but for parsing, we don't.
