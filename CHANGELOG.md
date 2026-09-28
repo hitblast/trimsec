@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.5.5
+
+Bug fixes:
+
+- Fixed a bug in the parser delegate for the `fit` command which led to improper budget interpretations (for the two-duration case) because of the newly-added `Token::SkipThis` token variants.
+
 ### v4.5.4
 
 Bug fixes:

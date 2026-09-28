@@ -22,10 +22,11 @@ impl<'a> FitCmd<'a> {
     pub fn delegate(ctx: &'a mut Ctx, tokens: Vec<Token>) -> Result<Self> {
         let mut budget_duration: Option<TDuration> = None;
 
-        let tokens_len = tokens.len();
+        let mut comparable_len = tokens.len() - 1; // skip EOL
         let mut durations: Vec<(TDuration, bool)> = Vec::new();
 
         let iterable = tokens.into_iter();
+
         for tok in iterable {
             match tok {
                 Token::Duration(dur) => durations.push((dur, false)),
@@ -40,6 +41,7 @@ impl<'a> FitCmd<'a> {
                     },
                     Err(e) => bail!("client failed: {e}"),
                 },
+                Token::SkipThis => comparable_len -= 1,
                 _ => {}
             }
         }
@@ -48,7 +50,7 @@ impl<'a> FitCmd<'a> {
             bail!("missing content duration for fit-check.")
         }
 
-        let cmd: FitCmd<'_> = if durations.len() + 1 == tokens_len
+        let cmd: FitCmd<'_> = if durations.len() == comparable_len
             && durations.len() == 2
             && let (dur2, is_yt) = &durations[1]
             && !is_yt
