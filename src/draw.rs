@@ -4,7 +4,6 @@ use terminal_size::{Width, terminal_size};
 use crate::{args::SESSION_ARGS, style::Style};
 
 static JOINED_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
-
 static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     if let Some((Width(w), _)) = terminal_size() {
         Some(w as usize)
@@ -39,12 +38,12 @@ pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn
         let arg: &str = &SESSION_ARGS[idx][0..print_width];
 
         println!(
-            "\n   {}... {}{}{}{}...{}\n       {}",
-            style.boldgrey(),
+            "\n   {}ts ... {}{}{}{}...{}\n          {}",
+            style.grey(),
             style.reset(),
             arg,
             if print_width == arg_len { " " } else { "" },
-            style.boldgrey(),
+            style.grey(),
             style.reset(),
             if let Some(s) = specific_idx {
                 let x = "^".repeat(s);
