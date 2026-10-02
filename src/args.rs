@@ -37,34 +37,9 @@ pub enum TCmd {
 }
 
 impl TCmd {
-    pub fn run(self, args: TKeywordArgs) -> Result<()> {
-        let mut ctx: Ctx = Ctx::new(args);
-
-        let token_check = |tokens: &Vec<Token>| -> Result<()> {
-            let mut invalid_toks: usize = 0;
-
-            for tok in tokens {
-                if let Token::Invalid((idx, reason, specific_idx)) = tok {
-                    point_at_arg(*idx, &ctx.style, *specific_idx, false);
-                    println!("{reason}");
-                    invalid_toks += 1;
-                }
-            }
-
-            if invalid_toks > 0 {
-                bail!(
-                    "{invalid_toks} invalid {} found.",
-                    if invalid_toks == 1 { "token" } else { "tokens" }
-                )
-            }
-
-            Ok(())
-        };
-
+    pub fn run(self, mut ctx: Ctx) -> Result<()> {
         match self {
             TCmd::Trim { tokens } => {
-                token_check(&tokens)?;
-
                 let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
                 let mut remaining = time_in_day_left();
 
@@ -75,8 +50,6 @@ impl TCmd {
                 Ok(())
             }
             TCmd::Fit { tokens } => {
-                token_check(&tokens)?;
-
                 let cmd = FitCmd::delegate(&mut ctx, tokens)?;
                 cmd.run()
             }
@@ -206,8 +179,9 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
     argv
 });
 
-pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
+pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
+    let ctx = Ctx::new(kwargs);
 
     const SUBCMDS: [&str; 8] = [
         "key",
@@ -223,10 +197,10 @@ pub fn get_cur_cmd() -> Result<(TKeywordArgs, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deterministic(&skippable)?,
+        Some(_) => parse_deterministic(&ctx, &skippable)?,
     };
 
-    Ok((kwargs, cmd))
+    Ok((ctx, cmd))
 }
 
 #[derive(Debug, PartialEq)]
@@ -235,21 +209,86 @@ pub enum Token {
     BudgetDuration(TDuration),
     Multiplier(f64),
     YouTube((TYoutubeId, usize)),
-    Invalid((usize, String, Option<usize>)),
     SkipThis,
     EOL,
 }
 
-macro_rules! invalid {
-    ($x:expr, $($arg:tt)*) => {
-        Token::Invalid(($x, format!($($arg)*), None))
-    };
+struct ArgError {
+    caret: Option<usize>,
+    msg: String,
 }
 
-fn parse_tokens(skippable: &HashSet<usize>) -> (Vec<Token>, bool) {
+impl ArgError {
+    fn new(msg: impl Into<String>) -> Self {
+        Self {
+            caret: None,
+            msg: msg.into(),
+        }
+    }
+    fn at(caret: usize, msg: impl Into<String>) -> Self {
+        Self {
+            caret: Some(caret),
+            msg: msg.into(),
+        }
+    }
+}
+
+fn parse_budget(arg: &str) -> Result<Token, ArgError> {
+    arg.strip_prefix('b')
+        .and_then(|inner| TDuration::parse_str(inner).ok())
+        .map(Token::BudgetDuration)
+        .ok_or_else(|| ArgError::new("Did you mean to set a time budget?"))
+}
+
+fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
+    let parts: Vec<&str> = inner.split("::").collect();
+    let [cap, target] = parts.as_slice() else {
+        return Err(ArgError::new(format!(
+            "Expected exactly 2 parts separated by '::' for an item-cap (got {}).",
+            parts.len()
+        )));
+    };
+
+    let cap = cap.parse::<usize>().map_err(|_| {
+        ArgError::at(
+            4,
+            "Item-cap must be a positive number, e.g. max:10::<playlist>.",
+        )
+    })?;
+
+    let id = get_youtube_id(target).ok_or_else(|| {
+        ArgError::new("Could not parse a valid YouTube id/playlist from the second part.")
+    })?;
+
+    if !id.is_playlist() {
+        return Err(ArgError::new(
+            "Item-cap target must be a playlist, not a single video.",
+        ));
+    }
+    Ok(Token::YouTube((id, cap)))
+}
+
+fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
+    if let Ok(x) = TDuration::parse_str(arg) {
+        return Ok(Token::Duration(x));
+    }
+    if let Some(id) = get_youtube_id(arg) {
+        return Ok(Token::YouTube((id, 0)));
+    }
+    if let Some(inner) = arg.strip_prefix("max:") {
+        return parse_item_cap(inner);
+    }
+    if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
+        return Ok(Token::Multiplier(mul));
+    }
+    Err(ArgError::new("Unknown argument format."))
+}
+
+fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
     let mut vec: Vec<Token> = Vec::new();
     let mut trim = false;
     let mut budget_seen = false;
+    let mut invalid_toks: usize = 0;
 
     for (idx, arg) in SESSION_ARGS.iter().enumerate() {
         if skippable.contains(&idx) {
@@ -257,78 +296,42 @@ fn parse_tokens(skippable: &HashSet<usize>) -> (Vec<Token>, bool) {
             continue;
         }
 
-        if !trim && arg.starts_with("b") {
-            let tok = if let Some(inner) = arg.strip_prefix("b")
-                && let Ok(x) = TDuration::parse_str(inner)
-            {
-                if !budget_seen {
-                    budget_seen = true;
-                }
-                Token::BudgetDuration(x)
-            } else {
-                invalid!(idx, "Did you mean to set a time-budget?")
-            };
-
-            vec.push(tok);
+        let parsed = if !trim && arg.starts_with('b') {
+            parse_budget(arg)
         } else {
-            let tok = if let Ok(x) = TDuration::parse_str(arg) {
-                Token::Duration(x)
-            } else if let Some(id) = get_youtube_id(arg) {
-                Token::YouTube((id, 0))
-            } else if let Some(inner) = arg.strip_prefix("max:") {
-                let split: Vec<&str> = inner.split("::").collect();
+            parse_general(arg, !budget_seen)
+        };
 
-                if split.len() == 2 {
-                    if let Some(first) = split.first().and_then(|f| f.parse::<usize>().ok()) {
-                        if let Some(second) = split.get(1).and_then(|f| get_youtube_id(f)) {
-                            if second.is_playlist() {
-                                Token::YouTube((second.clone(), first))
-                            } else {
-                                invalid!(
-                                    idx,
-                                    "Item-cap target must be a playlist, not a single video."
-                                )
-                            }
-                        } else {
-                            invalid!(
-                                idx,
-                                "Could not parse a valid YouTube id/playlist from the second part."
-                            )
-                        }
-                    } else {
-                        Token::Invalid((
-                            idx,
-                            "Item-cap must be a positive number, e.g. max:10::<playlist>."
-                                .to_string(),
-                            Some(4),
-                        ))
-                    }
-                } else {
-                    invalid!(
-                        idx,
-                        "Expected exactly 2 parts separated by '::' for an item-cap (got {}).",
-                        split.len()
-                    )
+        let tok = match parsed {
+            Ok(tok) => {
+                match tok {
+                    Token::BudgetDuration(_) => budget_seen = true,
+                    Token::Multiplier(_) => trim = true,
+                    _ => {}
                 }
-            } else if !budget_seen && let Ok(mul) = parse_multiplier(arg) {
-                if !trim {
-                    trim = true;
-                }
-                Token::Multiplier(mul)
-            } else {
-                invalid!(idx, "Unknown argument format.")
-            };
+                tok
+            }
+            Err(e) => {
+                point_at_arg(idx, &ctx.style, e.caret, false);
+                println!("{}", e.msg);
+                invalid_toks += 1;
+                SkipThis
+            }
+        };
 
-            vec.push(tok);
-        }
+        vec.push(tok);
+    }
+
+    if invalid_toks > 0 {
+        bail!("{invalid_toks} invalid tokens found.")
     }
     vec.push(Token::EOL);
 
-    (vec, trim)
+    Ok((vec, trim))
 }
 
-fn parse_deterministic(skippable: &HashSet<usize>) -> Result<TCmd> {
-    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(skippable);
+fn parse_deterministic(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<TCmd> {
+    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(ctx, skippable)?;
 
     let cmd: TCmd = if !trim {
         TCmd::Fit { tokens }

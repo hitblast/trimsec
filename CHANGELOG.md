@@ -6,6 +6,7 @@ Active since v2.0.0.
 
 Improvements:
 
+- Invalid token detection is now single-pass.
 - Removed dependency: `atty` (unmaintained; replaced with the `std::io::IsTerminal` trait)
 
 ### v4.5.8

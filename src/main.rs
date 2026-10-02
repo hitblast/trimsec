@@ -1,4 +1,4 @@
-use trimsec::args::get_cur_cmd;
+use trimsec::args::fetch_ctx_and_runnable;
 
 fn main() {
     #[cfg(unix)]
@@ -11,9 +11,9 @@ fn main() {
         std::process::exit(1);
     };
 
-    match get_cur_cmd() {
-        Ok((args, cmd)) => {
-            if let Err(e) = cmd.run(args) {
+    match fetch_ctx_and_runnable() {
+        Ok((ctx, cmd)) => {
+            if let Err(e) = cmd.run(ctx) {
                 eexit(e, true);
             }
         }
