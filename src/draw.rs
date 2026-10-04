@@ -38,7 +38,8 @@ pub fn point_at_arg(
     let (spacing, arg_len) = SPACES[&idx];
 
     if let Some(w) = *TERM_WIDTH
-        && JOINED_ARGS.len() > w
+        && JOINED_ARGS.len() + 10 > w
+    // opinionated number again
     {
         let print_width = (w - 20).min(arg_len); // opinionated number, don't worry
         let arg: &str = &SESSION_ARGS[idx][0..print_width];
