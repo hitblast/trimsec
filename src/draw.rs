@@ -28,7 +28,13 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     hashed
 });
 
-pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn: bool) {
+pub fn point_at_arg(
+    idx: usize,
+    style: &Style,
+    specific_idx: Option<usize>,
+    warn: bool,
+    msg: Option<&str>,
+) {
     let (spacing, arg_len) = SPACES[&idx];
 
     if let Some(w) = *TERM_WIDTH
@@ -46,25 +52,24 @@ pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn
             style.grey(),
             style.reset(),
             if let Some(s) = specific_idx {
-                let x = "^".repeat(s);
+                let x = " ".repeat(s);
                 format!(
-                    "{}{}{}^{}{}{}",
-                    style.boldgrey(),
+                    "{}{}^ {}{}",
                     x,
                     style.boldred(),
-                    style.boldgrey(),
-                    x,
+                    msg.unwrap_or_default(),
                     style.reset()
                 )
             } else {
                 format!(
-                    "{}{}{}",
+                    "{}{} {}{}",
                     if warn {
                         style.boldgrey()
                     } else {
                         style.boldred()
                     },
                     "^".repeat(print_width),
+                    msg.unwrap_or_default(),
                     style.reset()
                 )
             },
@@ -78,29 +83,28 @@ pub fn point_at_arg(idx: usize, style: &Style, specific_idx: Option<usize>, warn
             if !notty { "   " } else { "" },
             " ".repeat(spacing),
             if let Some(s) = specific_idx {
-                let x = "^".repeat(s);
+                let x = " ".repeat(s);
                 format!(
-                    "{}{}{}^{}{}{}",
-                    style.boldgrey(),
+                    "{}{}^ {}{}",
                     x,
                     if warn {
                         style.boldgrey()
                     } else {
                         style.boldred()
                     },
-                    style.boldgrey(),
-                    x,
+                    msg.unwrap_or_default(),
                     style.reset()
                 )
             } else {
                 format!(
-                    "{}{}{}",
+                    "{}{} {}{}",
                     if warn {
                         style.boldgrey()
                     } else {
                         style.boldred()
                     },
                     "^".repeat(arg_len),
+                    msg.unwrap_or_default(),
                     style.reset()
                 )
             },

@@ -44,7 +44,7 @@ impl TrimCmd {
                         } else {
                             match iterable.peek() {
                                 Some((_, Token::Duration(_))) | Some((_, Token::YouTube(_))) => {
-                                    point_at_arg(*cursor_mul_idx, &ctx.style, None, true);
+                                    point_at_arg(*cursor_mul_idx, &ctx.style, None, true, None);
                                     println!("Omitting unused multiplier here.");
                                     cursor_multiplier = Some((*new, idx))
                                 }
@@ -91,12 +91,30 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            point_at_arg(cursor_mul_idx, &ctx.style, None, false);
+                            point_at_arg(cursor_mul_idx, &ctx.style, None, false, Some("here"));
                             bail!("unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
-                    } else if let Some((_, unused_idx)) = cursor_duration {
-                        point_at_arg(unused_idx, &ctx.style, None, false);
-                        bail!("unused duration found!\n\n {TIP_EXPLICIT_PLACEMENT}")
+                    } else if let Some((unused_dur, unused_idx)) = cursor_duration {
+                        let m = format!("({} accumumlated durations)", unused_dur.splits());
+                        point_at_arg(
+                            unused_idx,
+                            &ctx.style,
+                            None,
+                            false,
+                            if unused_dur.splits() == 1 {
+                                None
+                            } else {
+                                Some(&m)
+                            },
+                        );
+                        bail!(
+                            "{} found!\n\n {TIP_EXPLICIT_PLACEMENT}",
+                            if unused_dur.splits() == 1 {
+                                "unused duration"
+                            } else {
+                                "multiple unused durations"
+                            }
+                        )
                     }
                 }
                 _ => {}

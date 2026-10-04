@@ -216,6 +216,7 @@ pub enum Token {
 struct ArgError {
     caret: Option<usize>,
     msg: String,
+    inner_msg: Option<String>,
 }
 
 impl ArgError {
@@ -223,12 +224,14 @@ impl ArgError {
         Self {
             caret: None,
             msg: msg.into(),
+            inner_msg: None,
         }
     }
-    fn at(caret: usize, msg: impl Into<String>) -> Self {
+    fn at(caret: usize, msg: impl Into<String>, inner_msg: Option<impl Into<String>>) -> Self {
         Self {
             caret: Some(caret),
             msg: msg.into(),
+            inner_msg: inner_msg.map(|f| f.into()),
         }
     }
 }
@@ -253,6 +256,7 @@ fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
         ArgError::at(
             4,
             "Item-cap must be a positive number, e.g. max:10::<playlist>.",
+            Some("invalid integer here"),
         )
     })?;
 
@@ -312,7 +316,7 @@ fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bo
                 tok
             }
             Err(e) => {
-                point_at_arg(idx, &ctx.style, e.caret, false);
+                point_at_arg(idx, &ctx.style, e.caret, false, e.inner_msg.as_deref());
                 println!("{}", e.msg);
                 invalid_toks += 1;
                 SkipThis
