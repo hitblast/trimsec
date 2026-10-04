@@ -6,6 +6,7 @@ Active since v2.0.0.
 
 Improvements:
 
+- The drawing API has been improved with better argument-pointing alongside showing messages.
 - Invalid token detection is now single-pass.
 - Removed dependency: `atty` (unmaintained; replaced with the `std::io::IsTerminal` trait)
 
