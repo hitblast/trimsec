@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::{Result as YoutilsResult, bail};
 use url::Url;
 
@@ -40,6 +42,12 @@ impl TYoutubeId {
     #[must_use]
     pub fn is_playlist(&self) -> bool {
         self.is_playlist
+    }
+}
+
+impl Display for TYoutubeId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.id())
     }
 }
 
