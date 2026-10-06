@@ -95,7 +95,7 @@ impl TrimCmd {
                             bail!("unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((unused_dur, unused_idx)) = cursor_duration {
-                        let m = format!("({} accumumlated durations)", unused_dur.splits());
+                        let m = format!("({} accumulated durations)", unused_dur.splits());
                         point_at_arg(
                             unused_idx,
                             &ctx.style,
