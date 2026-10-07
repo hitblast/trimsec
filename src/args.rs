@@ -306,29 +306,27 @@ fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bo
             parse_general(arg, !budget_seen)
         };
 
-        let tok = match parsed {
+        match parsed {
             Ok(tok) => {
                 match tok {
                     Token::BudgetDuration(_) => budget_seen = true,
                     Token::Multiplier(_) => trim = true,
                     _ => {}
                 }
-                tok
+                vec.push(tok);
             }
             Err(e) => {
                 point_at_arg(idx, &ctx.style, e.caret, false, e.inner_msg.as_deref());
                 println!("{}", e.msg);
                 invalid_toks += 1;
-                SkipThis
             }
-        };
-
-        vec.push(tok);
+        }
     }
 
     if invalid_toks > 0 {
         bail!("{invalid_toks} invalid tokens found.")
     }
+
     vec.push(Token::EOL);
 
     Ok((vec, trim))
