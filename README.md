@@ -8,6 +8,7 @@
 
 - [Overview](#overview)
 - [Usage](#usage)
+  - [Quick Reference](#quick-reference)
   - [Trimming](#trimming)
   - [Fit-Check](#fit-check)
   - [Explicit Commands](#explicit-commands)
@@ -29,6 +30,19 @@ Everything else is cherry-on-top.
 Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
 
 ## Usage
+
+### Quick Reference
+
+| Pattern / Syntax | Type | Example | Description |
+| :--- | :--- | :--- | :--- |
+| `<DURATION>` | Duration | `1h24m`, `45m`, `1m13.5s` | Time duration token |
+| `<DURATION>+<DURATION>` | Combination | `1h30m+2h50m` | Explicitly sums multiple durations |
+| `<SPEED>x` | Multiplier | `1.25x`, `2x` | Speed multiplier applied to preceding duration(s) |
+| `b<DURATION>` | Budget | `b2h4m`, `b15h` | Explicit time budget for fit-checks |
+| `<URL>` | YouTube Video / Short | `https://youtu.be/...` | Fetches duration from YouTube video metadata |
+| `<PLAYLIST_URL>` | YouTube Playlist | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist |
+| `max:<n>::<PLAYLIST>` | Item Cap | `max:5::https://youtube.com/...` | Caps playlist evaluation to first `n` items |
+| `--color <MODE>` | Flag | `--color=never`, `--color auto` | Color output mode (`always`, `auto`, `never`) |
 
 ### Trimming
 
