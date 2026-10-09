@@ -4,6 +4,8 @@
 
 ![Crates.io Total Downloads](https://img.shields.io/crates/d/trimsec?color=black)
 
+Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -18,7 +20,7 @@
 - [Installation](#installation)
 - [License](#license)
 
-## Overview
+## Usage
 
 trimsec helps you plan your content consumption with two primary functions:
 
@@ -26,23 +28,6 @@ trimsec helps you plan your content consumption with two primary functions:
 2. Trimming the content using multipliers and calculating how much time you'll save.
 
 Everything else is cherry-on-top.
-
-Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
-
-## Usage
-
-### Quick Reference
-
-| Pattern / Syntax | Type | Example | Description |
-| :--- | :--- | :--- | :--- |
-| `<DURATION>` | Duration | `1h24m`, `45m`, `1m13.5s` | Time duration token |
-| `<DURATION>+<DURATION>` | Combination | `1h30m+2h50m` | Explicitly sums multiple durations |
-| `<SPEED>x` | Multiplier | `1.25x`, `2x` | Speed multiplier applied to preceding duration(s) |
-| `b<DURATION>` | Budget | `b2h4m`, `b15h` | Explicit time budget for fit-checks |
-| `<URL>` | YouTube Video / Short | `https://youtu.be/...` | Fetches duration from YouTube video metadata |
-| `<PLAYLIST_URL>` | YouTube Playlist | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist |
-| `max:<n>::<PLAYLIST>` | Item Cap | `max:5::https://youtube.com/...` | Caps playlist evaluation to first `n` items |
-| `--color <MODE>` | Flag | `--color=never`, `--color auto` | Color output mode (`always`, `auto`, `never`) |
 
 ### Trimming
 
@@ -131,6 +116,19 @@ ts "https://youtu.be/..." 5h
 # youtube playlist, item cap, and other content
 ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
+
+### Quick Reference
+
+| Pattern / Syntax        | Type                  | Example                                 | Description                                       |
+| :---------------------- | :-------------------- | :-------------------------------------- | :------------------------------------------------ |
+| `<DURATION>`            | Duration              | `1h24m`, `45m`, `1m13.5s`               | Time duration token                               |
+| `<DURATION>+<DURATION>` | Combination           | `1h30m+2h50m`                           | Explicitly sums multiple durations                |
+| `<SPEED>x`              | Multiplier            | `1.25x`, `2x`                           | Speed multiplier applied to preceding duration(s) |
+| `b<DURATION>`           | Budget                | `b2h4m`, `b15h`                         | Explicit time budget for fit-checks               |
+| `<URL>`                 | YouTube Video / Short | `https://youtu.be/...`                  | Fetches duration from YouTube video metadata      |
+| `<PLAYLIST_URL>`        | YouTube Playlist      | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist         |
+| `max:<n>::<PLAYLIST>`   | Item Cap              | `max:5::https://youtube.com/...`        | Caps playlist evaluation to first `n` items       |
+| `--color <MODE>`        | Flag                  | `--color=never`, `--color auto`         | Color output mode (`always`, `auto`, `never`)     |
 
 ### Explicit Commands
 
