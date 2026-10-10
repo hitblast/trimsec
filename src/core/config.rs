@@ -18,6 +18,7 @@ pub struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigOptions {
     default_fit_budget: Option<TDuration>,
+    // day_end: Option<TTime>,
 }
 
 impl ConfigOptions {

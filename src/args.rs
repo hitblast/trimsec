@@ -238,7 +238,7 @@ impl ArgError {
 
 fn parse_budget(arg: &str) -> Result<Token, ArgError> {
     arg.strip_prefix('b')
-        .and_then(|inner| TDuration::parse_str(inner).ok())
+        .and_then(|inner| inner.parse::<TDuration>().ok())
         .map(Token::BudgetDuration)
         .ok_or_else(|| ArgError::new("Did you mean to set a time budget?"))
 }
@@ -273,7 +273,7 @@ fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
 }
 
 fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
-    if let Ok(x) = TDuration::parse_str(arg) {
+    if let Ok(x) = arg.parse::<TDuration>() {
         return Ok(Token::Duration(x));
     }
     if let Some(id) = get_youtube_id(arg) {

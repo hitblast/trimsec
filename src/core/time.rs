@@ -6,9 +6,9 @@ use std::{
     str::FromStr,
 };
 
-use crate::errors::TTimeError;
+use crate::errors::ParseTDurationError;
 
-pub fn parse_multiplier(multiplier: &str) -> Result<f64, TTimeError> {
+pub fn parse_multiplier(multiplier: &str) -> Result<f64, ParseTDurationError> {
     let multiplier = if let Some(stripped) = multiplier.strip_suffix('x') {
         stripped
     } else {
@@ -17,12 +17,24 @@ pub fn parse_multiplier(multiplier: &str) -> Result<f64, TTimeError> {
 
     let mult_value: f64 = multiplier
         .parse()
-        .map_err(|_| TTimeError::InvalidMultiplierFormat)?;
+        .map_err(|_| ParseTDurationError::InvalidMultiplierFormat)?;
 
     if !(1.0..100.0).contains(&mult_value) {
-        Err(TTimeError::MultiplierOutOfRange)
+        Err(ParseTDurationError::MultiplierOutOfRange)
     } else {
         Ok(mult_value)
+    }
+}
+
+#[derive(Debug)]
+pub struct TTime {
+    left: u8,
+    right: u8,
+}
+
+impl ToString for TTime {
+    fn to_string(&self) -> String {
+        todo!()
     }
 }
 
@@ -49,15 +61,7 @@ impl<'de> Deserialize<'de> for TDuration {
     {
         let value = String::deserialize(deserializer)?;
 
-        TDuration::parse_str(&value).map_err(serde::de::Error::custom)
-    }
-}
-
-impl FromStr for TDuration {
-    type Err = TTimeError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        TDuration::parse_str(s)
+        value.parse::<TDuration>().map_err(serde::de::Error::custom)
     }
 }
 
@@ -95,16 +99,20 @@ impl TDuration {
         self.seconds = old / multiplier;
         self.saved_time += old - self.seconds();
     }
+}
 
-    pub fn parse_str(duration_str: &str) -> Result<Self, TTimeError> {
+impl FromStr for TDuration {
+    type Err = ParseTDurationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut seconds = 0f64;
         let mut splits = 0;
 
-        if duration_str.is_empty() {
-            return Err(TTimeError::EmptyDurationString);
+        if s.is_empty() {
+            return Err(ParseTDurationError::EmptyDurationString);
         }
 
-        for part in duration_str.split('+') {
+        for part in s.split('+') {
             let mut current_number = String::new();
             let mut part_seconds = 0f64;
 
@@ -116,20 +124,20 @@ impl TDuration {
                 } else {
                     let number: f64 = current_number
                         .parse()
-                        .map_err(|_| TTimeError::NegativeDuration)?;
+                        .map_err(|_| ParseTDurationError::NegativeDuration)?;
                     current_number.clear();
                     part_seconds += match c {
                         's' => number,
                         'm' => number * 60.0,
                         'h' => number * 3600.0,
                         'd' => number * 86400.0,
-                        _ => return Err(TTimeError::InvalidTimeUnit),
+                        _ => return Err(ParseTDurationError::InvalidTimeUnit),
                     };
                 }
             }
 
             if !current_number.is_empty() {
-                return Err(TTimeError::InvalidDurationFormat);
+                return Err(ParseTDurationError::InvalidDurationFormat);
             }
 
             seconds += part_seconds;
@@ -268,25 +276,19 @@ mod tests {
 
     #[test]
     fn test_parse_duration() {
-        assert_eq!(TDuration::parse_str("1s").unwrap(), (1.0, 1).into());
-        assert_eq!(TDuration::parse_str("1m").unwrap(), (60.0, 1).into());
-        assert_eq!(TDuration::parse_str("1h").unwrap(), (3600.0, 1).into());
-        assert_eq!(TDuration::parse_str("1d").unwrap(), (86400.0, 1).into());
+        assert_eq!("1s".parse::<TDuration>().unwrap(), (1.0, 1).into());
+        assert_eq!("1m".parse::<TDuration>().unwrap(), (60.0, 1).into());
+        assert_eq!("1h".parse::<TDuration>().unwrap(), (3600.0, 1).into());
+        assert_eq!("1d".parse::<TDuration>().unwrap(), (86400.0, 1).into());
         assert_eq!(
-            TDuration::parse_str("1d1h1m1s").unwrap(),
+            "1d1h1m1s".parse::<TDuration>().unwrap(),
             (90061.0, 1).into()
         );
-        assert_eq!(
-            TDuration::parse_str("1h+1m+1s").unwrap(),
-            (3661.0, 3).into()
-        );
-        assert_eq!(TDuration::parse_str("1.5h").unwrap(), (5400.0, 1).into());
-        assert_eq!(
-            TDuration::parse_str("1.5h+30m").unwrap(),
-            (7200.0, 2).into()
-        );
-        assert!(TDuration::parse_str("1x").is_err());
-        assert!(TDuration::parse_str("1").is_err());
+        assert_eq!("1h+1m+1s".parse::<TDuration>().unwrap(), (3661.0, 3).into());
+        assert_eq!("1.5h".parse::<TDuration>().unwrap(), (5400.0, 1).into());
+        assert_eq!("1.5h+30m".parse::<TDuration>().unwrap(), (7200.0, 2).into());
+        assert!("1x".parse::<TDuration>().is_err());
+        assert!("1".parse::<TDuration>().is_err());
     }
 
     #[test]
@@ -308,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_trim() {
-        let mut duration = TDuration::parse_str("1d").unwrap();
+        let mut duration = "1d".parse::<TDuration>().unwrap();
         duration.trim(2.0);
 
         assert_eq!(

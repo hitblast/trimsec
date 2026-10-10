@@ -175,13 +175,12 @@ impl ApiClient {
         let total_duration: TDuration = fetched_items
             .into_iter()
             .map(|f| {
-                TDuration::parse_str(
-                    f.content_details
-                        .duration
-                        .to_lowercase()
-                        .trim_start_matches("pt"),
-                )
-                .unwrap_or_default()
+                f.content_details
+                    .duration
+                    .to_lowercase()
+                    .trim_start_matches("pt")
+                    .parse::<TDuration>()
+                    .unwrap_or_default()
             })
             .collect::<Vec<TDuration>>()
             .into_iter()
