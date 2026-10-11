@@ -6,6 +6,7 @@ Active since v2.0.0.
 
 New features:
 
+- Clipboard arguments can now be supplied repeatedly using `-clip`.
 - Add a new config option to set a custom day-end-time:
   ```toml
   [options]

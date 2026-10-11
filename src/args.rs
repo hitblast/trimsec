@@ -4,7 +4,7 @@ use std::{
     fmt::Display,
     io::{self, IsTerminal, Read},
     str::FromStr,
-    sync::LazyLock,
+    sync::{LazyLock, Mutex},
 };
 
 use anyhow::{Result, anyhow, bail};
@@ -272,6 +272,12 @@ fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
     Ok(Token::YouTube((id, cap)))
 }
 
+static CLIPBOARD: LazyLock<Result<Mutex<arboard::Clipboard>, String>> = LazyLock::new(|| {
+    arboard::Clipboard::new()
+        .map(Mutex::new)
+        .map_err(|e| e.to_string())
+});
+
 fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
     if let Ok(x) = arg.parse::<TDuration>() {
         return Ok(Token::Duration(x));
@@ -284,6 +290,19 @@ fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
     }
     if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
         return Ok(Token::Multiplier(mul));
+    }
+    if arg == "-clip" {
+        let clip_lock = CLIPBOARD
+            .as_ref()
+            .map_err(|e| ArgError::new(format!("failed to init clipboard: {e}")))?;
+        let mut clip = clip_lock
+            .lock()
+            .map_err(|_| ArgError::new("failed to acquire clipboard lock"))?;
+        let text = clip
+            .get_text()
+            .map_err(|e| ArgError::new(format!("could not get clipboard content: {e}")))?;
+
+        return parse_general(&text, allow_multiplier);
     }
     Err(ArgError::new("Unknown argument format."))
 }

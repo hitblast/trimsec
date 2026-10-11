@@ -127,6 +127,7 @@ ts "max:5::https://youtu.be/..." 3h20m b5h
 | `<DURATION>+<DURATION>` | Combination           | `1h30m+2h50m`                           | Explicitly sums multiple durations                |
 | `<SPEED>x`              | Multiplier            | `1.25x`, `2x`                           | Speed multiplier applied to preceding duration(s) |
 | `b<DURATION>`           | Budget                | `b2h4m`, `b15h`                         | Explicit time budget for fit-checks               |
+| `-clip`                 | Clipboard             | `ts -clip 1.5x`                         | Reads duration/URL directly from system clipboard |
 | `<URL>`                 | YouTube Video / Short | `https://youtu.be/...`                  | Fetches duration from YouTube video metadata      |
 | `<PLAYLIST_URL>`        | YouTube Playlist      | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist         |
 | `max:<n>::<PLAYLIST>`   | Item Cap              | `max:5::https://youtube.com/...`        | Caps playlist evaluation to first `n` items       |
@@ -158,11 +159,20 @@ These are the most commonly-used ones. For viewing all of the commands, run `ts 
 > [!NOTE]
 > This is an expanding list as of now.
 
-Pipes are supported just like any other well-built Unix/Linux command-line interface.
+- **System Clipboard Integration (`-clip`)**:
+  You can pass `-clip` as an argument to read a duration or YouTube URL directly from your system clipboard:
 
-```bash
-echo "1h2m 1.25x" | ts 2h 3x
-```
+  ```bash
+  # Reads text from clipboard (e.g., "1h30m" or a YouTube link) and applies 1.5x speed
+  ts -clip 1.5x
+  ```
+
+- **Pipes**:
+  Pipes are supported just like any other well-built Unix/Linux command-line interface.
+
+  ```bash
+  echo "1h2m 1.25x" | ts 2h 3x
+  ```
 
 ## Configuration
 
