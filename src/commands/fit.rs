@@ -102,11 +102,17 @@ impl<'a> FitCmd<'a> {
                         ctx.style.reset(),
                         budget - content_duration
                     )
-                } else if budget < content_duration {
+                } else if budget < content_duration && !budget.is_zero() {
                     format!(
                         "{}Time overrun by {}!{}",
                         ctx.style.boldred(),
                         content_duration - budget,
+                        ctx.style.reset()
+                    )
+                } else if budget.is_zero() {
+                    format!(
+                        "{}Day is already over.{}",
+                        ctx.style.boldgrey(),
                         ctx.style.reset()
                     )
                 } else {

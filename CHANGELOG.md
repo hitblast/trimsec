@@ -6,7 +6,7 @@ Active since v2.0.0.
 
 New features:
 
-- Add a new config option to set the end-of-the-day:
+- Add a new config option to set a custom day-end-time:
   ```toml
   [options]
   day_end = "23:00"
@@ -15,6 +15,7 @@ New features:
 Improvements:
 
 - `TDuration` instances with an inner total value of zero now show `0s`.
+- Following the addition of custom day-end-times, fit-checking now shows a message if the day is already over.
 - A more elaborate error is now shown if config-parsing fails.
 
 ### v4.6.0
