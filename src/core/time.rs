@@ -52,6 +52,7 @@ impl Display for ParseTTimeError {
 pub struct TTime {
     hours: u8,
     minutes: u8,
+    seconds: u8,
 }
 
 impl TTime {
@@ -60,6 +61,9 @@ impl TTime {
     }
     pub fn minutes(&self) -> u8 {
         self.minutes
+    }
+    pub fn seconds(&self) -> u8 {
+        self.seconds
     }
 }
 
@@ -100,13 +104,14 @@ impl<'de> Deserialize<'de> for TTime {
 
 impl Display for TTime {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}", self.hours, self.minutes)
+        write!(f, "{}:{:02}:{:02}", self.hours, self.minutes, self.seconds)
     }
 }
 
 impl Into<TDuration> for TTime {
     fn into(self) -> TDuration {
-        TDuration::from((self.hours as f64 * 60.0 + self.minutes as f64) * 60.0)
+        let x = (self.hours() as f64 * 60.0 + self.minutes() as f64) * 60.0 + self.seconds() as f64;
+        TDuration::from(x)
     }
 }
 
@@ -129,26 +134,33 @@ impl FromStr for TTime {
             });
         }
 
-        let right_str = parts.next().ok_or_else(|| ParseTTimeError::InvalidFormat)?;
-        let right: u8 = right_str
-            .parse::<u8>()
-            .map_err(|_| ParseTTimeError::InvalidPart(right_str.to_string()))?;
+        let mut parse_opt_next = || -> Result<Option<u8>, ParseTTimeError> {
+            if let Some(mid_str) = parts.next() {
+                let mid: u8 = mid_str
+                    .parse::<u8>()
+                    .map_err(|_| ParseTTimeError::InvalidPart(mid_str.to_string()))?;
 
-        if !(0..=59).contains(&right) {
-            return Err(ParseTTimeError::OutOfRange {
-                part: right_str.to_string(),
-                min: 0,
-                max: 59,
-            });
-        }
+                if !(0..=59).contains(&mid) {
+                    Err(ParseTTimeError::OutOfRange {
+                        part: mid.to_string(),
+                        min: 0,
+                        max: 59,
+                    })
+                } else {
+                    Ok(Some(mid))
+                }
+            } else {
+                Ok(None)
+            }
+        };
 
-        if parts.next().is_some() {
-            return Err(ParseTTimeError::InvalidPart(s.to_string()));
-        }
+        let minutes: Option<u8> = parse_opt_next()?;
+        let seconds: Option<u8> = parse_opt_next()?;
 
         Ok(TTime {
             hours: left,
-            minutes: right,
+            minutes: minutes.unwrap_or_default(),
+            seconds: seconds.unwrap_or_default(),
         })
     }
 }
@@ -163,14 +175,13 @@ mod ttime_tests {
         let time: TTime = "12:34".parse().unwrap();
         assert_eq!(time.hours(), 12);
         assert_eq!(time.minutes(), 34);
-        assert_eq!(time.to_string(), "12:34");
+        assert_eq!(time.to_string(), "12:34:00");
 
         assert!("24:00".parse::<TTime>().is_err());
         assert!("12:60".parse::<TTime>().is_err());
-        assert!("12".parse::<TTime>().is_err());
         assert!("abc:34".parse::<TTime>().is_err());
         assert!("12:abc".parse::<TTime>().is_err());
-        assert!("12:34:56".parse::<TTime>().is_err());
+        assert!("12:ab:56".parse::<TTime>().is_err());
     }
 
     #[test]
@@ -178,9 +189,10 @@ mod ttime_tests {
         let time = TTime {
             hours: 1,
             minutes: 30,
+            seconds: 3,
         };
         let duration: TDuration = time.into();
-        assert_eq!(duration, (5400.0, 1).into());
+        assert_eq!(duration, (5403.0, 1).into());
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -193,10 +205,11 @@ mod ttime_tests {
         let time = TTime {
             hours: 8,
             minutes: 15,
+            seconds: 35,
         };
         let wrapper = TimeWrapper { time: time.clone() };
         let serialized = toml::to_string(&wrapper).unwrap();
-        assert_eq!(serialized, "time = \"8:15\"\n");
+        assert_eq!(serialized, "time = \"8:15:35\"\n");
 
         let deserialized: TimeWrapper = toml::from_str(&serialized).unwrap();
         assert_eq!(deserialized.time, time);

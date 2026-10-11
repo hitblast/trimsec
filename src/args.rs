@@ -41,7 +41,7 @@ impl TCmd {
         match self {
             TCmd::Trim { tokens } => {
                 let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
-                let mut remaining = time_in_day_left();
+                let mut remaining = time_in_day_left(&mut ctx);
 
                 for mut x in cmds {
                     x.run(&mut ctx, &mut remaining)?

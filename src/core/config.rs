@@ -29,6 +29,11 @@ impl ConfigOptions {
     pub fn default_fit_budget(&self) -> Option<&TDuration> {
         self.default_fit_budget.as_ref()
     }
+
+    #[must_use]
+    pub fn day_end(&self) -> Option<&TTime> {
+        self.day_end.as_ref()
+    }
 }
 
 fn get_config_path() -> Result<PathBuf, TConfigError> {

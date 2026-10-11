@@ -81,7 +81,7 @@ impl<'a> FitCmd<'a> {
             bud
         } else {
             is_day_budget = true;
-            time_in_day_left()
+            time_in_day_left(ctx)
         };
 
         let message: String = {
