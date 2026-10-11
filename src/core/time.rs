@@ -26,15 +26,182 @@ pub fn parse_multiplier(multiplier: &str) -> Result<f64, ParseTDurationError> {
     }
 }
 
-#[derive(Debug)]
-pub struct TTime {
-    left: u8,
-    right: u8,
+#[derive(Debug, PartialEq, Eq)]
+pub enum ParseTTimeError {
+    InvalidPart(String),
+    InvalidFormat,
+    OutOfRange { part: String, min: u8, max: u8 },
 }
 
-impl ToString for TTime {
-    fn to_string(&self) -> String {
-        todo!()
+impl Display for ParseTTimeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseTTimeError::InvalidPart(e) => write!(f, "invalid time part: {e}"),
+            ParseTTimeError::InvalidFormat => write!(f, "Invalid time-argument format."),
+            ParseTTimeError::OutOfRange { part, min, max } => {
+                write!(
+                    f,
+                    "time part '{part}' out of range: must be between {min} and {max}"
+                )
+            }
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct TTime {
+    hours: u8,
+    minutes: u8,
+}
+
+impl TTime {
+    pub fn hours(&self) -> u8 {
+        self.hours
+    }
+    pub fn minutes(&self) -> u8 {
+        self.minutes
+    }
+}
+
+impl Serialize for TTime {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+struct TTimeVisitor;
+
+impl<'de> serde::de::Visitor<'de> for TTimeVisitor {
+    type Value = TTime;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a time string in format HH:MM")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        v.parse::<TTime>().map_err(serde::de::Error::custom)
+    }
+}
+
+impl<'de> Deserialize<'de> for TTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(TTimeVisitor)
+    }
+}
+
+impl Display for TTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.hours, self.minutes)
+    }
+}
+
+impl Into<TDuration> for TTime {
+    fn into(self) -> TDuration {
+        TDuration::from((self.hours as f64 * 60.0 + self.minutes as f64) * 60.0)
+    }
+}
+
+impl FromStr for TTime {
+    type Err = ParseTTimeError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts = s.split(':');
+
+        let left_str = parts.next().ok_or_else(|| ParseTTimeError::InvalidFormat)?;
+        let left: u8 = left_str
+            .parse::<u8>()
+            .map_err(|_| ParseTTimeError::InvalidPart(left_str.to_string()))?;
+
+        if !(0..=23).contains(&left) {
+            return Err(ParseTTimeError::OutOfRange {
+                part: left_str.to_string(),
+                min: 0,
+                max: 23,
+            });
+        }
+
+        let right_str = parts.next().ok_or_else(|| ParseTTimeError::InvalidFormat)?;
+        let right: u8 = right_str
+            .parse::<u8>()
+            .map_err(|_| ParseTTimeError::InvalidPart(right_str.to_string()))?;
+
+        if !(0..=59).contains(&right) {
+            return Err(ParseTTimeError::OutOfRange {
+                part: right_str.to_string(),
+                min: 0,
+                max: 59,
+            });
+        }
+
+        if parts.next().is_some() {
+            return Err(ParseTTimeError::InvalidPart(s.to_string()));
+        }
+
+        Ok(TTime {
+            hours: left,
+            minutes: right,
+        })
+    }
+}
+
+#[cfg(test)]
+mod ttime_tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_ttime_parsing() {
+        let time: TTime = "12:34".parse().unwrap();
+        assert_eq!(time.hours(), 12);
+        assert_eq!(time.minutes(), 34);
+        assert_eq!(time.to_string(), "12:34");
+
+        assert!("24:00".parse::<TTime>().is_err());
+        assert!("12:60".parse::<TTime>().is_err());
+        assert!("12".parse::<TTime>().is_err());
+        assert!("abc:34".parse::<TTime>().is_err());
+        assert!("12:abc".parse::<TTime>().is_err());
+        assert!("12:34:56".parse::<TTime>().is_err());
+    }
+
+    #[test]
+    fn test_ttime_into_duration() {
+        let time = TTime {
+            hours: 1,
+            minutes: 30,
+        };
+        let duration: TDuration = time.into();
+        assert_eq!(duration, (5400.0, 1).into());
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct TimeWrapper {
+        time: TTime,
+    }
+
+    #[test]
+    fn test_ttime_serde() {
+        let time = TTime {
+            hours: 8,
+            minutes: 15,
+        };
+        let wrapper = TimeWrapper { time: time.clone() };
+        let serialized = toml::to_string(&wrapper).unwrap();
+        assert_eq!(serialized, "time = \"8:15\"\n");
+
+        let deserialized: TimeWrapper = toml::from_str(&serialized).unwrap();
+        assert_eq!(deserialized.time, time);
+
+        assert!(toml::from_str::<TimeWrapper>("time = \"25:00\"").is_err());
     }
 }
 
@@ -54,14 +221,29 @@ impl Serialize for TDuration {
     }
 }
 
+struct TDurationVisitor;
+
+impl<'de> serde::de::Visitor<'de> for TDurationVisitor {
+    type Value = TDuration;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a duration string")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        v.parse::<TDuration>().map_err(serde::de::Error::custom)
+    }
+}
+
 impl<'de> Deserialize<'de> for TDuration {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        let value = String::deserialize(deserializer)?;
-
-        value.parse::<TDuration>().map_err(serde::de::Error::custom)
+        deserializer.deserialize_str(TDurationVisitor)
     }
 }
 

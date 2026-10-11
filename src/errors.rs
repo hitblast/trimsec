@@ -43,23 +43,17 @@ pub enum ParseTDurationError {
 
 impl Display for ParseTDurationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::InvalidTimeUnit => write!(
-                f,
+        let wr = match self {
+            Self::InvalidTimeUnit => {
                 "specify duration in seconds (s), minutes (m), hours (h), or days (d)"
-            ),
-            Self::InvalidDurationFormat => write!(f, "invalid duration format!"),
-            Self::NegativeDuration => write!(f, "duration must be a positive value."),
-            Self::InvalidMultiplierFormat => {
-                write!(f, "multiplier must be a positive float.")
             }
-            Self::MultiplierOutOfRange => {
-                write!(f, "multiplier must be greater than 1x and less than 100x.")
-            }
-            Self::EmptyDurationString => {
-                write!(f, "empty duration-string passed.")
-            }
-        }
+            Self::InvalidDurationFormat => "invalid duration format!",
+            Self::NegativeDuration => "duration must be a positive value.",
+            Self::InvalidMultiplierFormat => "multiplier must be a positive float.",
+            Self::MultiplierOutOfRange => "multiplier must be greater than 1x and less than 100x.",
+            Self::EmptyDurationString => "empty duration-string passed.",
+        };
+        write!(f, "{wr}")
     }
 }
 
@@ -75,26 +69,18 @@ pub enum TYoutubeError {
 
 impl Display for TYoutubeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TYoutubeError::UreqError(e) => {
-                write!(f, "error performing request: {e}.")
-            }
-            TYoutubeError::RequestUriParseError(e) => {
-                write!(f, "error parsing request Uri: {e}")
-            }
+        let wr = match self {
+            TYoutubeError::UreqError(e) => format!("error performing request: {e}."),
+            TYoutubeError::RequestUriParseError(e) => format!("error parsing request Uri: {e}"),
             TYoutubeError::ItemNotFound => {
-                write!(f, "given YouTube video item was not found in API response.")
+                "given YouTube video item was not found in API response.".to_string()
             }
-            TYoutubeError::InvalidPlaylist(id) => {
-                write!(f, "invalid playlist: {id}")
-            }
+            TYoutubeError::InvalidPlaylist(id) => format!("invalid playlist: {id}"),
             TYoutubeError::InvalidMaxSize((given, max)) => {
-                write!(
-                    f,
-                    "max items ({given}) is larger than the length of the playlist ({max})."
-                )
+                format!("max items ({given}) is larger than the length of the playlist ({max}).")
             }
-            TYoutubeError::InvalidResponseBody => write!(f, "response body invalid."),
-        }
+            TYoutubeError::InvalidResponseBody => "response body invalid.".to_string(),
+        };
+        write!(f, "{wr}")
     }
 }

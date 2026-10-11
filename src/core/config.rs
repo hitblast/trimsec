@@ -3,7 +3,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{core::time::TDuration, errors::TConfigError};
+use crate::{
+    core::time::{TDuration, TTime},
+    errors::TConfigError,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,7 +21,7 @@ pub struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigOptions {
     default_fit_budget: Option<TDuration>,
-    // day_end: Option<TTime>,
+    day_end: Option<TTime>,
 }
 
 impl ConfigOptions {

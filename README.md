@@ -176,11 +176,10 @@ The primary use of the configuration file is to store the [API key (see "For You
 
 trimsec provides partial modifications of its features through the `options` table.
 
-For example, if you need to set a default time-budget for fit-checks, you can use:
-
 ```toml
 [options]
-default_fit_budget = "2h4m"
+default_fit_budget = "2h4m"  # overrides the default duration for fit-checks
+day_end = "23:00"            # (24h format) overrides the end of the day
 ```
 
 ## Installation
