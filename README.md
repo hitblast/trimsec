@@ -179,7 +179,8 @@ trimsec provides partial modifications of its features through the `options` tab
 ```toml
 [options]
 default_fit_budget = "2h4m"  # overrides the default duration for fit-checks
-day_end = "23:00"            # (24h format) overrides the end of the day
+day_end = "23:00"            # (hh:mm:ss) overrides the end of the day
+                                # MUST be in 24h format
 ```
 
 ## Installation

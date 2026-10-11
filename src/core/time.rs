@@ -349,7 +349,11 @@ impl FromStr for TDuration {
 
 impl Display for TDuration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.seconds().to_string_duration())
+        if self.is_zero() {
+            write!(f, "0s")
+        } else {
+            write!(f, "{}", self.seconds().to_string_duration())
+        }
     }
 }
 

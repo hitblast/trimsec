@@ -2,6 +2,21 @@
 
 Active since v2.0.0.
 
+### v4.7.0
+
+New features:
+
+- Add a new config option to set the end-of-the-day:
+  ```toml
+  [options]
+  day_end = "23:00"
+  ```
+
+Improvements:
+
+- `TDuration` instances with an inner total value of zero now show `0s`.
+- A more elaborate error is now shown if config-parsing fails.
+
 ### v4.6.0
 
 Improvements:
@@ -389,3 +404,7 @@ New features:
 Internal changes:
 
 - Internal optimizations and code structure changes for a proper CLI feel (use `clap` and `anyhow` for CLI-side structuring and error management).
+
+```
+
+```
