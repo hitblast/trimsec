@@ -1,4 +1,4 @@
-use std::{fmt::Display, path::PathBuf};
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum TConfigError {
@@ -6,28 +6,25 @@ pub enum TConfigError {
     UnavailableConfigPath,
     HomeNotFound,
     ConfigReadFailure(String),
-    DeserializingFailed(PathBuf),
+    DeserializingFailed(String),
     SerializingFailed(String),
     SaveFailed(String),
 }
 
 impl Display for TConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TConfigError::InvalidParentPath => write!(f, "invalid parent path for config file"),
-            TConfigError::UnavailableConfigPath => {
-                write!(f, "could not fetch absolute config path")
+        let wr = match self {
+            TConfigError::InvalidParentPath => "invalid parent path for file".to_string(),
+            TConfigError::UnavailableConfigPath => "could not fetch absolute filepath".to_string(),
+            TConfigError::HomeNotFound => "home  directory not found".to_string(),
+            TConfigError::ConfigReadFailure(e) => format!("failed to read file: {e}"),
+            TConfigError::DeserializingFailed(e) => {
+                format!("parse failed: {e}")
             }
-            TConfigError::HomeNotFound => {
-                write!(f, "home  directory not found")
-            }
-            TConfigError::ConfigReadFailure(e) => write!(f, "failed to read config file: {e}"),
-            TConfigError::DeserializingFailed(p) => {
-                write!(f, "could not parse file at path: {p:?}")
-            }
-            TConfigError::SerializingFailed(e) => write!(f, "could not serialize config: {e}"),
-            TConfigError::SaveFailed(p) => write!(f, "could not save file to path: {p:?}"),
-        }
+            TConfigError::SerializingFailed(e) => format!("could not serialize file: {e}"),
+            TConfigError::SaveFailed(p) => format!("could not save file to path: {p:?}"),
+        };
+        write!(f, "{wr}")
     }
 }
 

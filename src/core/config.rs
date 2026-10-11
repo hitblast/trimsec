@@ -68,7 +68,7 @@ impl Config {
                     cfg.path = p;
                     Ok(cfg)
                 }
-                Err(_) => Err(TConfigError::DeserializingFailed(p)),
+                Err(e) => Err(TConfigError::DeserializingFailed(e.to_string())),
             },
             Err(e) => Err(TConfigError::ConfigReadFailure(e.to_string())),
         }
