@@ -1,10 +1,156 @@
 .ie \n(.g .ds Aq \(aq
 .el .ds Aq '
-.TH trimsec 1  "trimsec 4.5.5" 
+.TH trimsec 1  "trimsec 4.7.0" 
 .SH NAME
 trimsec
 .SH SYNOPSIS
-\fBtrimsec\fR [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+ts [ARGS | COMMAND]
+.br
+Usage:
+.br
+ts [ARGS]:
+.br
+ts 1h24m 2h 1.25x
+.br
+# trim mode (implicit combination)
+.br
+ts 1h24m+2h+1m 1.25x
+.br
+# trim mode (explicit combination)
+.br
+ts 1h24m 1.25x <URL> 2h30m 1.25x ...
+.br
+# arbitrary arguments
+.br
+ts 1h24m
+.br
+# fit\-check (remaining time until midnight as budget)
+.br
+ts 1h24m+20m+30m b12h
+.br
+# explicit combination and explicit budget
+.br
+ts 1h24m 2h
+.br
+# second duration argument is interpreted as the budget
+.br
+ts <URL> 3h20m <URL> ...
+.br
+# arbitrary arguments
+.br
+ts <URL> 1h13m1.5s <URL> ... b12h
+.br
+# explicit 12h budget via \*(Aqb\*(Aq prefix
+.br
+ts [COMMAND]:
+.br
+See commands below.
+.br
+Argument Syntax:
+.br
+<DURATION>
+.br
+e.g. 1h24m, 2h30m, 1m13.5s
+.br
+<SPEED>
+.br
+e.g. 1.25x
+.br
+<BUDGET>
+.br
+b<DURATION>
+.br
+e.g. b12h
+.br
+<COMBINATION>
+.br
+<DURATION>+<DURATION>+...
+.br
+e.g. 1h24m+20m+30m
+.br
+<URL>
+.br
+Any YouTube URL (videos/music/Shorts).
+.br
+<PLAYLIST>
+.br
+A YouTube playlist URL.
+.br
+Argument Interpretation:
+.br
+\- Adjacent duration arguments are implicitly combined when used in
+.br
+trim mode.
+.br
+ts 1h24m 2h 1.25x
+.br
+=> (1h24m + 2h) at 1.25x
+.br
+\- Durations may be explicitly combined with \*(Aq+\*(Aq.
+.br
+ts 1h24m+2h+1m 1.25x
+.br
+=> (1h24m + 2h + 1m) at 1.25x
+.br
+\- A standalone second duration argument is interpreted as the budget
+.br
+when the command is in fit\-check mode.
+.br
+ts 1h24m 2h
+.br
+=> check 1h24m against a 2h budget
+.br
+\- A budget prefixed with \*(Aqb\*(Aq explicitly specifies the budget.
+.br
+ts 1h24m+20m+30m b12h
+.br
+=> check (1h24m + 20m + 30m) against a 12h budget
+.br
+\- If no budget is specified, fit\-check uses the remaining time until
+.br
+midnight as the budget.
+.br
+\- A <SPEED> argument applies to the duration/combination immediately
+.br
+preceding it.
+.br
+Specific Arg\-Syntax:
+.br
+max:<n>::<PLAYLIST>
+.br
+Only traverse the first n items in a YouTube playlist.
+.br
+Example:
+.br
+max:10::https://youtube.com/playlist?list=...
+.br
+Keyword Arguments:
+.br
+1. Color mode:
+.br
+\-\-color <ColorMode>
+.br
+e.g. \-\-color auto
+.br
+or:
+.br
+\-\-color=<ColorMode>
+.br
+e.g. \-\-color=auto
+.br
+Modes:
+.br
+always
+.br
+auto
+.br
+never
+.br
+Keyword arguments may appear anywhere in the argument list.
+.br
+Commands:
+.br
+See commands below.
 .SH DESCRIPTION
 .SH OPTIONS
 .TP
@@ -27,4 +173,4 @@ Command group for managing the Google Cloud Console API key
 trimsec\-help(1)
 Print this message or the help of the given subcommand(s)
 .SH VERSION
-v4.5.5
+v4.7.0
