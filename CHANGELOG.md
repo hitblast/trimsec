@@ -7,6 +7,7 @@ Active since v2.0.0.
 Improvements:
 
 - Clipboard recursion has been limited to just one iteration per `-clip` passed.
+- Removed `rayon` from the dependency-tree. Will be added later.
 
 ### v4.7.0
 
