@@ -41,6 +41,9 @@ Usage:
         ts <URL> 1h13m1.5s <URL> ... b12h
             # explicit 12h budget via 'b' prefix
 
+        ts -clip 1.5x
+            # reads duration/URL directly from system clipboard
+
     ts [COMMAND]:
         See commands below.
 
@@ -66,6 +69,9 @@ Argument Syntax:
 
     <PLAYLIST>
     A YouTube playlist URL.
+
+    -clip
+    Reads duration or URL directly from system clipboard.
 
 
 Argument Interpretation:
