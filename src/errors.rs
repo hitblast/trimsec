@@ -55,22 +55,22 @@ impl Display for ParseTDurationError {
 }
 
 #[derive(Debug)]
-pub enum ResolveTClipStringError {
+pub enum FetchTClipStringError {
     ClipboardMutexPoisoned(String),
     ClipboardContentFetchFailed(String),
     Clipboard(String),
 }
 
-impl Display for ResolveTClipStringError {
+impl Display for FetchTClipStringError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
-            ResolveTClipStringError::Clipboard(e) => {
+            FetchTClipStringError::Clipboard(e) => {
                 &format!("clipboard could not be initialized: {e}")
             }
-            ResolveTClipStringError::ClipboardMutexPoisoned(e) => {
+            FetchTClipStringError::ClipboardMutexPoisoned(e) => {
                 &format!("clipboard mutex lock poisoned: {e}")
             }
-            ResolveTClipStringError::ClipboardContentFetchFailed(e) => {
+            FetchTClipStringError::ClipboardContentFetchFailed(e) => {
                 &format!("failed to fetch clipboard content: {e}")
             }
         };

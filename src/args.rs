@@ -140,15 +140,16 @@ impl TKeywordArgs {
                 continue;
             }
 
-            if arg.starts_with("--color") {
-                let None = color else {
-                    bail!("multiple --color arguments provided.")
-                };
-
-                let x: ColorMode = Self::parse_kwarg(arg, "--color", &mut skippable, idx)?;
-                color = Some(x);
-            } else {
-                remaining.push(arg.clone());
+            match arg {
+                _ if arg.starts_with("--color") => {
+                    if color.is_some() {
+                        bail!("multiple --color arguments provided.");
+                    }
+                    color = Some(Self::parse_kwarg(arg, "--color", &mut skippable, idx)?);
+                }
+                _ => {
+                    remaining.push(arg.clone());
+                }
             }
         }
 
