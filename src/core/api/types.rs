@@ -9,7 +9,6 @@ pub struct YTVideos {
 
 #[derive(Debug, Deserialize)]
 pub struct YTVideosItem {
-    #[allow(unused)] // TODO: remove these once the awaited feature has been added
     pub snippet: YTVideoSnippet,
     #[serde(rename = "contentDetails")]
     pub content_details: YTVideosContentDetails,
