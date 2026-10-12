@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v4.7.1
+
+Improvements:
+
+- Clipboard recursion has been limited to just one iteration per `-clip` passed.
+
 ### v4.7.0
 
 New features:
