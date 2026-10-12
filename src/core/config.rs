@@ -74,8 +74,8 @@ impl Config {
         }
     }
 
-    pub fn write_key(&mut self, new_key: String) -> Result<(), TConfigError> {
-        self.api_key = Some(new_key);
+    pub fn write_key(&mut self, new_key: impl Into<String>) -> Result<(), TConfigError> {
+        self.api_key = Some(new_key.into());
         self.save()?;
         Ok(())
     }

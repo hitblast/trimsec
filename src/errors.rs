@@ -55,6 +55,30 @@ impl Display for ParseTDurationError {
 }
 
 #[derive(Debug)]
+pub enum ResolveTClipStringError {
+    ClipboardMutexPoisoned(String),
+    ClipboardContentFetchFailed(String),
+    Clipboard(String),
+}
+
+impl Display for ResolveTClipStringError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let wr = match self {
+            ResolveTClipStringError::Clipboard(e) => {
+                &format!("clipboard could not be initialized: {e}")
+            }
+            ResolveTClipStringError::ClipboardMutexPoisoned(e) => {
+                &format!("clipboard mutex lock poisoned: {e}")
+            }
+            ResolveTClipStringError::ClipboardContentFetchFailed(e) => {
+                &format!("failed to fetch clipboard content: {e}")
+            }
+        };
+        write!(f, "{}", wr)
+    }
+}
+
+#[derive(Debug)]
 pub enum TYoutubeError {
     UreqError(ureq::Error),
     RequestUriParseError(String),

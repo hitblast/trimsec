@@ -4,7 +4,7 @@ use std::{
     fmt::Display,
     io::{self, IsTerminal, Read},
     str::FromStr,
-    sync::{LazyLock, Mutex},
+    sync::LazyLock,
 };
 
 use anyhow::{Result, anyhow, bail};
@@ -12,6 +12,7 @@ use anyhow::{Result, anyhow, bail};
 use crate::{
     args::Token::SkipThis,
     clap::{KeySubcmd, parse_with_clap},
+    clip::TClipString,
     commands::{fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
     core::{
         context::Ctx,
@@ -272,13 +273,7 @@ fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
     Ok(Token::YouTube((id, cap)))
 }
 
-static CLIPBOARD: LazyLock<Result<Mutex<arboard::Clipboard>, String>> = LazyLock::new(|| {
-    arboard::Clipboard::new()
-        .map(Mutex::new)
-        .map_err(|e| e.to_string())
-});
-
-fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
+fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Token, ArgError> {
     if let Ok(x) = arg.parse::<TDuration>() {
         return Ok(Token::Duration(x));
     }
@@ -291,20 +286,20 @@ fn parse_general(arg: &str, allow_multiplier: bool) -> Result<Token, ArgError> {
     if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
         return Ok(Token::Multiplier(mul));
     }
-    if arg == "-clip" {
-        let clip_lock = CLIPBOARD
-            .as_ref()
-            .map_err(|e| ArgError::new(format!("failed to init clipboard: {e}")))?;
-        let mut clip = clip_lock
-            .lock()
-            .map_err(|_| ArgError::new("failed to acquire clipboard lock"))?;
-        let text = clip
-            .get_text()
-            .map_err(|e| ArgError::new(format!("could not get clipboard content: {e}")))?;
 
-        return parse_general(&text, allow_multiplier);
+    if recurse {
+        match TClipString::resolve(arg) {
+            Ok(Some(s)) => return parse_general(&s, allow_multiplier, false),
+            Err(e) => return Err(ArgError::new(e.to_string())),
+            _ => {}
+        }
     }
-    Err(ArgError::new("Unknown argument format."))
+
+    Err(ArgError::new(if recurse {
+        "Unknown argument format."
+    } else {
+        "Unknown clipboard content format."
+    }))
 }
 
 fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
@@ -322,7 +317,7 @@ fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bo
         let parsed = if !trim && arg.starts_with('b') {
             parse_budget(arg)
         } else {
-            parse_general(arg, !budget_seen)
+            parse_general(arg, !budget_seen, true)
         };
 
         match parsed {

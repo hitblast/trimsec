@@ -1,11 +1,14 @@
-use crate::core::{api::ApiClient, context::Ctx, youtils::TYoutubeId};
+use crate::{
+    clip::TClipString,
+    core::{api::ApiClient, context::Ctx, youtils::TYoutubeId},
+};
 use anyhow::{Result, bail};
 use clap::Args;
 
 #[derive(Debug, Default, Args)]
 pub struct KeySetCmd {
     /// The API key to set.
-    api_key: String,
+    api_key: TClipString,
 
     /// Skip API key authenticity check.
     #[arg(short, long)]
@@ -17,7 +20,12 @@ impl KeySetCmd {
         if self.api_key.is_empty() || self.api_key.replace(" ", "").is_empty() {
             bail!("given key is empty!");
         }
-        if ctx.config()?.api_key().is_some_and(|f| f == self.api_key) {
+
+        if ctx
+            .config()?
+            .api_key()
+            .is_some_and(|f| f == self.api_key.as_ref())
+        {
             eprintln!("Key is already installed.");
             return Ok(());
         }
