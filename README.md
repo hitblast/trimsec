@@ -4,6 +4,8 @@
 
 ![Crates.io Total Downloads](https://img.shields.io/crates/d/trimsec?color=black)
 
+trimsec turns an expression of contents into commands, and helps you plan your content-intake in various ways.
+
 Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
 
 ## Table of Contents
