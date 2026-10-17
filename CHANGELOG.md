@@ -2,6 +2,10 @@
 
 Active since v2.0.0.
 
+### v4.7.2
+
+Minor changes only - no functional change whatsoever.
+
 ### v4.7.1
 
 Improvements:
