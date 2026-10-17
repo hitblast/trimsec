@@ -24,7 +24,7 @@ Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and mer
 
 ## Usage
 
-trimsec helps you plan your content consumption with two primary functions:
+trimsec has two primary functions:
 
 1. Fit-checking contents for the remainder of the day, or a specific time-budget, and
 2. Trimming the content using multipliers and calculating how much time you'll save.
