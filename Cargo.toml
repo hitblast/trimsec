@@ -1,6 +1,6 @@
 [package]
 name = "trimsec"
-description = "Plan your content intake."
+description = "Plan your content-intake using expressions."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
 version = "4.7.2"
 edition = "2024"
