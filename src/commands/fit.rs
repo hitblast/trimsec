@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     args::Token::{self},
     core::{context::Ctx, time::TDuration, timeutils::time_in_day_left},
@@ -25,22 +27,24 @@ impl<'a> FitCmd<'a> {
         let mut comparable_len = tokens.len() - 1; // skip EOL
         let mut durations: Vec<(TDuration, bool)> = Vec::new();
 
-        let iterable = tokens.into_iter();
+        let iterable = tokens.into_iter().enumerate();
+        let mut youtube_ids: HashSet<(usize, Token)> = HashSet::new();
 
-        for tok in iterable {
+        for (idx, tok) in iterable {
             match tok {
                 Token::Duration(dur) => durations.push((dur, false)),
                 Token::BudgetDuration(dur) => match &mut budget_duration {
                     Some(existing) => *existing += &dur,
                     None => budget_duration = Some(dur),
                 },
-                Token::YouTube((id, max_items)) => match ctx.client() {
-                    Ok(client) => match client.fetch_duration_from_id(&id, max_items) {
-                        Ok(dur) => durations.push((dur, true)),
-                        Err(e) => bail!("failed to fetch duration: {e}"),
-                    },
-                    Err(e) => bail!("client failed: {e}"),
-                },
+                Token::YouTube((id, max_items)) => youtube_ids.insert((idx, tok)),
+                // Token::YouTube((id, max_items)) => match ctx.client() {
+                //     Ok(client) => match client.fetch_duration_from_id(&id, max_items) {
+                //         Ok(dur) => durations.push((dur, true)),
+                //         Err(e) => bail!("failed to fetch duration: {e}"),
+                //     },
+                //     Err(e) => bail!("client failed: {e}"),
+                // },
                 Token::SkipThis => comparable_len -= 1,
                 _ => {}
             }
