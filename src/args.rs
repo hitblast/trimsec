@@ -286,17 +286,17 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
         };
     }
 
+    if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
+        ready!(Token::Multiplier(mul))
+    }
+    if let Some(inner) = arg.strip_prefix("max:") {
+        return parse_item_cap(inner);
+    }
     if let Ok(x) = arg.parse::<TDuration>() {
         ready!(Token::Duration(x))
     }
     if let Some(id) = get_youtube_id(arg) {
         return Ok(ParsedArg::NeedsProcessing((id, 0)));
-    }
-    if let Some(inner) = arg.strip_prefix("max:") {
-        return parse_item_cap(inner);
-    }
-    if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
-        ready!(Token::Multiplier(mul))
     }
 
     if recurse {
