@@ -267,7 +267,7 @@ fn parse_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
         )
     })?;
 
-    let id = get_youtube_id(target).ok_or_else(|| {
+    let id = get_youtube_id(target, true).ok_or_else(|| {
         ArgError::new("Could not parse a valid YouTube id/playlist from the second part.")
     })?;
 
@@ -295,7 +295,7 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
     if let Ok(x) = arg.parse::<TDuration>() {
         ready!(Token::Duration(x))
     }
-    if let Some(id) = get_youtube_id(arg) {
+    if let Some(id) = get_youtube_id(arg, false) {
         return Ok(ParsedArg::NeedsProcessing((id, 0)));
     }
 

@@ -7,6 +7,7 @@ Active since v2.0.0.
 Breaking Changes:
 
 - On `/watch` URLs containing both a video ID (`v=`) and a playlist ID (`list=`), the parser now prioritizes the video ID. This is entirely different behavior from the earlier iterations of trimsec's parser.
+- More parser improvements have been added which make it more "context-aware".
 
 New features:
 

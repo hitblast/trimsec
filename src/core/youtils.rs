@@ -52,7 +52,7 @@ impl Display for TYoutubeId {
 }
 
 #[must_use]
-pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
+pub fn get_youtube_id(link: &str, force_playlist: bool) -> Option<TYoutubeId> {
     let mut is_playlist = false;
 
     let Ok(parsed_url) = Url::parse(link) else {
@@ -66,9 +66,16 @@ pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
     }
 
     let query_search = |q: &str, ptr: &str| {
-        q.split('&')
+        let x = q
+            .split('&')
             .find(|p| p.starts_with(ptr))
-            .map(|p| p.trim_start_matches(ptr).to_string())
+            .map(|p| p.trim_start_matches(ptr).to_string());
+
+        if x.as_deref().is_some_and(|f| !f.is_empty()) {
+            x
+        } else {
+            None
+        }
     };
 
     let id: Option<String> =
@@ -79,13 +86,16 @@ pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
                 .map(|s| s.to_string())
         } else if parsed_url.path().starts_with("/watch") {
             parsed_url.query().and_then(|q| {
-                if let Some(v) = query_search(q, "v=")
-                    && !v.is_empty()
-                {
-                    Some(v)
-                } else if let Some(list) = query_search(q, "list=")
-                    && !list.is_empty()
-                {
+                if let Some(v) = query_search(q, "v=") {
+                    if !force_playlist {
+                        Some(v)
+                    } else if let Some(list) = query_search(q, "list=") {
+                        is_playlist = true;
+                        Some(list)
+                    } else {
+                        None
+                    }
+                } else if let Some(list) = query_search(q, "list=") {
                     is_playlist = true;
                     Some(list)
                 } else {
@@ -117,23 +127,23 @@ mod tests {
 
     #[test]
     fn test_id_splitter() {
-        assert_eq!(get_youtube_id("test-driven-development"), None);
+        assert_eq!(get_youtube_id("test-driven-development", false), None);
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/embed/ZNYRjxJ3sdY"),
+            get_youtube_id("https://www.youtube.com/embed/ZNYRjxJ3sdY", false),
             Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/shorts/ZNYRjxJ3sdY"),
+            get_youtube_id("https://www.youtube.com/shorts/ZNYRjxJ3sdY", false),
             Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/watch?v=ZNYRjxJ3sdY"),
+            get_youtube_id("https://www.youtube.com/watch?v=ZNYRjxJ3sdY", false),
             Some(TYoutubeId {
                 id: "ZNYRjxJ3sdY".to_string(),
                 is_playlist: false
@@ -141,7 +151,8 @@ mod tests {
         );
         assert_eq!(
             get_youtube_id(
-                "https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+                "https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS",
+                false
             ),
             Some(TYoutubeId {
                 id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
@@ -149,13 +160,25 @@ mod tests {
             })
         );
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/playlist?list="),
+            get_youtube_id("https://www.youtube.com/playlist?list=", false),
             None
         );
-        assert_eq!(get_youtube_id("https://www.youtube.com/watch?v="), None,);
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/playlist?list=", true),
+            None
+        );
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/watch?v=", false),
+            None,
+        );
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/watch?v=", true),
+            None,
+        );
         assert_eq!(
             get_youtube_id(
-                "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+                "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS",
+                false
             ),
             Some(TYoutubeId {
                 id: "rdXw7Ps9vxc".to_string(),
@@ -163,7 +186,7 @@ mod tests {
             })
         );
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/watch?v=rdXw7Ps9vxc&list="),
+            get_youtube_id("https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=", false),
             Some(TYoutubeId {
                 id: "rdXw7Ps9vxc".to_string(),
                 is_playlist: false
@@ -171,7 +194,8 @@ mod tests {
         );
         assert_eq!(
             get_youtube_id(
-                "https://www.youtube.com/watch?v=e8T92lECvRA&list=PLKyFAP_ydM14amZrAVM39Jkfcy8NNCsv2&index=4"
+                "https://www.youtube.com/watch?v=e8T92lECvRA&list=PLKyFAP_ydM14amZrAVM39Jkfcy8NNCsv2&index=4",
+                false
             ),
             Some(TYoutubeId {
                 id: "e8T92lECvRA".to_string(),
@@ -179,20 +203,118 @@ mod tests {
             })
         );
         assert_eq!(
-            get_youtube_id("https://youtu.be/sEWIDdQKWgc?si=Ywu5MycwAaZ4cZ3t"),
+            get_youtube_id("https://youtu.be/sEWIDdQKWgc?si=Ywu5MycwAaZ4cZ3t", false),
             Some(TYoutubeId {
                 id: "sEWIDdQKWgc".to_string(),
                 is_playlist: false
             })
         );
         assert_eq!(
-            get_youtube_id("https://youtu.be/?si=Ywu5MycwAaZ4cZ3t"),
+            get_youtube_id("https://youtu.be/?si=Ywu5MycwAaZ4cZ3t", false),
             None,
         );
-        assert_eq!(get_youtube_id("https://youtu.be/"), None,);
+        assert_eq!(get_youtube_id("https://youtu.be/", false), None,);
         assert_eq!(
-            get_youtube_id("https://www.youtube.com/watch?v=&list="),
+            get_youtube_id("https://www.youtube.com/watch?v=&list=", false),
             None,
         )
+    }
+
+    // Auto-generated tests below.
+
+    #[test]
+    fn test_tyoutubeid_struct() {
+        // Test basic construction and getters
+        let vid = TYoutubeId::new("sEWIDdQKWgc", false);
+        assert_eq!(vid.id(), "sEWIDdQKWgc");
+        assert_eq!(vid.is_playlist(), false);
+
+        let playlist = TYoutubeId::new("PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS", true);
+        assert_eq!(playlist.id(), "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS");
+        assert_eq!(playlist.is_playlist(), true);
+
+        // Test Display implementation
+        assert_eq!(format!("{}", vid), "sEWIDdQKWgc");
+        assert_eq!(
+            format!("{}", playlist),
+            "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+        );
+    }
+
+    #[test]
+    fn test_force_playlist_behavior() {
+        // When force_playlist is true, it should prioritize extracting the 'list' ID over 'v'
+        assert_eq!(
+            get_youtube_id(
+                "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS",
+                true
+            ),
+            Some(TYoutubeId {
+                id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
+                is_playlist: true
+            })
+        );
+
+        // Even with force_playlist=true, if there is no list, it should return None
+        // (because it wants a playlist but only finds a video)
+        assert_eq!(
+            get_youtube_id("https://www.youtube.com/watch?v=rdXw7Ps9vxc", true),
+            None
+        );
+
+        // If it's explicitly a watch url but only has a list (edge case)
+        assert_eq!(
+            get_youtube_id(
+                "https://www.youtube.com/watch?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS",
+                false
+            ),
+            Some(TYoutubeId {
+                id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
+                is_playlist: true
+            })
+        );
+    }
+
+    #[test]
+    fn test_music_youtube_domain() {
+        // Test video on YouTube Music
+        assert_eq!(
+            get_youtube_id("https://music.youtube.com/watch?v=ZNYRjxJ3sdY", false),
+            Some(TYoutubeId {
+                id: "ZNYRjxJ3sdY".to_string(),
+                is_playlist: false
+            })
+        );
+
+        // Test playlist on YouTube Music
+        assert_eq!(
+            get_youtube_id(
+                "https://music.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS",
+                false
+            ),
+            Some(TYoutubeId {
+                id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
+                is_playlist: true
+            })
+        );
+    }
+
+    #[test]
+    fn test_invalid_domains_and_malformed_urls() {
+        // Valid URL structure, but wrong domain
+        assert_eq!(
+            get_youtube_id("https://www.vimeo.com/watch?v=ZNYRjxJ3sdY", false),
+            None
+        );
+
+        assert_eq!(
+            get_youtube_id("https://google.com/shorts/ZNYRjxJ3sdY", false),
+            None
+        );
+
+        // Completely invalid URLs
+        assert_eq!(get_youtube_id("not-a-url", false), None);
+        assert_eq!(get_youtube_id("http://", false), None);
+        assert_eq!(get_youtube_id("https://www.youtube.com/watch", false), None); // missing query
     }
 }

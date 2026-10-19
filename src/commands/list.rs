@@ -13,7 +13,7 @@ pub struct ListCmd {
 
 impl ListCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
-        let id: TYoutubeId = match get_youtube_id(&self.link) {
+        let id: TYoutubeId = match get_youtube_id(&self.link, true) {
             Some(id) => {
                 if !id.is_playlist() {
                     bail!("not a valid YouTube playlist ID!")
