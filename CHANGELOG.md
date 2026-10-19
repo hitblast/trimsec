@@ -11,6 +11,7 @@ Breaking Changes:
 
 New features:
 
+- Added a new `all::` prefix for generic YouTube URLs, which enables trimsec to extract the playlist's ID from a given URL. This becomes especially useful when you do not have the playlist's URL, but do have the link to a video _within_ that playlist, but you still would like to traverse the entire playlist.
 - This release adds intermediary multithreaded processing of YouTube URLs to speed up fetching-times, finally making use of the `rayon` dependency that was included beforehand.
 - [TODO] `yt-dlp` support for non-API usage has been added.
 

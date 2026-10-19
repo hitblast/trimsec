@@ -78,10 +78,14 @@ This leads to an infinite amount of combinations and daisy-chaining that you can
 ts <URL> 1h30m 1.25x 2h <URL> 2x
 ```
 
-YouTube playlist URLs are also supported and can be combined with other durations too if needed:
+YouTube playlist URLs are also supported in two formats - distinct, and user-specified:
 
 ```bash
-ts 1.8x "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+# signature playlist URL!
+ts 1.8x "https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
+
+# or, by putting `all::` before any YouTube URL (i.e. reading "all" videos):
+ts 1.8x "all::https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
 ```
 
 You can also prefix the playlist URL with `max:<n>::` to only calculate for the first `n` elements of the playlist. Here we demonstrate this by grabbing the first 5:
@@ -114,10 +118,11 @@ ts <URL> 1h30m 2h <URL> 3h
 # multiple args, explicit budget of 15h
 ts <URL> 1h30m 2h <URL> 3h b15h
 
-# youtube playlist, budget of 5h
+# any youtube URL, budget of 5h
 ts "https://youtu.be/..." 5h
 
-# youtube playlist, item cap, and other content
+# youtube playlist, item-caps, and other content
+ts "all::https://youtu.be/..." 3h20m b5h
 ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
 

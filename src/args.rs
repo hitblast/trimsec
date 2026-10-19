@@ -250,7 +250,7 @@ fn parse_budget(arg: &str) -> Result<ParsedArg, ArgError> {
         .ok_or_else(|| ArgError::new("Did you mean to set a time budget?"))
 }
 
-fn parse_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
+fn parse_n_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
     let parts: Vec<&str> = inner.split("::").collect();
     let [cap, target] = parts.as_slice() else {
         return Err(ArgError::new(format!(
@@ -268,7 +268,7 @@ fn parse_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
     })?;
 
     let id = get_youtube_id(target, true).ok_or_else(|| {
-        ArgError::new("Could not parse a valid YouTube id/playlist from the second part.")
+        ArgError::new("Could not parse a valid YouTube playlist ID from the second part.")
     })?;
 
     if !id.is_playlist() {
@@ -277,6 +277,20 @@ fn parse_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
         ));
     }
     Ok(ParsedArg::NeedsProcessing((id, cap)))
+}
+
+fn parse_all_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
+    let id = get_youtube_id(inner, true).ok_or_else(|| {
+        ArgError::new("Could not parse a valid YouTube playlist ID from the inner link.")
+    })?;
+
+    if !id.is_playlist() {
+        return Err(ArgError::new(
+            "Inner link must be a playlist URL as `all::` is used.",
+        ));
+    }
+
+    Ok(ParsedArg::NeedsProcessing((id, 0)))
 }
 
 fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<ParsedArg, ArgError> {
@@ -290,7 +304,10 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
         ready!(Token::Multiplier(mul))
     }
     if let Some(inner) = arg.strip_prefix("max:") {
-        return parse_item_cap(inner);
+        return parse_n_item_cap(inner);
+    }
+    if let Some(inner) = arg.strip_prefix("all::") {
+        return parse_all_item_cap(inner);
     }
     if let Ok(x) = arg.parse::<TDuration>() {
         ready!(Token::Duration(x))
