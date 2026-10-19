@@ -2,6 +2,11 @@
 
 Active since v2.0.0.
 
+### v4.8.0
+
+- This release adds intermediary multithreaded processing of YouTube URLs to speed up fetching-times, finally making use of the `rayon` dependency that was included beforehand.
+- [TODO] `yt-dlp` support for non-API usage has been added.
+
 ### v4.7.2
 
 Minor changes only - no functional change whatsoever.
