@@ -183,7 +183,7 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
 
 pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
-    let ctx = Ctx::new(kwargs);
+    let mut ctx = Ctx::new(kwargs);
 
     const SUBCMDS: [&str; 8] = [
         "key",
@@ -199,7 +199,7 @@ pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deterministic(&ctx, &skippable)?,
+        Some(_) => parse_deterministic(&mut ctx, &skippable)?,
     };
 
     Ok((ctx, cmd))
@@ -303,11 +303,19 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Tok
     }))
 }
 
-fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
+fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
     let mut vec: Vec<Token> = Vec::new();
     let mut trim = false;
     let mut budget_seen = false;
     let mut invalid_toks: usize = 0;
+
+    struct PreTok {
+        id: TYoutubeId,
+        max_items: usize,
+        idx: usize,
+    }
+
+    let mut preprocessable: Vec<PreTok> = Vec::new();
 
     for (idx, arg) in SESSION_ARGS.iter().enumerate() {
         if skippable.contains(&idx) {
@@ -323,6 +331,12 @@ fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bo
 
         match parsed {
             Ok(tok) => {
+                if let Token::YouTube((id, max_items)) = tok {
+                    let pre = PreTok { id, max_items, idx };
+                    preprocessable.push(pre);
+                    continue;
+                }
+
                 match tok {
                     Token::BudgetDuration(_) => budget_seen = true,
                     Token::Multiplier(_) => trim = true,
@@ -342,12 +356,38 @@ fn parse_tokens(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bo
         bail!("{invalid_toks} invalid tokens found.")
     }
 
+    if !preprocessable.is_empty() {
+        let client = match ctx.client() {
+            Ok(c) => c,
+            Err(e) => bail!("Failed to prepare client: {e}"),
+        };
+
+        let mapped_preprocessed = preprocessable
+            .iter()
+            .map(|pre| {
+                client
+                    .fetch_duration_from_id(&pre.id, pre.max_items)
+                    .map(|f| (f, pre.idx))
+                    .map_err(|e| anyhow::anyhow!(e))
+            })
+            .collect::<Vec<Result<(TDuration, usize)>>>();
+
+        for processed in mapped_preprocessed {
+            match processed {
+                Ok((dur, idx)) => vec.insert(idx, Token::Duration(dur)),
+                Err(e) => {
+                    bail!("Failed to preprocess one or more YouTube arguments: {e}")
+                }
+            }
+        }
+    }
+
     vec.push(Token::EOL);
 
     Ok((vec, trim))
 }
 
-fn parse_deterministic(ctx: &Ctx, skippable: &HashSet<usize>) -> Result<TCmd> {
+fn parse_deterministic(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<TCmd> {
     let (tokens, trim): (Vec<Token>, bool) = parse_tokens(ctx, skippable)?;
 
     let cmd: TCmd = if !trim {
