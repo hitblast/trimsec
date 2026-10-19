@@ -206,11 +206,16 @@ pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
 }
 
 #[derive(Debug, PartialEq)]
+pub enum ParsedArg {
+    Ready(Token),
+    NeedsProcessing((TYoutubeId, usize)),
+}
+
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Duration(TDuration),
     BudgetDuration(TDuration),
     Multiplier(f64),
-    YouTube((TYoutubeId, usize)),
     SkipThis,
     EOL,
 }
@@ -238,14 +243,14 @@ impl ArgError {
     }
 }
 
-fn parse_budget(arg: &str) -> Result<Token, ArgError> {
+fn parse_budget(arg: &str) -> Result<ParsedArg, ArgError> {
     arg.strip_prefix('b')
         .and_then(|inner| inner.parse::<TDuration>().ok())
-        .map(Token::BudgetDuration)
+        .map(|e| ParsedArg::Ready(Token::Duration(e)))
         .ok_or_else(|| ArgError::new("Did you mean to set a time budget?"))
 }
 
-fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
+fn parse_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
     let parts: Vec<&str> = inner.split("::").collect();
     let [cap, target] = parts.as_slice() else {
         return Err(ArgError::new(format!(
@@ -271,21 +276,27 @@ fn parse_item_cap(inner: &str) -> Result<Token, ArgError> {
             "Item-cap target must be a playlist, not a single video.",
         ));
     }
-    Ok(Token::YouTube((id, cap)))
+    Ok(ParsedArg::NeedsProcessing((id, cap)))
 }
 
-fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Token, ArgError> {
+fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<ParsedArg, ArgError> {
+    macro_rules! ready {
+        ($x:expr) => {
+            return Ok(ParsedArg::Ready($x))
+        };
+    }
+
     if let Ok(x) = arg.parse::<TDuration>() {
-        return Ok(Token::Duration(x));
+        ready!(Token::Duration(x))
     }
     if let Some(id) = get_youtube_id(arg) {
-        return Ok(Token::YouTube((id, 0)));
+        return Ok(ParsedArg::NeedsProcessing((id, 0)));
     }
     if let Some(inner) = arg.strip_prefix("max:") {
         return parse_item_cap(inner);
     }
     if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
-        return Ok(Token::Multiplier(mul));
+        ready!(Token::Multiplier(mul))
     }
 
     if recurse {
@@ -303,19 +314,19 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Tok
     }))
 }
 
+struct PreProcessable {
+    id: TYoutubeId,
+    max_items: usize,
+    idx: usize,
+}
+
 fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
     let mut vec: Vec<Token> = Vec::new();
     let mut trim = false;
     let mut budget_seen = false;
     let mut invalid_toks: usize = 0;
 
-    struct PreTok {
-        id: TYoutubeId,
-        max_items: usize,
-        idx: usize,
-    }
-
-    let mut preprocessable: Vec<PreTok> = Vec::new();
+    let mut preprocessable: Vec<PreProcessable> = Vec::new();
 
     for (idx, arg) in SESSION_ARGS.iter().enumerate() {
         if skippable.contains(&idx) {
@@ -330,20 +341,20 @@ fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>
         };
 
         match parsed {
-            Ok(tok) => {
-                if let Token::YouTube((id, max_items)) = tok {
-                    let pre = PreTok { id, max_items, idx };
+            Ok(p) => match p {
+                ParsedArg::Ready(token) => {
+                    match token {
+                        Token::BudgetDuration(_) => budget_seen = true,
+                        Token::Multiplier(_) => trim = true,
+                        _ => {}
+                    }
+                    vec.push(token);
+                }
+                ParsedArg::NeedsProcessing((id, max_items)) => {
+                    let pre = PreProcessable { id, max_items, idx };
                     preprocessable.push(pre);
-                    continue;
                 }
-
-                match tok {
-                    Token::BudgetDuration(_) => budget_seen = true,
-                    Token::Multiplier(_) => trim = true,
-                    _ => {}
-                }
-                vec.push(tok);
-            }
+            },
             Err(e) => {
                 point_at_arg(idx, &ctx.style, e.caret, false, e.inner_msg.as_deref());
                 println!("{}", e.msg);
@@ -376,7 +387,7 @@ fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>
             match processed {
                 Ok((dur, idx)) => vec.insert(idx, Token::Duration(dur)),
                 Err(e) => {
-                    bail!("Failed to preprocess one or more YouTube arguments: {e}")
+                    bail!("Failed to process one or more YouTube URLs: {e}")
                 }
             }
         }

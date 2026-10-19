@@ -43,7 +43,7 @@ impl TrimCmd {
                             cursor_multiplier = Some((*new, idx));
                         } else {
                             match iterable.peek() {
-                                Some((_, Token::Duration(_))) | Some((_, Token::YouTube(_))) => {
+                                Some((_, Token::Duration(_))) => {
                                     point_at_arg(*cursor_mul_idx, &ctx.style, None, true, None);
                                     println!("Omitting unused multiplier here.");
                                     cursor_multiplier = Some((*new, idx))
@@ -69,19 +69,6 @@ impl TrimCmd {
                         }
                         None => cursor_multiplier = Some((*new, idx)),
                     },
-                },
-                Token::YouTube((id, max_items)) => match ctx.client() {
-                    Ok(client) => match client.fetch_duration_from_id(id, *max_items) {
-                        Ok(dur) => match &mut cursor_duration {
-                            Some((total, cursor_idx)) => {
-                                *total += &dur;
-                                *cursor_idx = idx;
-                            }
-                            None => cursor_duration = Some((dur.clone(), idx)),
-                        },
-                        Err(e) => bail!("failed to fetch duration: {e}"),
-                    },
-                    Err(e) => bail!("client failed: {e}"),
                 },
                 Token::EOL => {
                     if let Some((cursor_mul, cursor_mul_idx)) = cursor_multiplier {

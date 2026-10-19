@@ -32,13 +32,6 @@ impl<'a> FitCmd<'a> {
                     Some(existing) => *existing += &dur,
                     None => budget_duration = Some(dur),
                 },
-                Token::YouTube((id, max_items)) => match ctx.client() {
-                    Ok(client) => match client.fetch_duration_from_id(&id, max_items) {
-                        Ok(dur) => durations.push((dur, true)),
-                        Err(e) => bail!("failed to fetch duration: {e}"),
-                    },
-                    Err(e) => bail!("client failed: {e}"),
-                },
                 Token::SkipThis => comparable_len -= 1,
                 _ => {}
             }
