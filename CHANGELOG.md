@@ -4,9 +4,12 @@ Active since v2.0.0.
 
 ### v4.8.0
 
+Breaking Changes:
+
+- On `/watch` URLs containing both a video ID (`v=`) and a playlist ID (`list=`), the parser now prioritizes the video ID. This is entirely different behavior from the earlier iterations of trimsec's parser.
+
 New features:
 
-- YouTube playlist URLs with specific indices specified in them will now be deemed by the parser to be a video and NOT a playlist (basically by adding support for the `index=` query-parameter).
 - This release adds intermediary multithreaded processing of YouTube URLs to speed up fetching-times, finally making use of the `rayon` dependency that was included beforehand.
 - [TODO] `yt-dlp` support for non-API usage has been added.
 

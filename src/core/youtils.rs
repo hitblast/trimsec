@@ -79,19 +79,17 @@ pub fn get_youtube_id(link: &str) -> Option<TYoutubeId> {
                 .map(|s| s.to_string())
         } else if parsed_url.path().starts_with("/watch") {
             parsed_url.query().and_then(|q| {
-                if let list = query_search(q, "list=")
-                    && list.as_deref().is_some_and(|f| !f.is_empty())
+                if let Some(v) = query_search(q, "v=")
+                    && !v.is_empty()
                 {
-                    if let Some(index) = query_search(q, "index=")
-                        && index.parse::<usize>().is_ok()
-                    {
-                        query_search(q, "v=")
-                    } else {
-                        is_playlist = true;
-                        list
-                    }
+                    Some(v)
+                } else if let Some(list) = query_search(q, "list=")
+                    && !list.is_empty()
+                {
+                    is_playlist = true;
+                    Some(list)
                 } else {
-                    query_search(q, "v=")
+                    None
                 }
             })
         } else if parsed_url.path().starts_with("/playlist") {
@@ -160,8 +158,8 @@ mod tests {
                 "https://www.youtube.com/watch?v=rdXw7Ps9vxc&list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS"
             ),
             Some(TYoutubeId {
-                id: "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS".to_string(),
-                is_playlist: true
+                id: "rdXw7Ps9vxc".to_string(),
+                is_playlist: false
             })
         );
         assert_eq!(
