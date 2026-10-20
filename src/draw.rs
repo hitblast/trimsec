@@ -41,7 +41,6 @@ fn generate_spacing_index(args: &[String]) -> Vec<(usize, usize)> {
     offsets
 }
 
-#[allow(unused)]
 static SESSION_ARGS_SPACES: LazyLock<Vec<(usize, usize)>> =
     LazyLock::new(|| generate_spacing_index(&SESSION_ARGS));
 
@@ -59,11 +58,12 @@ pub fn point_at_arg(
         notty = true;
         get_space_for(idx, args)
     });
-    let joined_cur_args = args.join(" ");
+
+    let args_joined_len = args.iter().map(|f| f.len() + 1).sum::<usize>() - 1;
     let term_width = terminal_size().map(|f| f.0.0 as usize);
 
     if let Some(term_width) = term_width
-        && joined_cur_args.len() + 10 > term_width
+        && args_joined_len + 10 > term_width
     {
         // opinionated numbers, don't worry
         let print_width = (term_width - 20).min(arg_len);
@@ -106,7 +106,7 @@ pub fn point_at_arg(
         println!(
             "\n   {}{}\n{}   {}{}",
             if notty { "" } else { "ts " },
-            joined_cur_args,
+            args.join(" "),
             if notty { "" } else { "   " },
             " ".repeat(spacing),
             if let Some(s) = specific_idx {
