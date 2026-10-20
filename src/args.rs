@@ -180,6 +180,7 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
 
     argv
 });
+pub static JOINED_SESSION_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
 
 pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;

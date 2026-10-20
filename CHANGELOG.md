@@ -9,6 +9,10 @@ Breaking Changes:
 - On `/watch` URLs containing both a video ID (`v=`) and a playlist ID (`list=`), the parser now prioritizes the video ID. This is entirely different behavior from the earlier iterations of trimsec's parser.
 - More parser improvements have been added which make it more "context-aware".
 
+Improvements:
+
+- The drawing API has now been largely optimized.
+
 New features:
 
 - Added interactive mode (can be activated by just typing `ts` without any arguments).

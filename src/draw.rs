@@ -1,9 +1,10 @@
 use std::{collections::HashMap, io::IsTerminal, sync::LazyLock};
 use terminal_size::{Width, terminal_size};
 
-use crate::{args::SESSION_ARGS, style::Style};
-
-static JOINED_SESSION_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
+use crate::{
+    args::{JOINED_SESSION_ARGS, SESSION_ARGS},
+    style::Style,
+};
 
 static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     if let Some((Width(w), _)) = terminal_size() {
@@ -13,17 +14,31 @@ static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     }
 });
 
+/// Returns the spacing before a given argument, within a collection of arguments,
+/// when they are represented as a string.
+///
+/// **Panics:**
+///
+/// This function can panic if the `idx` overflows within `args`, for which no
+/// error-handling procedure has been set up for increasing performance.
+fn get_space_for(idx: usize, args: &Vec<String>) -> (usize, usize) {
+    if idx == 0 {
+        (0, args[0].len())
+    } else {
+        (args[..idx].join(" ").len() + 1, args[idx].len())
+    }
+}
+
+/// Creates a full, pre-initialized space-map for all items in a given argument-collection.
+///
+/// In trimsec, this function is particularly used for storing the space-map for the program's
+/// given arguments (via TTY) for a given session. This is not used for the interactive mode,
+/// however, and instead only the [`get_space_for`] function is used.
 fn generate_spacing_index(args: &Vec<String>) -> HashMap<usize, (usize, usize)> {
     let mut hashed: HashMap<usize, (usize, usize)> = HashMap::new();
-    let mut counter: usize = 0;
 
-    for (i, arg) in args.iter().enumerate() {
-        for (char_i, _) in arg.chars().enumerate() {
-            if char_i == 0 {
-                hashed.insert(i, (counter + i, arg.len()));
-            }
-            counter += 1;
-        }
+    for i in 0..args.len() {
+        hashed.insert(i, get_space_for(i, args));
     }
 
     hashed
@@ -32,6 +47,7 @@ fn generate_spacing_index(args: &Vec<String>) -> HashMap<usize, (usize, usize)> 
 static SESSION_ARGS_SPACES: LazyLock<HashMap<usize, (usize, usize)>> =
     LazyLock::new(|| generate_spacing_index(&SESSION_ARGS));
 
+/// Use this function to draw stuff in the terminal.
 pub fn point_at_arg(
     idx: usize,
     args: Option<&Vec<String>>,
@@ -40,33 +56,43 @@ pub fn point_at_arg(
     warn: bool,
     msg: Option<&str>,
 ) {
-    let (spacing, arg_len) = if let Some(args) = args {
-        generate_spacing_index(&args)[&idx]
-    } else {
-        SESSION_ARGS_SPACES[&idx]
-    };
+    let ((spacing, arg_len), cur_args, joined_cur_args, term_width, notty) =
+        if let Some(args) = args {
+            (
+                get_space_for(idx, args),
+                args,
+                args.join(" "),
+                terminal_size().map(|f| f.0.0 as usize),
+                true,
+            )
+        } else {
+            (
+                SESSION_ARGS_SPACES[&idx],
+                &*SESSION_ARGS,
+                JOINED_SESSION_ARGS.clone(),
+                *TERM_WIDTH,
+                !std::io::stdin().is_terminal(),
+            )
+        };
+    let joined_cur_args = &joined_cur_args;
 
-    let cur_args = if let Some(args) = args {
-        args
-    } else {
-        &SESSION_ARGS
-    };
-
-    if let Some(w) = *TERM_WIDTH
-        && cur_args.len() + 10 > w
+    if let Some(term_width) = term_width
+        && joined_cur_args.len() + 10 > term_width
     {
         // opinionated numbers, don't worry
-        let print_width = (w - 20).min(arg_len);
+        let print_width = (term_width - 20).min(arg_len);
         let arg: &str = &cur_args[idx][0..print_width];
 
         println!(
-            "\n   {}ts ... {}{}{}{}...{}\n          {}",
+            "\n   {}{}... {}{}{}{}...{}\n{}       {}",
             style.grey(),
+            if notty { "" } else { "ts " },
             style.reset(),
             arg,
             if print_width == arg_len { " " } else { "" },
             style.grey(),
             style.reset(),
+            if notty { "" } else { "   " },
             if let Some(s) = specific_idx {
                 let x = " ".repeat(s);
                 format!(
@@ -91,18 +117,11 @@ pub fn point_at_arg(
             },
         );
     } else {
-        let notty = !std::io::stdin().is_terminal() || args.is_some();
-        let joined_user_args = args.map(|f| f.join(" "));
-
         println!(
             "\n   {}{}\n{}   {}{}",
             if notty { "" } else { "ts " },
-            if let Some(x) = joined_user_args.as_deref() {
-                x
-            } else {
-                &*JOINED_SESSION_ARGS
-            },
-            if !notty { "   " } else { "" },
+            joined_cur_args,
+            if notty { "" } else { "   " },
             " ".repeat(spacing),
             if let Some(s) = specific_idx {
                 let x = " ".repeat(s);
