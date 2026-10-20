@@ -2,7 +2,7 @@
 name = "trimsec"
 description = "Plan your content-intake using expressions."
 authors = ["Anindya Shiddhartha <shiddhartha@tuta.io>"]
-version = "4.8.0"
+version = "5.0.0"
 edition = "2024"
 repository = "https://github.com/hitblast/trimsec"
 homepage = "https://github.com/hitblast/trimsec"

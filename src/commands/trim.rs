@@ -16,7 +16,7 @@ pub struct TrimCmd {
 impl TrimCmd {
     pub fn delegate(
         ctx: &mut Ctx,
-        args: Option<&Vec<String>>,
+        user_args: Option<&Vec<String>>,
         tokens: Vec<Token>,
     ) -> Result<Vec<Self>> {
         let mut cursor_duration: Option<(TDuration, usize)> = None;
@@ -50,7 +50,7 @@ impl TrimCmd {
                                 Some((_, Token::Duration(_))) => {
                                     point_at_arg(
                                         *cursor_mul_idx,
-                                        args,
+                                        user_args,
                                         &ctx.style,
                                         None,
                                         true,
@@ -91,7 +91,7 @@ impl TrimCmd {
                         } else {
                             point_at_arg(
                                 cursor_mul_idx,
-                                args,
+                                user_args,
                                 &ctx.style,
                                 None,
                                 false,
@@ -103,7 +103,7 @@ impl TrimCmd {
                         let m = format!("({} accumulated durations)", unused_dur.splits());
                         point_at_arg(
                             unused_idx,
-                            args,
+                            user_args,
                             &ctx.style,
                             None,
                             false,
