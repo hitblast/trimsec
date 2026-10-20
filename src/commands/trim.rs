@@ -14,11 +14,7 @@ pub struct TrimCmd {
 }
 
 impl TrimCmd {
-    pub fn delegate(
-        ctx: &mut Ctx,
-        user_args: &Vec<String>,
-        tokens: Vec<Token>,
-    ) -> Result<Vec<Self>> {
+    pub fn delegate(ctx: &mut Ctx, user_args: &[String], tokens: Vec<Token>) -> Result<Vec<Self>> {
         let mut cursor_duration: Option<(TDuration, usize)> = None;
         let mut cursor_multiplier: Option<(f64, usize)> = None;
         let mut runnables: Vec<Self> = Vec::new();

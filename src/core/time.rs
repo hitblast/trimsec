@@ -56,12 +56,15 @@ pub struct TTime {
 }
 
 impl TTime {
+    #[must_use]
     pub fn hours(&self) -> u8 {
         self.hours
     }
+    #[must_use]
     pub fn minutes(&self) -> u8 {
         self.minutes
     }
+    #[must_use]
     pub fn seconds(&self) -> u8 {
         self.seconds
     }
@@ -108,9 +111,9 @@ impl Display for TTime {
     }
 }
 
-impl Into<TDuration> for TTime {
-    fn into(self) -> TDuration {
-        let x = (self.hours() as f64 * 60.0 + self.minutes() as f64) * 60.0 + self.seconds() as f64;
+impl From<TTime> for TDuration {
+    fn from(val: TTime) -> Self {
+        let x = (val.hours() as f64 * 60.0 + val.minutes() as f64) * 60.0 + val.seconds() as f64;
         TDuration::from(x)
     }
 }
@@ -121,7 +124,7 @@ impl FromStr for TTime {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split(':');
 
-        let left_str = parts.next().ok_or_else(|| ParseTTimeError::InvalidFormat)?;
+        let left_str = parts.next().ok_or(ParseTTimeError::InvalidFormat)?;
         let left: u8 = left_str
             .parse::<u8>()
             .map_err(|_| ParseTTimeError::InvalidPart(left_str.to_string()))?;
@@ -166,6 +169,7 @@ impl FromStr for TTime {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod ttime_tests {
     use super::*;
     use pretty_assertions::assert_eq;

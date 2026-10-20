@@ -19,6 +19,7 @@ pub struct TClipString {
 }
 
 impl TClipString {
+    #[must_use]
     pub fn into_inner(self) -> String {
         self.inner
     }

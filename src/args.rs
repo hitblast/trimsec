@@ -38,7 +38,7 @@ pub enum TCmd {
 }
 
 impl TCmd {
-    pub fn run(self, ctx: &mut Ctx, args: Option<&Vec<String>>) -> Result<()> {
+    pub fn run(self, ctx: &mut Ctx, args: Option<&[String]>) -> Result<()> {
         match self {
             TCmd::Trim { tokens } => {
                 let cmds = TrimCmd::delegate(
@@ -206,7 +206,7 @@ pub fn fetch_noninteractive_ctx_cmd() -> Result<(Ctx, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deter(&mut ctx, &*SESSION_ARGS, Some(&skippable))?,
+        Some(_) => parse_deter(&mut ctx, &SESSION_ARGS, Some(&skippable))?,
     };
 
     Ok((ctx, cmd))
@@ -346,7 +346,7 @@ struct PreProcessable {
 
 fn parse_tokens(
     ctx: &mut Ctx,
-    args: &Vec<String>,
+    args: &[String],
     skippable: Option<&HashSet<usize>>,
 ) -> Result<(Vec<Token>, bool)> {
     let mut vec: Vec<Token> = Vec::new();
@@ -356,7 +356,7 @@ fn parse_tokens(
 
     let mut preprocessable: Vec<PreProcessable> = Vec::new();
 
-    for (idx, arg) in args.into_iter().enumerate() {
+    for (idx, arg) in args.iter().enumerate() {
         if let Some(skippable) = skippable
             && skippable.contains(&idx)
         {
@@ -440,7 +440,7 @@ fn parse_tokens(
 /// This is used by both the non-interactive, and the interactive command-line interface parts.
 pub fn parse_deter(
     ctx: &mut Ctx,
-    args: &Vec<String>,
+    args: &[String],
     skippable: Option<&HashSet<usize>>,
 ) -> Result<TCmd> {
     let (tokens, trim): (Vec<Token>, bool) = parse_tokens(ctx, args, skippable)?;
