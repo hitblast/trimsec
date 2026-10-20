@@ -38,29 +38,29 @@ pub enum TCmd {
 }
 
 impl TCmd {
-    pub fn run(self, mut ctx: Ctx) -> Result<()> {
+    pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         match self {
             TCmd::Trim { tokens } => {
-                let cmds = TrimCmd::delegate(&mut ctx, tokens)?;
-                let mut remaining = time_in_day_left(&mut ctx);
+                let cmds = TrimCmd::delegate(ctx, tokens)?;
+                let mut remaining = time_in_day_left(ctx);
 
                 for mut x in cmds {
-                    x.run(&mut ctx, &mut remaining)?
+                    x.run(ctx, &mut remaining)?
                 }
 
                 Ok(())
             }
             TCmd::Fit { tokens } => {
-                let cmd = FitCmd::delegate(&mut ctx, tokens)?;
+                let cmd = FitCmd::delegate(ctx, tokens)?;
                 cmd.run()
             }
             TCmd::Key { subcmd: command } => match command {
-                KeySubcmd::Show(command) => command.run(&mut ctx),
-                KeySubcmd::Set(command) => command.run(&mut ctx),
-                KeySubcmd::Unset(command) => command.run(&mut ctx),
+                KeySubcmd::Show(command) => command.run(ctx),
+                KeySubcmd::Set(command) => command.run(ctx),
+                KeySubcmd::Unset(command) => command.run(ctx),
             },
-            TCmd::List { cmd } => cmd.run(&mut ctx),
-            TCmd::Path { cmd } => cmd.run(&mut ctx),
+            TCmd::List { cmd } => cmd.run(ctx),
+            TCmd::Path { cmd } => cmd.run(ctx),
         }
     }
 }
@@ -199,7 +199,7 @@ pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deterministic(&mut ctx, &skippable)?,
+        Some(_) => parse_deter(&mut ctx, &*SESSION_ARGS, Some(&skippable))?,
     };
 
     Ok((ctx, cmd))
@@ -213,7 +213,7 @@ pub enum ParsedArg {
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    Duration(TDuration),
+    Duration((TDuration, bool)),
     BudgetDuration(TDuration),
     Multiplier(f64),
     SkipThis,
@@ -246,7 +246,7 @@ impl ArgError {
 fn parse_budget(arg: &str) -> Result<ParsedArg, ArgError> {
     arg.strip_prefix('b')
         .and_then(|inner| inner.parse::<TDuration>().ok())
-        .map(|e| ParsedArg::Ready(Token::Duration(e)))
+        .map(|e| ParsedArg::Ready(Token::BudgetDuration(e)))
         .ok_or_else(|| ArgError::new("Did you mean to set a time budget?"))
 }
 
@@ -310,7 +310,7 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
         return parse_all_item_cap(inner);
     }
     if let Ok(x) = arg.parse::<TDuration>() {
-        ready!(Token::Duration(x))
+        ready!(Token::Duration((x, false)))
     }
     if let Some(id) = get_youtube_id(arg, false) {
         return Ok(ParsedArg::NeedsProcessing((id, 0)));
@@ -337,7 +337,11 @@ struct PreProcessable {
     idx: usize,
 }
 
-fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>, bool)> {
+fn parse_tokens(
+    ctx: &mut Ctx,
+    args: &Vec<String>,
+    skippable: Option<&HashSet<usize>>,
+) -> Result<(Vec<Token>, bool)> {
     let mut vec: Vec<Token> = Vec::new();
     let mut trim = false;
     let mut budget_seen = false;
@@ -345,8 +349,10 @@ fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>
 
     let mut preprocessable: Vec<PreProcessable> = Vec::new();
 
-    for (idx, arg) in SESSION_ARGS.iter().enumerate() {
-        if skippable.contains(&idx) {
+    for (idx, arg) in args.into_iter().enumerate() {
+        if let Some(skippable) = skippable
+            && skippable.contains(&idx)
+        {
             vec.push(SkipThis);
             continue;
         }
@@ -402,7 +408,7 @@ fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>
 
         for processed in mapped_preprocessed {
             match processed {
-                Ok((dur, idx)) => vec.insert(idx, Token::Duration(dur)),
+                Ok((dur, idx)) => vec.insert(idx, Token::Duration((dur, true))),
                 Err(e) => {
                     bail!("Failed to process one or more YouTube URLs: {e}")
                 }
@@ -415,8 +421,15 @@ fn parse_tokens(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<(Vec<Token>
     Ok((vec, trim))
 }
 
-fn parse_deterministic(ctx: &mut Ctx, skippable: &HashSet<usize>) -> Result<TCmd> {
-    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(ctx, skippable)?;
+/// Core deterministic-parser entrypoint for trimsec.
+///
+/// This is used by both the non-interactive, and the interactive command-line interface parts.
+pub fn parse_deter(
+    ctx: &mut Ctx,
+    args: &Vec<String>,
+    skippable: Option<&HashSet<usize>>,
+) -> Result<TCmd> {
+    let (tokens, trim): (Vec<Token>, bool) = parse_tokens(ctx, args, skippable)?;
 
     let cmd: TCmd = if !trim {
         TCmd::Fit { tokens }

@@ -517,7 +517,7 @@ mod tests {
             TDuration {
                 seconds: 43200.0,
                 saved_time: 43200.0,
-                splits: 1
+                splits: 1,
             }
         );
     }

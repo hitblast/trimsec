@@ -27,7 +27,7 @@ impl<'a> FitCmd<'a> {
 
         for tok in tokens.into_iter() {
             match tok {
-                Token::Duration(dur) => durations.push((dur, false)),
+                Token::Duration((dur, is_yt)) => durations.push((dur, is_yt)),
                 Token::BudgetDuration(dur) => match &mut budget_duration {
                     Some(existing) => *existing += &dur,
                     None => budget_duration = Some(dur),

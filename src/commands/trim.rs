@@ -26,7 +26,7 @@ impl TrimCmd {
                 "TIP: Make the placement explicit, e.g. `1h 1.25x 3h 1.3x`.";
 
             match tok {
-                Token::Duration(dur) => match &mut cursor_duration {
+                Token::Duration((dur, _)) => match &mut cursor_duration {
                     Some((cursor_dur, cursor_dur_idx)) => {
                         *cursor_dur += dur;
                         *cursor_dur_idx = idx;

@@ -1,5 +1,5 @@
 use crate::{
-    args::TKeywordArgs,
+    args::{ColorMode, TKeywordArgs},
     core::{api::ApiClient, config::Config, youtils::decide_youtube_key},
     style::Style,
 };
@@ -7,7 +7,7 @@ use anyhow::{Result, anyhow};
 
 pub struct Ctx {
     pub style: Style,
-    pub kwargs: TKeywordArgs,
+    pub kwargs: Option<TKeywordArgs>,
     config: Option<Config>,
     api_client: Option<ApiClient>,
 }
@@ -17,7 +17,17 @@ impl Ctx {
     pub fn new(kwargs: TKeywordArgs) -> Self {
         Ctx {
             style: Style::new(kwargs.color()),
-            kwargs,
+            kwargs: Some(kwargs),
+            config: None,
+            api_client: None,
+        }
+    }
+
+    #[must_use]
+    pub fn new_bare() -> Self {
+        Ctx {
+            style: Style::new(&ColorMode::Auto),
+            kwargs: None,
             config: None,
             api_client: None,
         }
