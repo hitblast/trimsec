@@ -145,17 +145,18 @@ Built-in interactive commands:
 
 ### Quick Reference
 
-| Pattern / Syntax        | Type                  | Example                                 | Description                                       |
-| :---------------------- | :-------------------- | :-------------------------------------- | :------------------------------------------------ |
-| `<DURATION>`            | Duration              | `1h24m`, `45m`, `1m13.5s`               | Time duration token                               |
-| `<DURATION>+<DURATION>` | Combination           | `1h30m+2h50m`                           | Explicitly sums multiple durations                |
-| `<SPEED>x`              | Multiplier            | `1.25x`, `2x`                           | Speed multiplier applied to preceding duration(s) |
-| `b<DURATION>`           | Budget                | `b2h4m`, `b15h`                         | Explicit time budget for fit-checks               |
-| `-clip`                 | Clipboard             | `ts -clip 1.5x`                         | Reads duration/URL directly from system clipboard |
-| `<URL>`                 | YouTube Video / Short | `https://youtu.be/...`                  | Fetches duration from YouTube video metadata      |
-| `<PLAYLIST_URL>`        | YouTube Playlist      | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist         |
-| `max:<n>::<PLAYLIST>`   | Item Cap              | `max:5::https://youtube.com/...`        | Caps playlist evaluation to first `n` items       |
-| `--color <MODE>`        | Flag                  | `--color=never`, `--color auto`         | Color output mode (`always`, `auto`, `never`)     |
+| Pattern / Syntax        | Type                                 | Example                                 | Description                                          |
+| :---------------------- | :----------------------------------- | :-------------------------------------- | :--------------------------------------------------- |
+| `<DURATION>`            | Duration                             | `1h24m`, `45m`, `1m13.5s`               | Time duration token                                  |
+| `<DURATION>+<DURATION>` | Combination                          | `1h30m+2h50m`                           | Explicitly sums multiple durations                   |
+| `<SPEED>x`              | Multiplier                           | `1.25x`, `2x`                           | Speed multiplier applied to preceding duration(s)    |
+| `b<DURATION>`           | Budget                               | `b2h4m`, `b15h`                         | Explicit time budget for fit-checks                  |
+| `-clip`                 | Clipboard                            | `ts -clip 1.5x`                         | Reads duration/URL directly from system clipboard    |
+| `<URL>`                 | YouTube Video / Short                | `https://youtu.be/...`                  | Fetches duration from YouTube video metadata         |
+| `<PLAYLIST_URL>`        | YouTube Playlist                     | `https://youtube.com/playlist?list=...` | Fetches cumulative duration of a playlist            |
+| `all::<PLAYLIST>`       | YouTube Playlist (forced on any URL) | `all::https://youtube.com/...`          | Attempts to evaluate a URL as a playlist if possible |
+| `max:<n>::<PLAYLIST>`   | Item Cap                             | `max:5::https://youtube.com/...`        | Caps playlist evaluation to first `n` items          |
+| `--color <MODE>`        | Flag                                 | `--color=never`, `--color auto`         | Color output mode (`always`, `auto`, `never`)        |
 
 ### Explicit Commands
 
