@@ -3,7 +3,8 @@ use terminal_size::{Width, terminal_size};
 
 use crate::{args::SESSION_ARGS, style::Style};
 
-static JOINED_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
+static JOINED_SESSION_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
+
 static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     if let Some((Width(w), _)) = terminal_size() {
         Some(w as usize)
@@ -12,11 +13,11 @@ static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
     }
 });
 
-static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
+fn generate_spacing_index(args: &Vec<String>) -> HashMap<usize, (usize, usize)> {
     let mut hashed: HashMap<usize, (usize, usize)> = HashMap::new();
     let mut counter: usize = 0;
 
-    for (i, arg) in SESSION_ARGS.iter().enumerate() {
+    for (i, arg) in args.iter().enumerate() {
         for (char_i, _) in arg.chars().enumerate() {
             if char_i == 0 {
                 hashed.insert(i, (counter + i, arg.len()));
@@ -26,23 +27,37 @@ static SPACES: LazyLock<HashMap<usize, (usize, usize)>> = LazyLock::new(|| {
     }
 
     hashed
-});
+}
+
+static SESSION_ARGS_SPACES: LazyLock<HashMap<usize, (usize, usize)>> =
+    LazyLock::new(|| generate_spacing_index(&SESSION_ARGS));
 
 pub fn point_at_arg(
     idx: usize,
+    args: Option<&Vec<String>>,
     style: &Style,
     specific_idx: Option<usize>,
     warn: bool,
     msg: Option<&str>,
 ) {
-    let (spacing, arg_len) = SPACES[&idx];
+    let (spacing, arg_len) = if let Some(args) = args {
+        generate_spacing_index(&args)[&idx]
+    } else {
+        SESSION_ARGS_SPACES[&idx]
+    };
+
+    let cur_args = if let Some(args) = args {
+        args
+    } else {
+        &SESSION_ARGS
+    };
 
     if let Some(w) = *TERM_WIDTH
-        && JOINED_ARGS.len() + 10 > w
-    // opinionated number again
+        && cur_args.len() + 10 > w
     {
-        let print_width = (w - 20).min(arg_len); // opinionated number, don't worry
-        let arg: &str = &SESSION_ARGS[idx][0..print_width];
+        // opinionated numbers, don't worry
+        let print_width = (w - 20).min(arg_len);
+        let arg: &str = &cur_args[idx][0..print_width];
 
         println!(
             "\n   {}ts ... {}{}{}{}...{}\n          {}",
@@ -76,11 +91,17 @@ pub fn point_at_arg(
             },
         );
     } else {
-        let notty = !std::io::stdin().is_terminal();
+        let notty = !std::io::stdin().is_terminal() || args.is_some();
+        let joined_user_args = args.map(|f| f.join(" "));
+
         println!(
             "\n   {}{}\n{}   {}{}",
             if notty { "" } else { "ts " },
-            *JOINED_ARGS,
+            if let Some(x) = joined_user_args.as_deref() {
+                x
+            } else {
+                &*JOINED_SESSION_ARGS
+            },
             if !notty { "   " } else { "" },
             " ".repeat(spacing),
             if let Some(s) = specific_idx {

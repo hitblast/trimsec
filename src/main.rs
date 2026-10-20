@@ -40,7 +40,7 @@ fn launch_interactive() -> Result<()> {
             _ => {
                 let cmd = parse_deter(&mut ctx, &input, None)?;
 
-                if let Err(e) = cmd.run(&mut ctx) {
+                if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
                     println!("{e}")
                 }
             }
@@ -66,7 +66,7 @@ fn main() {
     } else {
         match fetch_ctx_and_runnable() {
             Ok((mut ctx, cmd)) => {
-                if let Err(e) = cmd.run(&mut ctx) {
+                if let Err(e) = cmd.run(&mut ctx, None) {
                     eexit(e, true);
                 }
             }

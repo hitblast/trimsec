@@ -14,7 +14,11 @@ pub struct TrimCmd {
 }
 
 impl TrimCmd {
-    pub fn delegate(ctx: &mut Ctx, tokens: Vec<Token>) -> Result<Vec<Self>> {
+    pub fn delegate(
+        ctx: &mut Ctx,
+        args: Option<&Vec<String>>,
+        tokens: Vec<Token>,
+    ) -> Result<Vec<Self>> {
         let mut cursor_duration: Option<(TDuration, usize)> = None;
         let mut cursor_multiplier: Option<(f64, usize)> = None;
         let mut runnables: Vec<Self> = Vec::new();
@@ -44,7 +48,14 @@ impl TrimCmd {
                         } else {
                             match iterable.peek() {
                                 Some((_, Token::Duration(_))) => {
-                                    point_at_arg(*cursor_mul_idx, &ctx.style, None, true, None);
+                                    point_at_arg(
+                                        *cursor_mul_idx,
+                                        args,
+                                        &ctx.style,
+                                        None,
+                                        true,
+                                        None,
+                                    );
                                     println!("Omitting unused multiplier here.");
                                     cursor_multiplier = Some((*new, idx))
                                 }
@@ -78,13 +89,21 @@ impl TrimCmd {
                                 multiplier: cursor_mul,
                             });
                         } else {
-                            point_at_arg(cursor_mul_idx, &ctx.style, None, false, Some("here"));
+                            point_at_arg(
+                                cursor_mul_idx,
+                                args,
+                                &ctx.style,
+                                None,
+                                false,
+                                Some("here"),
+                            );
                             bail!("unused multiplier found!\n\n {TIP_EXPLICIT_PLACEMENT}")
                         }
                     } else if let Some((unused_dur, unused_idx)) = cursor_duration {
                         let m = format!("({} accumulated durations)", unused_dur.splits());
                         point_at_arg(
                             unused_idx,
+                            args,
                             &ctx.style,
                             None,
                             false,

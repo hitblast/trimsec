@@ -38,10 +38,10 @@ pub enum TCmd {
 }
 
 impl TCmd {
-    pub fn run(self, ctx: &mut Ctx) -> Result<()> {
+    pub fn run(self, ctx: &mut Ctx, args: Option<&Vec<String>>) -> Result<()> {
         match self {
             TCmd::Trim { tokens } => {
-                let cmds = TrimCmd::delegate(ctx, tokens)?;
+                let cmds = TrimCmd::delegate(ctx, args, tokens)?;
                 let mut remaining = time_in_day_left(ctx);
 
                 for mut x in cmds {
@@ -379,7 +379,14 @@ fn parse_tokens(
                 }
             },
             Err(e) => {
-                point_at_arg(idx, &ctx.style, e.caret, false, e.inner_msg.as_deref());
+                point_at_arg(
+                    idx,
+                    None,
+                    &ctx.style,
+                    e.caret,
+                    false,
+                    e.inner_msg.as_deref(),
+                );
                 println!("{}", e.msg);
                 invalid_toks += 1;
             }
