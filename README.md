@@ -12,9 +12,10 @@ Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and mer
 
 - [Overview](#overview)
 - [Usage](#usage)
-  - [Quick Reference](#quick-reference)
   - [Trimming](#trimming)
   - [Fit-Check](#fit-check)
+  - [Interactive Mode](#interactive-mode)
+  - [Quick Reference](#quick-reference)
   - [Explicit Commands](#explicit-commands)
   - [Features](#features)
 - [Configuration](#configuration)
@@ -126,13 +127,21 @@ ts "max:5::https://youtu.be/..." 3h20m b5h
 
 ### Interactive Mode
 
-You can run trimsec in **Interactive Mode** (like a terminal _within_ a terminal, but specifically for reading expressions), by just typing:
+Running `ts` without any arguments starts **interactive mode**:
 
 ```bash
-ts
+$ ts
+trimsec interactive mode
+version: 5.0.0 (type "exit" to terminate)
+>>> 1h30m 1.5x
 ```
 
-- in your terminal.
+In interactive mode, you can run multiple expressions, fit-checks, or explicit commands sequentially in a prompt session without repeatedly calling `ts`.
+
+Built-in interactive commands:
+
+- `clear` - Clears the terminal screen.
+- `exit` - Terminates the interactive session.
 
 ### Quick Reference
 

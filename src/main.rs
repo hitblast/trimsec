@@ -10,6 +10,10 @@ use trimsec::{
 };
 
 fn launch_interactive() -> Result<()> {
+    println!(
+        "trimsec interactive mode\nversion: {} (type \"exit\" to terminate)",
+        env!("CARGO_PKG_VERSION")
+    );
     let grab_input = || -> Result<Vec<String>> {
         print!(">>> ");
         io::stdout().flush()?;
@@ -36,7 +40,11 @@ fn launch_interactive() -> Result<()> {
         };
 
         match first.as_str() {
-            "exit" | "quit" => return Ok(()),
+            "exit" => return Ok(()),
+            "clear" => {
+                print!("\x1B[2J\x1B[H");
+                io::stdout().flush()?;
+            }
             _ => match parse_deter(&mut ctx, &input, None) {
                 Ok(cmd) => {
                     if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
