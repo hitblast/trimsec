@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::Result;
 use trimsec::{
-    args::{fetch_ctx_and_runnable, parse_deter},
+    args::{fetch_noninteractive_ctx_cmd, parse_deter},
     core::context::Ctx,
 };
 
@@ -65,7 +65,7 @@ fn main() {
             eexit(e, true)
         }
     } else {
-        match fetch_ctx_and_runnable() {
+        match fetch_noninteractive_ctx_cmd() {
             Ok((mut ctx, cmd)) => {
                 if let Err(e) = cmd.run(&mut ctx, None) {
                     eexit(e, true);

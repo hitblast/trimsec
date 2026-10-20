@@ -188,7 +188,7 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
     argv
 });
 
-pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
+pub fn fetch_noninteractive_ctx_cmd() -> Result<(Ctx, TCmd)> {
     let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
     let mut ctx = Ctx::new(kwargs);
 
