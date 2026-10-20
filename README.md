@@ -124,6 +124,16 @@ ts "all::https://youtu.be/..." 3h20m b5h
 ts "max:5::https://youtu.be/..." 3h20m b5h
 ```
 
+### Interactive Mode
+
+You can run trimsec in **Interactive Mode** (like a terminal _within_ a terminal, but specifically for reading expressions), by just typing:
+
+```bash
+ts
+```
+
+- in your terminal.
+
 ### Quick Reference
 
 | Pattern / Syntax        | Type                  | Example                                 | Description                                       |
