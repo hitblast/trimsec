@@ -41,7 +41,14 @@ impl TCmd {
     pub fn run(self, ctx: &mut Ctx, args: Option<&Vec<String>>) -> Result<()> {
         match self {
             TCmd::Trim { tokens } => {
-                let cmds = TrimCmd::delegate(ctx, args, tokens)?;
+                let cmds = TrimCmd::delegate(
+                    ctx,
+                    match args {
+                        Some(x) => x,
+                        None => &SESSION_ARGS,
+                    },
+                    tokens,
+                )?;
                 let mut remaining = time_in_day_left(ctx);
 
                 for mut x in cmds {
@@ -180,7 +187,6 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
 
     argv
 });
-pub static JOINED_SESSION_ARGS: LazyLock<String> = LazyLock::new(|| SESSION_ARGS.join(" "));
 
 pub fn fetch_ctx_and_runnable() -> Result<(Ctx, TCmd)> {
     let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
@@ -382,7 +388,7 @@ fn parse_tokens(
             Err(e) => {
                 point_at_arg(
                     idx,
-                    None,
+                    args,
                     &ctx.style,
                     e.caret,
                     false,

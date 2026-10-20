@@ -16,7 +16,7 @@ pub struct TrimCmd {
 impl TrimCmd {
     pub fn delegate(
         ctx: &mut Ctx,
-        user_args: Option<&Vec<String>>,
+        user_args: &Vec<String>,
         tokens: Vec<Token>,
     ) -> Result<Vec<Self>> {
         let mut cursor_duration: Option<(TDuration, usize)> = None;

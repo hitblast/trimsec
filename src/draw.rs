@@ -1,18 +1,9 @@
-use std::{collections::HashMap, io::IsTerminal, sync::LazyLock};
-use terminal_size::{Width, terminal_size};
+//! Draw cool errors in trimsec using this module!
+//!
+use std::{io::IsTerminal, sync::LazyLock};
+use terminal_size::terminal_size;
 
-use crate::{
-    args::{JOINED_SESSION_ARGS, SESSION_ARGS},
-    style::Style,
-};
-
-static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
-    if let Some((Width(w), _)) = terminal_size() {
-        Some(w as usize)
-    } else {
-        None
-    }
-});
+use crate::{args::SESSION_ARGS, style::Style};
 
 /// Returns the spacing before a given argument, within a collection of arguments,
 /// when they are represented as a string.
@@ -21,11 +12,14 @@ static TERM_WIDTH: LazyLock<Option<usize>> = LazyLock::new(|| {
 ///
 /// This function can panic if the `idx` overflows within `args`, for which no
 /// error-handling procedure has been set up for increasing performance.
-fn get_space_for(idx: usize, args: &Vec<String>) -> (usize, usize) {
+fn get_space_for(idx: usize, args: &[String]) -> (usize, usize) {
+    let arg_len = args[idx].len();
+
     if idx == 0 {
-        (0, args[0].len())
+        (0, arg_len)
     } else {
-        (args[..idx].join(" ").len() + 1, args[idx].len())
+        let spacing = args[..idx].iter().map(|s| s.len() + 1).sum();
+        (spacing, arg_len)
     }
 }
 
@@ -34,54 +28,46 @@ fn get_space_for(idx: usize, args: &Vec<String>) -> (usize, usize) {
 /// In trimsec, this function is particularly used for storing the space-map for the program's
 /// given arguments (via TTY) for a given session. This is not used for the interactive mode,
 /// however, and instead only the [`get_space_for`] function is used.
-fn generate_spacing_index(args: &Vec<String>) -> HashMap<usize, (usize, usize)> {
-    let mut hashed: HashMap<usize, (usize, usize)> = HashMap::new();
+fn generate_spacing_index(args: &[String]) -> Vec<(usize, usize)> {
+    let mut offsets = Vec::with_capacity(args.len());
+    let mut current_offset = 0;
 
-    for i in 0..args.len() {
-        hashed.insert(i, get_space_for(i, args));
+    for arg in args {
+        let len = arg.len();
+        offsets.push((current_offset, len));
+        current_offset += len + 1; // length + space
     }
 
-    hashed
+    offsets
 }
 
-static SESSION_ARGS_SPACES: LazyLock<HashMap<usize, (usize, usize)>> =
+#[allow(unused)]
+static SESSION_ARGS_SPACES: LazyLock<Vec<(usize, usize)>> =
     LazyLock::new(|| generate_spacing_index(&SESSION_ARGS));
 
 /// Use this function to draw stuff in the terminal.
 pub fn point_at_arg(
     idx: usize,
-    args: Option<&Vec<String>>,
+    args: &[String],
     style: &Style,
     specific_idx: Option<usize>,
     warn: bool,
     msg: Option<&str>,
 ) {
-    let ((spacing, arg_len), cur_args, joined_cur_args, term_width, notty) =
-        if let Some(args) = args {
-            (
-                get_space_for(idx, args),
-                args,
-                args.join(" "),
-                terminal_size().map(|f| f.0.0 as usize),
-                true,
-            )
-        } else {
-            (
-                SESSION_ARGS_SPACES[&idx],
-                &*SESSION_ARGS,
-                JOINED_SESSION_ARGS.clone(),
-                *TERM_WIDTH,
-                !std::io::stdin().is_terminal(),
-            )
-        };
-    let joined_cur_args = &joined_cur_args;
+    let mut notty = !std::io::stdin().is_terminal();
+    let (spacing, arg_len) = SESSION_ARGS_SPACES.get(idx).cloned().unwrap_or_else(|| {
+        notty = true;
+        get_space_for(idx, args)
+    });
+    let joined_cur_args = args.join(" ");
+    let term_width = terminal_size().map(|f| f.0.0 as usize);
 
     if let Some(term_width) = term_width
         && joined_cur_args.len() + 10 > term_width
     {
         // opinionated numbers, don't worry
         let print_width = (term_width - 20).min(arg_len);
-        let arg: &str = &cur_args[idx][0..print_width];
+        let arg: &str = &args[idx][0..print_width];
 
         println!(
             "\n   {}{}... {}{}{}{}...{}\n{}       {}",
