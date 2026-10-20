@@ -37,13 +37,14 @@ fn launch_interactive() -> Result<()> {
 
         match first.as_str() {
             "exit" | "quit" => return Ok(()),
-            _ => {
-                let cmd = parse_deter(&mut ctx, &input, None)?;
-
-                if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
-                    println!("{e}")
+            _ => match parse_deter(&mut ctx, &input, None) {
+                Ok(cmd) => {
+                    if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
+                        println!("{e}")
+                    }
                 }
-            }
+                Err(e) => println!("Parsing error: {e}"),
+            },
         }
     }
 }
