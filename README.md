@@ -63,8 +63,6 @@ ts 1h30m+2h50m 1.25x
 > ```bash
 > ts key set <API_KEY_HERE>
 > ```
->
-> **If an API key is not configured, trimsec will automatically fall back to using `yt-dlp` if it is available on your system.**
 
 trimsec can also receive YouTube URLs as arguments alongside all the other durations and multipliers:
 
