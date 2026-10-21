@@ -2,6 +2,19 @@
 
 Active since v2.0.0.
 
+### v5.0.1
+
+Improvements:
+
+- The interactive mode now (almost) imitates a shell-like environment, with history and editing capabilities like a regular terminal thanks to [rustyline](https://github.com/kkawakam/rustyline).
+
+Compilation changes:
+
+- The interactive mode is now only available under the `interactive` feature:
+  ```bash
+  cargo build --features interactive
+  ```
+
 ### v5.0.0
 
 Breaking Changes:
@@ -434,7 +447,3 @@ New features:
 Internal changes:
 
 - Internal optimizations and code structure changes for a proper CLI feel (use `clap` and `anyhow` for CLI-side structuring and error management).
-
-```
-
-```

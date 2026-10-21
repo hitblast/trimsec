@@ -1,61 +1,11 @@
-use std::{
-    env::args,
-    io::{self, Write},
-};
+use std::env::args;
 
-use anyhow::Result;
-use trimsec::{
-    args::{fetch_noninteractive_ctx_cmd, parse_deter},
-    core::context::Ctx,
-};
+use trimsec::args::fetch_noninteractive_ctx_cmd;
 
-fn launch_interactive() -> Result<()> {
-    println!(
-        "trimsec interactive mode\nversion: {} (type \"exit\" to terminate)",
-        env!("CARGO_PKG_VERSION")
-    );
-    let grab_input = || -> Result<Vec<String>> {
-        print!(">>> ");
-        io::stdout().flush()?;
-
-        let mut buf: String = String::new();
-        io::stdin()
-            .read_line(&mut buf)
-            .map_err(|e| anyhow::anyhow!("Interactive input error: {e}"))?;
-
-        Ok(buf
-            .split_whitespace()
-            .map(|f| f.to_string())
-            .collect::<Vec<String>>())
-    };
-
-    let mut ctx = Ctx::new_bare();
-
-    loop {
-        let input = grab_input()?;
-
-        let Some(first) = input.first() else {
-            println!("expected an expression!");
-            continue;
-        };
-
-        match first.as_str() {
-            "exit" => return Ok(()),
-            "clear" => {
-                print!("\x1B[2J\x1B[H");
-                io::stdout().flush()?;
-            }
-            _ => match parse_deter(&mut ctx, &input, None) {
-                Ok(cmd) => {
-                    if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
-                        println!("{e}")
-                    }
-                }
-                Err(e) => println!("Parsing error: {e}"),
-            },
-        }
-    }
-}
+#[cfg(feature = "interactive")]
+mod interactive;
+#[cfg(feature = "interactive")]
+use interactive::launch_interactive;
 
 fn main() {
     #[cfg(unix)]
@@ -68,20 +18,28 @@ fn main() {
         std::process::exit(1);
     };
 
+    // Interactive Mode
+    //
+    // NOTE: If trimsec is not compiled with the `interactive` feature,
+    // the global help-text will be shown instead.
     if args().len() == 1 {
+        #[cfg(feature = "interactive")]
         if let Err(e) = launch_interactive() {
             eexit(e, true)
+        } else {
+            return;
         }
-    } else {
-        match fetch_noninteractive_ctx_cmd() {
-            Ok((mut ctx, cmd)) => {
-                if let Err(e) = cmd.run(&mut ctx, None) {
-                    eexit(e, true);
-                }
+    }
+
+    // Non-Interactive Mode
+    match fetch_noninteractive_ctx_cmd() {
+        Ok((mut ctx, cmd)) => {
+            if let Err(e) = cmd.run(&mut ctx, None) {
+                eexit(e, true);
             }
-            Err(e) => {
-                eexit(e, false);
-            }
+        }
+        Err(e) => {
+            eexit(e, false);
         }
     }
 }

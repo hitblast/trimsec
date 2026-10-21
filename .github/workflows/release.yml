@@ -31,7 +31,7 @@ jobs:
       - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
-        run: cargo build --release --quiet --locked
+        run: cargo build --release --quiet --locked --features interactive
 
       - run: sccache --show-stats || true
 
@@ -75,7 +75,7 @@ jobs:
       - uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
-        run: cargo build --release --quiet --locked --target ${{ matrix.target }}
+        run: cargo build --release --quiet --locked --target ${{ matrix.target }} --features interactive
 
       - run: sccache --show-stats || true
 

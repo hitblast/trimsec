@@ -136,12 +136,15 @@ version: 5.0.0 (type "exit" to terminate)
 >>> 1h30m 1.5x
 ```
 
-In interactive mode, you can run multiple expressions, fit-checks, or explicit commands sequentially in a prompt session without repeatedly calling `ts`.
+In interactive mode, you can run multiple expressions, fit-checks, or explicit commands sequentially in a prompt session without repeatedly calling `ts`. You can also navigate the history for the commands executed.
 
 Built-in interactive commands:
 
 - `clear` - Clears the terminal screen.
 - `exit` - Terminates the interactive session.
+
+> [!WARNING]
+> Interactive mode is, by default, NOT enabled on user-compiled builds. For more information, see ["Compiling"](#compiling).
 
 ### Quick Reference
 
@@ -252,11 +255,21 @@ mise use -g cargo:trimsec
 
 Get platform-based binaries here: https://github.com/hitblast/trimsec/releases
 
-### Manual Installation
+### Compiling
+
+Execute these commands in order:
 
 ```bash
+# Clone the repository
 git clone https://github.com/hitblast/trimsec.git
-cd trimsec && cargo build --release
+
+# Navigate to cloned repo and compile.
+cd trimsec
+cargo build --release
+
+# OPTIONAL
+# To enable interactive mode for the build:
+cargo build --release --features interactive
 ```
 
 ## License
