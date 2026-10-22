@@ -2,7 +2,7 @@
 
 Active since v2.0.0.
 
-### v5.0.2
+### v5.1.0
 
 New features:
 
