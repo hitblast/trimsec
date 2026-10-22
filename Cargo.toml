@@ -21,7 +21,7 @@ serde = { version = "1.0.229", features = ["derive"] }
 dirs = "7.0.0"
 supports-color = "3.0.2"
 toml = "1.1.8"
-ureq = { version = "3.4.2", features = ["json"] }
+ureq = { version = "3.5.0", features = ["json"] }
 url = "2.5.8"
 clap = { version = "4.6.7", features = ["derive"] }
 constcat = "0.6.1"
