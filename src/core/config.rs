@@ -16,6 +16,7 @@ pub struct Config {
     #[serde(default)]
     options: ConfigOptions,
     #[serde(default)]
+    #[cfg(feature = "interactive")]
     interactive: InteractiveOptions,
     #[serde(skip)]
     path: PathBuf,
@@ -132,6 +133,7 @@ impl Config {
     }
 
     #[must_use]
+    #[cfg(feature = "interactive")]
     pub fn interactive_options(&self) -> &InteractiveOptions {
         &self.interactive
     }
