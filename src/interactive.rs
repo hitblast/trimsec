@@ -14,7 +14,9 @@ fn get_hist_path() -> Option<PathBuf> {
 
 fn load_hist(rl: &mut Editor<(), FileHistory>) -> Result<()> {
     if let Some(p) = get_hist_path() {
-        rl.load_history(&p)?;
+        if p.exists() {
+            rl.load_history(&p)?;
+        }
         Ok(())
     } else {
         bail!("WARN: History file could not be loaded, proceeding without loading.")
@@ -38,11 +40,15 @@ pub fn launch_interactive() -> Result<()> {
     let mut use_history = ctx
         .config()
         .map(|f| f.interactive_options().use_history())
-        .unwrap_or(false);
+        .unwrap_or(true);
 
-    if use_history && let Err(e) = load_hist(&mut rl) {
-        use_history = false;
-        eprintln!("{e}")
+    if use_history {
+        if let Err(e) = load_hist(&mut rl) {
+            use_history = false;
+            eprintln!("Loading history failed: {e}")
+        }
+    } else {
+        println!("Not using history.")
     }
 
     loop {
@@ -50,7 +56,6 @@ pub fn launch_interactive() -> Result<()> {
         match readline {
             Ok(line) => {
                 let _ = rl.add_history_entry(line.as_str());
-
                 if use_history {
                     save_hist(&mut rl);
                 }

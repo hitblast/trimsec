@@ -43,10 +43,18 @@ fn default_use_history() -> bool {
     true
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct InteractiveOptions {
     #[serde(default = "default_use_history")]
     use_history: bool,
+}
+
+impl Default for InteractiveOptions {
+    fn default() -> Self {
+        Self {
+            use_history: default_use_history(),
+        }
+    }
 }
 
 impl InteractiveOptions {
