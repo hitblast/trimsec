@@ -59,11 +59,7 @@ impl<'a> FitCmd<'a> {
         let content_duration: TDuration = self.duration;
         let ctx: &'a mut Ctx = self.ctx;
 
-        let cfg_budget = ctx
-            .config()?
-            .options()
-            .and_then(|f| f.default_fit_budget())
-            .cloned();
+        let cfg_budget = ctx.config()?.options().default_fit_budget().cloned();
 
         let mut is_day_budget = false;
         let budget = if let Some(bud) = self.budget {

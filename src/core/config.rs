@@ -13,12 +13,15 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 pub struct Config {
     api_key: Option<String>,
-    options: Option<ConfigOptions>,
+    #[serde(default)]
+    options: ConfigOptions,
+    #[serde(default)]
+    interactive: InteractiveOptions,
     #[serde(skip)]
     path: PathBuf,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ConfigOptions {
     default_fit_budget: Option<TDuration>,
     day_end: Option<TTime>,
@@ -33,6 +36,23 @@ impl ConfigOptions {
     #[must_use]
     pub fn day_end(&self) -> Option<&TTime> {
         self.day_end.as_ref()
+    }
+}
+
+fn default_use_history() -> bool {
+    true
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct InteractiveOptions {
+    #[serde(default = "default_use_history")]
+    use_history: bool,
+}
+
+impl InteractiveOptions {
+    #[must_use]
+    pub fn use_history(&self) -> bool {
+        self.use_history
     }
 }
 
@@ -99,8 +119,13 @@ impl Config {
     }
 
     #[must_use]
-    pub fn options(&self) -> Option<&ConfigOptions> {
-        self.options.as_ref()
+    pub fn options(&self) -> &ConfigOptions {
+        &self.options
+    }
+
+    #[must_use]
+    pub fn interactive_options(&self) -> &InteractiveOptions {
+        &self.interactive
     }
 
     #[must_use]

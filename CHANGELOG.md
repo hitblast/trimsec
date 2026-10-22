@@ -2,6 +2,21 @@
 
 Active since v2.0.0.
 
+### v5.0.2
+
+New features:
+
+- The history is now persistent in interactive mode **by default**.
+- The history can also be toggled via the configuration file:
+  ```toml
+  [interactive]
+  use_history = false
+  ```
+
+Internal improvements:
+
+- The `Config` struct's structure has been improved to use the `Default` trait effectively.
+
 ### v5.0.1
 
 Improvements:

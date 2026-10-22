@@ -7,8 +7,7 @@ pub fn time_in_day_left(ctx: &mut Ctx) -> TDuration {
     let now = chrono::Local::now();
 
     let eod: (u32, u32, u32) = if let Ok(cfg) = ctx.config()
-        && let Some(opts) = cfg.options()
-        && let Some(eod) = opts.day_end()
+        && let Some(eod) = cfg.options().day_end()
     {
         (
             eod.hours() as u32,
