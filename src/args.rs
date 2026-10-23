@@ -136,13 +136,13 @@ impl TKeywordArgs {
             .map_err(|e| anyhow!("Failed to parse from string: {e}"))
     }
 
-    fn parse() -> Result<(Self, Vec<String>, HashSet<usize>)> {
+    pub fn parse(args: &[String]) -> Result<(Self, Vec<String>, HashSet<usize>)> {
         let mut color: Option<ColorMode> = None;
 
         let mut remaining = Vec::new();
         let mut skippable: HashSet<usize> = HashSet::new();
 
-        for (idx, arg) in SESSION_ARGS.iter().enumerate() {
+        for (idx, arg) in args.iter().enumerate() {
             if skippable.contains(&idx) {
                 continue;
             }
@@ -188,10 +188,11 @@ pub static SESSION_ARGS: LazyLock<Vec<String>> = LazyLock::new(|| {
     argv
 });
 
-pub fn fetch_noninteractive_ctx_cmd() -> Result<(Ctx, TCmd)> {
-    let (kwargs, remaining, skippable) = TKeywordArgs::parse()?;
-    let mut ctx = Ctx::new(kwargs);
-
+pub fn fetch_noninteractive_cmd(
+    ctx: &mut Ctx,
+    remaining: Vec<String>,
+    skippable: HashSet<usize>,
+) -> Result<TCmd> {
     const SUBCMDS: [&str; 8] = [
         "key",
         "list",
@@ -206,10 +207,10 @@ pub fn fetch_noninteractive_ctx_cmd() -> Result<(Ctx, TCmd)> {
     let cmd: TCmd = match remaining.first().map(String::as_str) {
         None => parse_with_clap(&remaining)?,
         Some(x) if SUBCMDS.contains(&x) => parse_with_clap(&remaining)?,
-        Some(_) => parse_deter(&mut ctx, &SESSION_ARGS, Some(&skippable))?,
+        Some(_) => parse_deter(ctx, &SESSION_ARGS, Some(&skippable))?,
     };
 
-    Ok((ctx, cmd))
+    Ok(cmd)
 }
 
 #[derive(Debug, PartialEq)]

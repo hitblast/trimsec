@@ -1,6 +1,7 @@
-use std::env::args;
-
-use trimsec::args::fetch_noninteractive_ctx_cmd;
+use trimsec::{
+    args::{SESSION_ARGS, TKeywordArgs, fetch_noninteractive_cmd},
+    core::context::Ctx,
+};
 
 #[cfg(feature = "interactive")]
 mod interactive;
@@ -18,28 +19,30 @@ fn main() {
         std::process::exit(1);
     };
 
-    // Interactive Mode
-    //
-    // NOTE: If trimsec is not compiled with the `interactive` feature,
-    // the global help-text will be shown instead.
-    if args().len() == 1 {
-        #[cfg(feature = "interactive")]
-        if let Err(e) = launch_interactive() {
-            eexit(e, true)
-        } else {
-            return;
-        }
-    }
+    match TKeywordArgs::parse(&SESSION_ARGS) {
+        Ok((kwargs, remaining, skippable)) => {
+            let mut ctx = Ctx::new(kwargs);
 
-    // Non-Interactive Mode
-    match fetch_noninteractive_ctx_cmd() {
-        Ok((mut ctx, cmd)) => {
-            if let Err(e) = cmd.run(&mut ctx, None) {
-                eexit(e, true);
+            #[cfg(feature = "interactive")]
+            if remaining.len() == 0 {
+                if let Err(e) = launch_interactive(&mut ctx) {
+                    eexit(e, true)
+                } else {
+                    return;
+                }
+            }
+
+            match fetch_noninteractive_cmd(&mut ctx, remaining, skippable) {
+                Ok(cmd) => {
+                    if let Err(e) = cmd.run(&mut ctx, None) {
+                        eexit(e, true);
+                    }
+                }
+                Err(e) => {
+                    eexit(e, false);
+                }
             }
         }
-        Err(e) => {
-            eexit(e, false);
-        }
+        Err(e) => eexit(e, true),
     }
 }

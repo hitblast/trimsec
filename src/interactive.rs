@@ -28,13 +28,12 @@ fn save_hist(rl: &mut Editor<(), FileHistory>) {
     }
 }
 
-pub fn launch_interactive() -> Result<()> {
+pub fn launch_interactive(ctx: &mut Ctx) -> Result<()> {
     println!(
         "trimsec interactive mode\nversion: {} (type \"exit\" to terminate)",
         env!("CARGO_PKG_VERSION")
     );
 
-    let mut ctx = Ctx::new_bare();
     let mut rl = DefaultEditor::new()?;
 
     let mut use_history = ctx
@@ -73,9 +72,9 @@ pub fn launch_interactive() -> Result<()> {
                         print!("\x1B[2J\x1B[H");
                         std::io::stdout().flush()?;
                     }
-                    _ => match parse_deter(&mut ctx, &input, None) {
+                    _ => match parse_deter(ctx, &input, None) {
                         Ok(cmd) => {
-                            if let Err(e) = cmd.run(&mut ctx, Some(&input)) {
+                            if let Err(e) = cmd.run(ctx, Some(&input)) {
                                 println!("{e}")
                             }
                         }

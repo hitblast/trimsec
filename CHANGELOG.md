@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v5.1.1
+
+Bug fixes:
+
+- Fixed a bug which caused the interactive mode to not receive keyword arguments during execution.
+
 ### v5.1.0
 
 New features:
