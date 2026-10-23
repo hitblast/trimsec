@@ -1,6 +1,12 @@
 //! Draw cool errors in trimsec using this module!
 //!
-use std::{io::IsTerminal, sync::LazyLock};
+use std::{
+    io::IsTerminal,
+    sync::{
+        LazyLock,
+        atomic::{AtomicBool, Ordering},
+    },
+};
 use terminal_size::terminal_size;
 
 use crate::{args::SESSION_ARGS, style::Style};
@@ -41,8 +47,11 @@ fn generate_spacing_index(args: &[String]) -> Vec<(usize, usize)> {
     offsets
 }
 
+pub static IS_INTERACTIVE: AtomicBool = AtomicBool::new(false);
 static SESSION_ARGS_SPACES: LazyLock<Vec<(usize, usize)>> =
     LazyLock::new(|| generate_spacing_index(&SESSION_ARGS));
+static IS_NOTTY: LazyLock<bool> =
+    LazyLock::new(|| !std::io::stdin().is_terminal() || IS_INTERACTIVE.load(Ordering::Relaxed));
 
 /// Use this function to draw stuff in the terminal.
 pub fn point_at_arg(
@@ -53,11 +62,13 @@ pub fn point_at_arg(
     warn: bool,
     msg: Option<&str>,
 ) {
-    let mut notty = !std::io::stdin().is_terminal();
-    let (spacing, arg_len) = SESSION_ARGS_SPACES.get(idx).cloned().unwrap_or_else(|| {
-        notty = true;
+    let notty = *IS_NOTTY;
+
+    let (spacing, arg_len) = if notty {
         get_space_for(idx, args)
-    });
+    } else {
+        SESSION_ARGS_SPACES[idx]
+    };
 
     let args_joined_len = args.iter().map(|f| f.len() + 1).sum::<usize>() - 1;
     let term_width = terminal_size().map(|f| f.0.0 as usize);

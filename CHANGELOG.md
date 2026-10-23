@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v5.1.2
+
+Bug fixes:
+
+- Fixed a bug in the drawing API which lead to incorrectly-repeating pointer arrows when pointing at an arg. This was due to incorrectly deciding the spacing for an arg at a given moment.
+
 ### v5.1.1
 
 Bug fixes:

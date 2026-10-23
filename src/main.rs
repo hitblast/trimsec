@@ -7,6 +7,10 @@ use trimsec::{
 mod interactive;
 #[cfg(feature = "interactive")]
 use interactive::launch_interactive;
+#[cfg(feature = "interactive")]
+use std::sync::atomic::Ordering;
+#[cfg(feature = "interactive")]
+use trimsec::draw::IS_INTERACTIVE;
 
 fn main() {
     #[cfg(unix)]
@@ -25,6 +29,7 @@ fn main() {
 
             #[cfg(feature = "interactive")]
             if remaining.len() == 0 {
+                IS_INTERACTIVE.store(true, Ordering::Relaxed);
                 if let Err(e) = launch_interactive(&mut ctx) {
                     eexit(e, true)
                 } else {
