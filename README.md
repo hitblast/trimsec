@@ -229,8 +229,7 @@ day_end = "23:00"            # (hh:mm:ss) overrides the end of the day
 
 ```bash
 brew tap hitblast/tap
-# Optional (if Homebrew does not trust the tap): brew trust hitblast/tap
-brew install trimsec
+brew install hitblast/tap/trimsec
 ```
 
 - Using `cargo`:
