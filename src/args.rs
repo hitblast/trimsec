@@ -8,6 +8,7 @@ use std::{
 };
 
 use anyhow::{Result, anyhow, bail};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
     args::Token::SkipThis,
@@ -412,7 +413,7 @@ fn parse_tokens(
         };
 
         let mapped_preprocessed = preprocessable
-            .iter()
+            .par_iter()
             .map(|pre| {
                 client
                     .fetch_duration_from_id(&pre.id, pre.max_items)
