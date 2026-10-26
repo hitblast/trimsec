@@ -80,9 +80,9 @@ impl Display for FetchTClipStringError {
 
 #[derive(Debug)]
 pub enum TYoutubeError {
-    UreqError(ureq::Error),
+    UreqError(String),
     RequestUriParseError(String),
-    InvalidResponseBody,
+    InvalidResponseBody(String),
     ItemNotFound,
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
@@ -100,7 +100,7 @@ impl Display for TYoutubeError {
             TYoutubeError::InvalidMaxSize((given, max)) => {
                 format!("max items ({given}) is larger than the length of the playlist ({max}).")
             }
-            TYoutubeError::InvalidResponseBody => "response body invalid.".to_string(),
+            TYoutubeError::InvalidResponseBody(e) => format!("response body invalid: {e}"),
         };
         write!(f, "{wr}")
     }

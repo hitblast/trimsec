@@ -2,6 +2,16 @@
 
 Active since v2.0.0.
 
+### v5.2.0
+
+Bug fixes:
+
+- Fixed a very silly bug related to the multithreaded preprocessing of YouTube URLs (not importing and actually using `rayon`, again?!).
+
+New features: 
+
+- Add experimental caching to the API Client for YouTube.
+
 ### v5.1.2
 
 Bug fixes:

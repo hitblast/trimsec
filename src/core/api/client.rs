@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use ureq::Agent;
+use http_cache_ureq::{CachedAgent, RedbManager};
+use serde::de::DeserializeOwned;
 
 use crate::{
     core::{
@@ -22,17 +23,34 @@ gen_url!(PLAYLISTITEMS_URL, "/playlistItems");
 gen_url!(VIDEOS_URL, "/videos");
 
 pub struct ApiClient {
-    client: Agent,
+    client: CachedAgent<RedbManager>,
     key: String,
 }
 
-impl ApiClient {
+impl<'a> ApiClient {
     #[must_use]
-    pub fn new(key: impl ToString) -> Self {
-        Self {
-            client: Agent::new_with_defaults(),
+    pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
+        let agent = CachedAgent::builder()
+            .cache_manager(RedbManager::new("./http-cache.redb").map_err(|e| anyhow::anyhow!(e))?)
+            .cache_mode(http_cache_ureq::CacheMode::Default)
+            .build()?;
+
+        Ok(Self {
+            client: agent,
             key: key.to_string(),
-        }
+        })
+    }
+
+    fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
+        smol::block_on(async {
+            self.client
+                .get(url)
+                .call()
+                .await
+                .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                .into_json::<T>()
+                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
+        })
     }
 
     /// Returns a vector of IDs from a single YouTube ID.
@@ -50,20 +68,14 @@ impl ApiClient {
             let mut seen_tokens: HashSet<String> = HashSet::new();
 
             if id.is_playlist() {
-                let response: YTPlaylistList = self
-                    .client
-                    .get(PLAYLISTS_URL)
-                    .query_pairs([
-                        ("part", "contentDetails"),
-                        ("id", id.id()),
-                        ("key", &self.key),
-                        ("maxResults", "1"),
-                    ])
-                    .call()
-                    .map_err(TYoutubeError::UreqError)?
-                    .body_mut()
-                    .read_json()
-                    .map_err(|_| TYoutubeError::InvalidResponseBody)?;
+                let url = format!(
+                    "{}?part=contentDetails&id={}&key={}&maxResults=1",
+                    PLAYLISTS_URL,
+                    id.id(),
+                    self.key
+                );
+
+                let response: YTPlaylistList = self.get(&url)?;
 
                 let traversible_items = if let Some(ic) = response.items.first() {
                     let max_traversible = ic.content_details.item_count;
@@ -85,28 +97,28 @@ impl ApiClient {
                 };
 
                 for start in (0..traversible_items).step_by(50) {
-                    let max_results = (traversible_items - start).min(50).to_string();
+                    let max_results = (traversible_items - start).min(50);
 
-                    let mut query_pairs = Vec::from([
-                        ("playlistId", id.id()),
-                        ("key", &self.key),
-                        ("maxResults", &max_results),
-                        ("part", "contentDetails"),
-                    ]);
-
-                    if let Some(ref tok) = next_tok {
-                        query_pairs.push(("pageToken", tok))
+                    let url = if let Some(ref tok) = next_tok {
+                        format!(
+                            "{}?playlistId={}&key={}&maxResults={}&part=contentDetails&pageToken={}",
+                            PLAYLISTITEMS_URL,
+                            id.id(),
+                            self.key,
+                            max_results,
+                            tok
+                        )
+                    } else {
+                        format!(
+                            "{}?playlistId={}&key={}&maxResults={}&part=contentDetails",
+                            PLAYLISTITEMS_URL,
+                            id.id(),
+                            self.key,
+                            max_results
+                        )
                     };
 
-                    let response: YTPlaylistItems = self
-                        .client
-                        .get(PLAYLISTITEMS_URL)
-                        .query_pairs(query_pairs)
-                        .call()
-                        .map_err(TYoutubeError::UreqError)?
-                        .body_mut()
-                        .read_json()
-                        .map_err(|_| TYoutubeError::InvalidResponseBody)?;
+                    let response: YTPlaylistItems = self.get(&url)?;
 
                     if let Some(t) = &response.next_page_token
                         && seen_tokens.contains(t)
@@ -143,19 +155,14 @@ impl ApiClient {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
         for chunk_ids in ids.chunks(50) {
-            let mut response: YTVideos = self
-                .client
-                .get(VIDEOS_URL)
-                .query_pairs([
-                    ("id", chunk_ids.join(",").as_str()),
-                    ("key", &self.key),
-                    ("part", "snippet,contentDetails"),
-                ])
-                .call()
-                .map_err(TYoutubeError::UreqError)?
-                .body_mut()
-                .read_json()
-                .map_err(|_| TYoutubeError::InvalidResponseBody)?;
+            let url = format!(
+                "{}?id={}&key={}&part=snippet,contentDetails",
+                VIDEOS_URL,
+                chunk_ids.join(","),
+                self.key
+            );
+
+            let mut response: YTVideos = self.get(&url)?;
 
             vector.append(&mut response.items);
         }

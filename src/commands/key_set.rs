@@ -34,7 +34,7 @@ impl KeySetCmd {
             println!("Testing key... (use --no-check to skip)");
 
             let id: TYoutubeId = TYoutubeId::new("dQw4w9WgXcQ", false);
-            let client = ApiClient::new(&self.api_key);
+            let client = ApiClient::new(&self.api_key)?;
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
                 bail!("invalid API key passed!",)
