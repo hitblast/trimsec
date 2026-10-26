@@ -36,9 +36,10 @@ impl TYoutubeId {
     }
 
     #[must_use]
-    pub fn id(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         &self.id
     }
+
     #[must_use]
     pub fn is_playlist(&self) -> bool {
         self.is_playlist
@@ -47,7 +48,7 @@ impl TYoutubeId {
 
 impl Display for TYoutubeId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.id())
+        write!(f, "{}", self.id)
     }
 }
 
@@ -226,11 +227,11 @@ mod tests {
     fn test_tyoutubeid_struct() {
         // Test basic construction and getters
         let vid = TYoutubeId::new("sEWIDdQKWgc", false);
-        assert_eq!(vid.id(), "sEWIDdQKWgc");
+        assert_eq!(vid.as_str(), "sEWIDdQKWgc");
         assert_eq!(vid.is_playlist(), false);
 
         let playlist = TYoutubeId::new("PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS", true);
-        assert_eq!(playlist.id(), "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS");
+        assert_eq!(playlist.as_str(), "PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS");
         assert_eq!(playlist.is_playlist(), true);
 
         // Test Display implementation

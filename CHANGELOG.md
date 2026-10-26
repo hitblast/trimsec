@@ -8,7 +8,11 @@ Bug fixes:
 
 - Fixed a very silly bug related to the multithreaded preprocessing of YouTube URLs (not importing and actually using `rayon`, again?!).
 
-New features: 
+Improvements:
+
+- Instead of using `String` for passing around IDs inside the API client, it now uses `YouTubeId` as the core type.
+
+New features:
 
 - Add experimental caching to the API Client for YouTube.
 

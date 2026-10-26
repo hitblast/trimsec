@@ -23,7 +23,7 @@ impl ListCmd {
             None => bail!("no YouTube playlist ID was found in this link."),
         };
 
-        let ids: Vec<String> = ctx
+        let ids: Vec<TYoutubeId> = ctx
             .client()?
             .expand_id(&id, 0)
             .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;

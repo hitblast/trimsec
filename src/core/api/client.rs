@@ -61,17 +61,17 @@ impl<'a> ApiClient {
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<Vec<String>, TYoutubeError> {
+    ) -> Result<Vec<TYoutubeId>, TYoutubeError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
-            let mut ids = Vec::new();
+            let mut ids: Vec<TYoutubeId> = Vec::new();
             let mut seen_tokens: HashSet<String> = HashSet::new();
 
             if id.is_playlist() {
                 let url = format!(
                     "{}?part=contentDetails&id={}&key={}&maxResults=1",
                     PLAYLISTS_URL,
-                    id.id(),
+                    id.as_str(),
                     self.key
                 );
 
@@ -93,7 +93,7 @@ impl<'a> ApiClient {
                         max_traversible
                     }
                 } else {
-                    return Err(TYoutubeError::InvalidPlaylist(id.id().to_string()));
+                    return Err(TYoutubeError::InvalidPlaylist(id.to_string()));
                 };
 
                 for start in (0..traversible_items).step_by(50) {
@@ -103,7 +103,7 @@ impl<'a> ApiClient {
                         format!(
                             "{}?playlistId={}&key={}&maxResults={}&part=contentDetails&pageToken={}",
                             PLAYLISTITEMS_URL,
-                            id.id(),
+                            id.as_str(),
                             self.key,
                             max_results,
                             tok
@@ -112,7 +112,7 @@ impl<'a> ApiClient {
                         format!(
                             "{}?playlistId={}&key={}&maxResults={}&part=contentDetails",
                             PLAYLISTITEMS_URL,
-                            id.id(),
+                            id.as_str(),
                             self.key,
                             max_results
                         )
@@ -129,7 +129,7 @@ impl<'a> ApiClient {
                     let current_ids = response
                         .items
                         .into_iter()
-                        .map(|f| f.content_details.video_id);
+                        .map(|f| TYoutubeId::new(f.content_details.video_id, false));
 
                     ids.extend(current_ids);
 
@@ -141,7 +141,7 @@ impl<'a> ApiClient {
                     }
                 }
             } else {
-                ids.push(id.id().to_string());
+                ids.push(id.clone());
             }
 
             ids
@@ -151,19 +151,25 @@ impl<'a> ApiClient {
     }
 
     /// Fetches a single chunk of video items.
-    pub fn fetch_video_items(&self, ids: &[String]) -> Result<Vec<YTVideosItem>, TYoutubeError> {
+    pub fn fetch_video_items(
+        &self,
+        ids: &[TYoutubeId],
+    ) -> Result<Vec<YTVideosItem>, TYoutubeError> {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
         for chunk_ids in ids.chunks(50) {
             let url = format!(
                 "{}?id={}&key={}&part=snippet,contentDetails",
                 VIDEOS_URL,
-                chunk_ids.join(","),
+                chunk_ids
+                    .iter()
+                    .map(|f| f.as_str())
+                    .collect::<Vec<&str>>()
+                    .join(","),
                 self.key
             );
 
             let mut response: YTVideos = self.get(&url)?;
-
             vector.append(&mut response.items);
         }
 
