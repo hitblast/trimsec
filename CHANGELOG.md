@@ -2,6 +2,12 @@
 
 Active since v2.0.0.
 
+### v5.2.1
+
+Bug fixes:
+
+- Fixed a critical bug which led the client to not create the cache directory before placing the cache file.
+
 ### v5.2.0
 
 Bug fixes:
