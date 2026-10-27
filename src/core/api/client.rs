@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fs, path::PathBuf};
+use std::{collections::HashSet, path::PathBuf};
 
 use http_cache_ureq::{CachedAgent, RedbManager};
 use serde::de::DeserializeOwned;
@@ -37,10 +37,7 @@ pub struct ApiClient {
 const HTTP_CACHE_FILENAME: &str = "trimsec-http-cache.redb";
 
 fn get_http_cache_path() -> Option<PathBuf> {
-    CACHE_DIR.as_ref().map(|f| {
-        let _ = fs::create_dir_all(f);
-        f.join(HTTP_CACHE_FILENAME)
-    })
+    CACHE_DIR.as_ref().map(|f| f.join(HTTP_CACHE_FILENAME))
 }
 
 impl ApiClient {
