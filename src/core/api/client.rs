@@ -40,7 +40,7 @@ fn get_http_cache_path() -> Option<PathBuf> {
     CACHE_DIR.as_ref().map(|f| f.join(HTTP_CACHE_FILENAME))
 }
 
-impl<'a> ApiClient {
+impl ApiClient {
     #[must_use]
     pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
         let agent = match get_http_cache_path() {
