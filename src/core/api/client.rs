@@ -1,10 +1,12 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, path::PathBuf};
 
 use http_cache_ureq::{CachedAgent, RedbManager};
 use serde::de::DeserializeOwned;
+use ureq::Agent;
 
 use crate::{
     core::{
+        CACHE_DIR,
         api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
         time::TDuration,
         youtils::TYoutubeId,
@@ -22,18 +24,34 @@ gen_url!(PLAYLISTS_URL, "/playlists");
 gen_url!(PLAYLISTITEMS_URL, "/playlistItems");
 gen_url!(VIDEOS_URL, "/videos");
 
+pub enum ApiClientType {
+    Cached(CachedAgent<RedbManager>),
+    Uncached(Agent),
+}
+
 pub struct ApiClient {
-    client: CachedAgent<RedbManager>,
+    client: ApiClientType,
     key: String,
+}
+
+const HTTP_CACHE_FILENAME: &str = "trimsec-http-cache.redb";
+
+fn get_http_cache_path() -> Option<PathBuf> {
+    CACHE_DIR.as_ref().map(|f| f.join(HTTP_CACHE_FILENAME))
 }
 
 impl<'a> ApiClient {
     #[must_use]
     pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
-        let agent = CachedAgent::builder()
-            .cache_manager(RedbManager::new("./http-cache.redb").map_err(|e| anyhow::anyhow!(e))?)
-            .cache_mode(http_cache_ureq::CacheMode::Default)
-            .build()?;
+        let agent = match get_http_cache_path() {
+            Some(path) => ApiClientType::Cached(
+                CachedAgent::builder()
+                    .cache_manager(RedbManager::new(path).map_err(|e| anyhow::anyhow!(e))?)
+                    .cache_mode(http_cache_ureq::CacheMode::Default)
+                    .build()?,
+            ),
+            None => ApiClientType::Uncached(Agent::new_with_defaults()),
+        };
 
         Ok(Self {
             client: agent,
@@ -42,15 +60,24 @@ impl<'a> ApiClient {
     }
 
     fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
-        smol::block_on(async {
-            self.client
+        match &self.client {
+            ApiClientType::Cached(cached_agent) => smol::block_on(async {
+                cached_agent
+                    .get(url)
+                    .call()
+                    .await
+                    .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                    .into_json::<T>()
+                    .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
+            }),
+            ApiClientType::Uncached(agent) => agent
                 .get(url)
                 .call()
-                .await
                 .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
-                .into_json::<T>()
-                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
-        })
+                .body_mut()
+                .read_json()
+                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string())),
+        }
     }
 
     /// Returns a vector of IDs from a single YouTube ID.
