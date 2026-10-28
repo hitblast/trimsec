@@ -303,14 +303,10 @@ fn parse_all_item_cap(inner: &str) -> Result<ParsedArg, ArgError> {
 }
 
 fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<ParsedArg, ArgError> {
-    macro_rules! ready {
-        ($x:expr) => {
-            return Ok(ParsedArg::Ready($x))
-        };
-    }
-
-    if allow_multiplier && let Ok(mul) = parse_multiplier(arg) {
-        ready!(Token::Multiplier(mul))
+    if allow_multiplier {
+        if let Ok(mul) = parse_multiplier(arg) {
+            return Ok(ParsedArg::Ready(Token::Multiplier(mul)));
+        }
     }
     if let Some(inner) = arg.strip_prefix("max:") {
         return parse_n_item_cap(inner);
@@ -319,7 +315,7 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
         return parse_all_item_cap(inner);
     }
     if let Ok(x) = arg.parse::<TDuration>() {
-        ready!(Token::Duration((x, false)))
+        return Ok(ParsedArg::Ready(Token::Duration((x, false))));
     }
     if let Some(id) = get_youtube_id(arg, false) {
         return Ok(ParsedArg::NeedsProcessing((id, 0)));
@@ -329,7 +325,7 @@ fn parse_general(arg: &str, allow_multiplier: bool, recurse: bool) -> Result<Par
         match TClipString::resolve(arg) {
             Ok(Some(s)) => return parse_general(&s, allow_multiplier, false),
             Err(e) => return Err(ArgError::new(e.to_string())),
-            _ => {}
+            Ok(None) => {}
         }
     }
 
