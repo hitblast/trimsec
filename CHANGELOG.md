@@ -8,7 +8,7 @@ New features:
 
 - Added a new `cache` group of commands for managing the cache, which has two operations as of now:
   - `ts cache clean`: Removes all cached files.
-  - `ts cache`: Shows the cache status and location.
+  - `ts cache`: Shows the cache location.
 
 Changes:
 

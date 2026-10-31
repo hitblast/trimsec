@@ -35,7 +35,7 @@ pub enum ApiClientType {
 pub struct ApiClient {
     client: ApiClientType,
     cache_path: Option<PathBuf>,
-    preexisting_cache_file: bool,
+    cache_manager: Option<RedbManager>,
     key: String,
 }
 
@@ -49,13 +49,13 @@ impl ApiClient {
     #[must_use]
     pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
         let mut cache_path = None;
-        let mut preexisting_cache_file = false;
+        let mut cache_manager = None;
 
         let agent = match get_http_cache_path() {
             Some(path) => ApiClientType::Cached({
-                preexisting_cache_file = path.exists();
                 let manager = RedbManager::new(&path).map_err(|e| anyhow::anyhow!(e))?;
                 cache_path = Some(path);
+                cache_manager = Some(manager.clone());
 
                 CachedAgent::builder()
                     .cache_manager(manager)
@@ -68,7 +68,7 @@ impl ApiClient {
         Ok(Self {
             client: agent,
             cache_path,
-            preexisting_cache_file,
+            cache_manager,
             key: key.to_string(),
         })
     }
@@ -81,10 +81,12 @@ impl ApiClient {
         self.cache_path.as_ref().map(|f| f.as_path())
     }
 
-    /// Whether the cache path preexisted or not.
+    /// Returns the cache manager for the API client.
+    ///
+    /// This might return `None` if the client is not using the cache.
     #[must_use]
-    pub fn is_preexisting_cache_file(&self) -> bool {
-        self.preexisting_cache_file
+    pub fn cache_manager(&self) -> Option<&RedbManager> {
+        self.cache_manager.as_ref()
     }
 
     fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
