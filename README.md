@@ -6,6 +6,8 @@
 
 trimsec turns an expression with _various types of contents_ into commands, and helps you plan your content-consumption via different methods.
 
+trimsec does have batteries included, so you don't need to install any additional tools to use it. However, you can disable some features to your liking if you self-compile.
+
 Development happens on [Codeberg](https://codeberg.org/hitblast/trimsec) and merged onto [GitHub](https://github.com/hitblast/trimsec) for deploying to the release pipeline.
 
 ## Table of Contents
