@@ -12,9 +12,12 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
     args::Token::SkipThis,
-    clap::{KeySubcmd, parse_with_clap},
+    clap::{CacheSubCmd, KeySubCmd, parse_with_clap},
     clip::TClipString,
-    commands::{fit::FitCmd, list::ListCmd, path::PathCmd, trim::TrimCmd},
+    commands::{
+        cache_none::CacheNoneCmd, fit::FitCmd, key_none::KeyNoneCmd, list::ListCmd, path::PathCmd,
+        trim::TrimCmd,
+    },
     core::{
         context::Ctx,
         time::{TDuration, parse_multiplier},
@@ -33,7 +36,8 @@ pub enum TCmdContent {
 pub enum TCmd {
     Trim { tokens: Vec<Token> },
     Fit { tokens: Vec<Token> },
-    Key { subcmd: KeySubcmd },
+    Key { command: Option<KeySubCmd> },
+    Cache { command: Option<CacheSubCmd> },
     List { cmd: ListCmd },
     Path { cmd: PathCmd },
 }
@@ -62,10 +66,18 @@ impl TCmd {
                 let cmd = FitCmd::delegate(ctx, tokens)?;
                 cmd.run()
             }
-            TCmd::Key { subcmd: command } => match command {
-                KeySubcmd::Show(command) => command.run(ctx),
-                KeySubcmd::Set(command) => command.run(ctx),
-                KeySubcmd::Unset(command) => command.run(ctx),
+            TCmd::Key { command } => match command {
+                Some(c) => match c {
+                    KeySubCmd::Set(command) => command.run(ctx),
+                    KeySubCmd::Unset(command) => command.run(ctx),
+                },
+                None => KeyNoneCmd.run(ctx),
+            },
+            TCmd::Cache { command } => match command {
+                Some(c) => match c {
+                    CacheSubCmd::Clean(cache_clean_cmd) => cache_clean_cmd.run(ctx),
+                },
+                None => CacheNoneCmd.run(ctx),
             },
             TCmd::List { cmd } => cmd.run(ctx),
             TCmd::Path { cmd } => cmd.run(ctx),
@@ -194,10 +206,11 @@ pub fn fetch_noninteractive_cmd(
     remaining: Vec<String>,
     skippable: HashSet<usize>,
 ) -> Result<TCmd> {
-    const SUBCMDS: [&str; 8] = [
+    const SUBCMDS: [&str; 9] = [
         "key",
         "list",
         "ls",
+        "cache",
         "path",
         "-h",
         "help",

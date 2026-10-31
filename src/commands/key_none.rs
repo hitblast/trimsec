@@ -2,9 +2,9 @@ use crate::core::{context::Ctx, youtils::decide_youtube_key};
 use clap::Args;
 
 #[derive(Args, Debug)]
-pub struct KeyShowCmd;
+pub struct KeyNoneCmd;
 
-impl KeyShowCmd {
+impl KeyNoneCmd {
     pub fn run(self, ctx: &mut Ctx) -> anyhow::Result<()> {
         println!(
             "{}",

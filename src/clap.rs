@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use crate::{
     args::TCmd,
     commands::{
-        key_set::KeySetCmd, key_show::KeyShowCmd, key_unset::KeyUnsetCmd, list::ListCmd,
+        cache_clean::CacheCleanCmd, key_set::KeySetCmd, key_unset::KeyUnsetCmd, list::ListCmd,
         path::PathCmd,
     },
 };
@@ -148,20 +148,29 @@ pub struct Args {
 pub enum Command {
     /// Shows the path of the configuration file.
     Path(PathCmd),
+    /// Cache-related commands.
+    Cache {
+        #[command(subcommand)]
+        command: Option<CacheSubCmd>,
+    },
     /// Lists all entries in a YouTube playlist.
     #[command(visible_alias = "ls")]
     List(ListCmd),
     /// Command group for managing the Google Cloud Console API key.
     Key {
         #[command(subcommand)]
-        command: KeySubcmd,
+        command: Option<KeySubCmd>,
     },
 }
 
 #[derive(Subcommand, Debug)]
-pub enum KeySubcmd {
-    /// Shows the API key that is in use, if any.
-    Show(KeyShowCmd),
+pub enum CacheSubCmd {
+    /// Cleans all request cache.
+    Clean(CacheCleanCmd),
+}
+
+#[derive(Subcommand, Debug)]
+pub enum KeySubCmd {
     /// Sets the current API key.
     Set(KeySetCmd),
     /// Removes any existing key.
@@ -172,8 +181,9 @@ pub fn parse_with_clap(args: &[String]) -> Result<TCmd> {
     let cli = Args::try_parse_from(std::iter::once("ts").chain(args.iter().map(String::as_str)))?;
 
     match cli.command {
-        Command::Key { command: subcmd } => Ok(TCmd::Key { subcmd }),
+        Command::Key { command } => Ok(TCmd::Key { command }),
         Command::List(cmd) => Ok(TCmd::List { cmd }),
         Command::Path(cmd) => Ok(TCmd::Path { cmd }),
+        Command::Cache { command } => Ok(TCmd::Cache { command }),
     }
 }

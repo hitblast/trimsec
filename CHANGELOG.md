@@ -2,6 +2,18 @@
 
 Active since v2.0.0.
 
+### v5.3.0
+
+New features:
+
+- Added a new `cache` group of commands for managing the cache, which has two operations as of now:
+  - `ts cache clean`: Removes all cached files.
+  - `ts cache`: Shows the cache status and location.
+
+Changes:
+
+- `ts key show` is now just `ts key`.
+
 ### v5.2.1
 
 Bug fixes:

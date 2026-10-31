@@ -1,4 +1,7 @@
-use std::{collections::HashSet, path::PathBuf};
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 
 use http_cache_ureq::{CachedAgent, RedbManager};
 use serde::de::DeserializeOwned;
@@ -31,6 +34,8 @@ pub enum ApiClientType {
 
 pub struct ApiClient {
     client: ApiClientType,
+    cache_path: Option<PathBuf>,
+    preexisting_cache_file: bool,
     key: String,
 }
 
@@ -43,20 +48,43 @@ fn get_http_cache_path() -> Option<PathBuf> {
 impl ApiClient {
     #[must_use]
     pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
+        let mut cache_path = None;
+        let mut preexisting_cache_file = false;
+
         let agent = match get_http_cache_path() {
-            Some(path) => ApiClientType::Cached(
+            Some(path) => ApiClientType::Cached({
+                preexisting_cache_file = path.exists();
+                let manager = RedbManager::new(&path).map_err(|e| anyhow::anyhow!(e))?;
+                cache_path = Some(path);
+
                 CachedAgent::builder()
-                    .cache_manager(RedbManager::new(path).map_err(|e| anyhow::anyhow!(e))?)
+                    .cache_manager(manager)
                     .cache_mode(http_cache_ureq::CacheMode::Default)
-                    .build()?,
-            ),
+                    .build()?
+            }),
             _ => ApiClientType::Uncached(Agent::new_with_defaults()),
         };
 
         Ok(Self {
             client: agent,
+            cache_path,
+            preexisting_cache_file,
             key: key.to_string(),
         })
+    }
+
+    /// Returns the API-request cache-path for trimsec.
+    ///
+    /// This might return `None` if the client is not using the cache.
+    #[must_use]
+    pub fn cache_path(&self) -> Option<&Path> {
+        self.cache_path.as_ref().map(|f| f.as_path())
+    }
+
+    /// Whether the cache path preexisted or not.
+    #[must_use]
+    pub fn is_preexisting_cache_file(&self) -> bool {
+        self.preexisting_cache_file
     }
 
     fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {

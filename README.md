@@ -172,8 +172,11 @@ Some notable commands are:
 A few configuration-related commands are:
 
 - `ts path` - Shows the path to the configuration file.
+- `ts cache <subcommand>` - Manages the cache.
+  - `ts cache` - Shows the cache status.
+  - `ts cache clean` - Cleans the cache.
 - `ts key <subcommand>` (used for Google Cloud Console API configuration for YouTube support)
-  - `ts key show` - Shows the configured API key.
+  - `ts key` - Shows the configured API key.
   - `ts key set <API_KEY>` - Sets a new API key.
   - `ts key unset` - Unsets the configured API key.
 
