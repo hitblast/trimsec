@@ -39,11 +39,15 @@ pub trait YtInnerClient {
     /// Returns the API-request cache-path for trimsec.
     ///
     /// This might return `None` if the client is not using the cache.
+    ///
+    /// NOTE: This is only available on the [`YtClient`] implementation.
     fn cache_path(&self) -> Option<&Path>;
 
     /// Returns the cache manager for the API client.
     ///
     /// This might return `None` if the client is not using the cache.
+    ///
+    /// NOTE: This is only available on the [`YtClient`] implementation.
     fn cache_manager(&self) -> Option<&RedbManager>;
 }
 
