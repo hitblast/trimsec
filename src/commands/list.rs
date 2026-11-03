@@ -1,4 +1,5 @@
 use crate::core::{
+    api::YtInnerClient,
     context::Ctx,
     youtils::{TYoutubeId, get_youtube_id},
 };

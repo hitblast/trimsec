@@ -1,4 +1,4 @@
-use crate::core::context::Ctx;
+use crate::core::{api::YtInnerClient, context::Ctx};
 use anyhow::Result;
 use clap::Args;
 

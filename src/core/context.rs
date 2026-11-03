@@ -1,6 +1,10 @@
 use crate::{
     args::{ColorMode, TKeywordArgs},
-    core::{api::ApiClient, config::Config, youtils::decide_youtube_key},
+    core::{
+        api::{YtInnerApiClient, YtInnerClient},
+        config::Config,
+        youtils::decide_youtube_key,
+    },
     style::Style,
 };
 use anyhow::{Result, anyhow};
@@ -9,7 +13,21 @@ pub struct Ctx {
     pub style: Style,
     pub kwargs: Option<TKeywordArgs>,
     config: Option<Config>,
-    api_client: Option<ApiClient>,
+    api_client: Option<YtClient>,
+}
+
+pub enum YtClient {
+    Ytdlp(),
+    ApiBased(YtInnerApiClient),
+}
+
+impl YtClient {
+    pub fn inner(&self) -> Result<&impl YtInnerClient> {
+        match self {
+            YtClient::ApiBased(c) => Ok(c),
+            _ => unimplemented!(),
+        }
+    }
 }
 
 impl Ctx {
@@ -43,17 +61,21 @@ impl Ctx {
         }
     }
 
-    pub fn client(&mut self) -> Result<&ApiClient> {
+    pub fn client(&mut self) -> Result<&impl YtInnerClient> {
         match self.api_client {
-            Some(ref c) => Ok(c),
+            Some(ref c) => Ok(c.inner()?),
             None => {
                 let cfg = self.config()?;
-                let key = decide_youtube_key(cfg)?;
+                let key = decide_youtube_key(cfg);
 
-                let client = ApiClient::new(key)?;
-                let ins = self.api_client.insert(client);
-
-                Ok(ins)
+                match key {
+                    Some(key) => {
+                        let client = YtInnerApiClient::new(key)?;
+                        let ins = self.api_client.insert(YtClient::ApiBased(client)).inner()?;
+                        Ok(ins)
+                    }
+                    None => Err(anyhow!("no youtube key")),
+                }
             }
         }
     }

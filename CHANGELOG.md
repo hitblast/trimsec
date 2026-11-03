@@ -2,7 +2,11 @@
 
 Active since v2.0.0.
 
-### v5.4.0
+### v6.0.0
+
+New features:
+
+- This release adds complete support for `yt-dlp`, allowing trimsec to function perfectly as intended for YouTube videos, music, Shorts and playlists, even without an API key.
 
 Improvements:
 

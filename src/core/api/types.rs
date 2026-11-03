@@ -1,6 +1,51 @@
+use std::path::Path;
+
+use anyhow::Result;
+use http_cache_ureq::RedbManager;
 use serde::Deserialize;
 
+use crate::{
+    core::{time::TDuration, youtils::TYoutubeId},
+    errors::TYoutubeError,
+};
+
 // The naming convention is based on the actual API endpoints they are deserialized from.
+
+pub trait YtInnerClient {
+    fn new(key: impl ToString) -> Result<Self, anyhow::Error>
+    where
+        Self: Sized;
+
+    /// Returns a vector of IDs from a single YouTube ID.
+    ///
+    /// This is expected to be used for fetching the contents of a playlist (or "video IDs"). If the [`YoutubeId`] object
+    /// is not a playlist, then a vector would be returned with the ID that was originally passed in.
+    fn expand_id(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<Vec<TYoutubeId>, TYoutubeError>;
+
+    /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
+    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError>;
+
+    /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
+    fn fetch_duration_from_id(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<TDuration, TYoutubeError>;
+
+    /// Returns the API-request cache-path for trimsec.
+    ///
+    /// This might return `None` if the client is not using the cache.
+    fn cache_path(&self) -> Option<&Path>;
+
+    /// Returns the cache manager for the API client.
+    ///
+    /// This might return `None` if the client is not using the cache.
+    fn cache_manager(&self) -> Option<&RedbManager>;
+}
 
 // videos
 

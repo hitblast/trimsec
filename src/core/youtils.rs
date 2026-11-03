@@ -1,22 +1,16 @@
 use std::fmt::Display;
 
-use anyhow::{Result as YoutilsResult, bail};
 use url::Url;
 
 use crate::core::config::Config;
 
-pub fn decide_youtube_key(cfg: &Config) -> YoutilsResult<String> {
+pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
     const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
     let x = std::env::var(ENV_VAR_NAME).ok();
 
     match x {
-        Some(x) => Ok(x),
-        None => match cfg.api_key() {
-            Some(k) => Ok(k.to_string()),
-            None => {
-                bail!("API key not found! Set one using: ts key set [OPTIONS] <API_KEY>")
-            }
-        },
+        Some(x) => Some(x),
+        None => cfg.api_key().map(|f| f.to_string()),
     }
 }
 

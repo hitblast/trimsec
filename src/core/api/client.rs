@@ -11,7 +11,10 @@ use ureq::Agent;
 use crate::{
     core::{
         CACHE_DIR,
-        api::types::{YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection},
+        api::{
+            YtInnerClient,
+            types::{YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection},
+        },
         time::TDuration,
         youtils::TYoutubeId,
     },
@@ -33,7 +36,7 @@ pub enum ApiClientType {
     Uncached(Agent),
 }
 
-pub struct ApiClient {
+pub struct YtInnerApiClient {
     client: ApiClientType,
     cache_path: Option<PathBuf>,
     cache_manager: Option<RedbManager>,
@@ -46,9 +49,8 @@ fn get_http_cache_path() -> Option<PathBuf> {
     CACHE_DIR.as_ref().map(|f| f.join(HTTP_CACHE_FILENAME))
 }
 
-impl ApiClient {
-    #[must_use]
-    pub fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
+impl YtInnerClient for YtInnerApiClient {
+    fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
         let mut cache_path = None;
         let mut cache_manager = None;
 
@@ -74,48 +76,7 @@ impl ApiClient {
         })
     }
 
-    /// Returns the API-request cache-path for trimsec.
-    ///
-    /// This might return `None` if the client is not using the cache.
-    #[must_use]
-    pub fn cache_path(&self) -> Option<&Path> {
-        self.cache_path.as_ref().map(|f| f.as_path())
-    }
-
-    /// Returns the cache manager for the API client.
-    ///
-    /// This might return `None` if the client is not using the cache.
-    #[must_use]
-    pub fn cache_manager(&self) -> Option<&RedbManager> {
-        self.cache_manager.as_ref()
-    }
-
-    fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
-        match &self.client {
-            ApiClientType::Cached(cached_agent) => smol::block_on(async {
-                cached_agent
-                    .get(url)
-                    .call()
-                    .await
-                    .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
-                    .into_json::<T>()
-                    .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
-            }),
-            ApiClientType::Uncached(agent) => agent
-                .get(url)
-                .call()
-                .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
-                .body_mut()
-                .read_json()
-                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string())),
-        }
-    }
-
-    /// Returns a vector of IDs from a single YouTube ID.
-    ///
-    /// This is expected to be used for fetching the contents of a playlist (or "video IDs"). If the [`YoutubeId`] object
-    /// is not a playlist, then a vector would be returned with the ID that was originally passed in.
-    pub fn expand_id(
+    fn expand_id(
         &self,
         id: &TYoutubeId,
         max_items: usize,
@@ -208,8 +169,7 @@ impl ApiClient {
         Ok(total_ids)
     }
 
-    /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
-    pub fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError> {
+    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError> {
         let mut vector: Vec<YtVideo> = Vec::new();
 
         let processed: Result<Vec<YtVideoCollection>, TYoutubeError> = ids
@@ -240,8 +200,7 @@ impl ApiClient {
         Ok(vector)
     }
 
-    /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
-    pub fn fetch_duration_from_id(
+    fn fetch_duration_from_id(
         &self,
         id: &TYoutubeId,
         max_items: usize,
@@ -264,5 +223,36 @@ impl ApiClient {
             .sum();
 
         Ok(total_duration)
+    }
+
+    fn cache_path(&self) -> Option<&Path> {
+        self.cache_path.as_ref().map(|f| f.as_path())
+    }
+
+    fn cache_manager(&self) -> Option<&RedbManager> {
+        self.cache_manager.as_ref()
+    }
+}
+
+impl YtInnerApiClient {
+    fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
+        match &self.client {
+            ApiClientType::Cached(cached_agent) => smol::block_on(async {
+                cached_agent
+                    .get(url)
+                    .call()
+                    .await
+                    .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                    .into_json::<T>()
+                    .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
+            }),
+            ApiClientType::Uncached(agent) => agent
+                .get(url)
+                .call()
+                .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                .body_mut()
+                .read_json()
+                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string())),
+        }
     }
 }
