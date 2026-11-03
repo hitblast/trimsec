@@ -1,21 +1,23 @@
 use serde::Deserialize;
 
+// The naming convention is based on the actual API endpoints they are deserialized from.
+
 // videos
 
 #[derive(Debug, Deserialize)]
-pub struct YTVideos {
-    pub items: Vec<YTVideosItem>,
+pub struct YtVideoCollection {
+    pub items: Vec<YtVideo>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTVideosItem {
-    pub snippet: YTVideoSnippet,
+pub struct YtVideo {
+    pub snippet: YtVideoSnippet,
     #[serde(rename = "contentDetails")]
-    pub content_details: YTVideosContentDetails,
+    pub content_details: YtVideoContentDetails,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTVideoSnippet {
+pub struct YtVideoSnippet {
     #[allow(unused)]
     pub title: String,
     #[allow(unused)]
@@ -23,25 +25,25 @@ pub struct YTVideoSnippet {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTVideosContentDetails {
+pub struct YtVideoContentDetails {
     pub duration: String,
 }
 
 // playlists
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistList {
-    pub items: Vec<YTPlaylistListItem>,
+pub struct YtPlaylistCollection {
+    pub items: Vec<YtPlaylist>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistListItem {
+pub struct YtPlaylist {
     #[serde(rename = "contentDetails")]
-    pub content_details: YTPlaylistListItemContentDetails,
+    pub content_details: YtPlaylistContentDetails,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistListItemContentDetails {
+pub struct YtPlaylistContentDetails {
     #[serde(rename = "itemCount")]
     pub item_count: usize,
 }
@@ -49,20 +51,20 @@ pub struct YTPlaylistListItemContentDetails {
 // playlistItems
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistItems {
-    pub items: Vec<YTPlaylistItemsItem>,
+pub struct YtPlaylistItemCollection {
+    pub items: Vec<YtPlaylistItem>,
     #[serde(rename = "nextPageToken")]
     pub next_page_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistItemsItem {
+pub struct YtPlaylistItem {
     #[serde(rename = "contentDetails")]
-    pub content_details: YTPlaylistItemsItemContentDetails,
+    pub content_details: YtPlaylistItemContentDetails,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct YTPlaylistItemsItemContentDetails {
+pub struct YtPlaylistItemContentDetails {
     #[serde(rename = "videoId")]
     pub video_id: String,
 }

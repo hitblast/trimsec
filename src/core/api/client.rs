@@ -11,7 +11,7 @@ use ureq::Agent;
 use crate::{
     core::{
         CACHE_DIR,
-        api::types::{YTPlaylistItems, YTPlaylistList, YTVideos, YTVideosItem},
+        api::types::{YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection},
         time::TDuration,
         youtils::TYoutubeId,
     },
@@ -133,7 +133,7 @@ impl ApiClient {
                     self.key
                 );
 
-                let response: YTPlaylistList = self.get(&url)?;
+                let response: YtPlaylistCollection = self.get(&url)?;
 
                 let traversible_items = if let Some(ic) = response.items.first() {
                     let max_traversible = ic.content_details.item_count;
@@ -176,7 +176,7 @@ impl ApiClient {
                         )
                     };
 
-                    let response: YTPlaylistItems = self.get(&url)?;
+                    let response: YtPlaylistItemCollection = self.get(&url)?;
 
                     if let Some(t) = &response.next_page_token
                         && seen_tokens.contains(t)
@@ -209,13 +209,10 @@ impl ApiClient {
     }
 
     /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
-    pub fn fetch_video_items(
-        &self,
-        ids: &[TYoutubeId],
-    ) -> Result<Vec<YTVideosItem>, TYoutubeError> {
-        let mut vector: Vec<YTVideosItem> = Vec::new();
+    pub fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError> {
+        let mut vector: Vec<YtVideo> = Vec::new();
 
-        let processed: Result<Vec<YTVideos>, TYoutubeError> = ids
+        let processed: Result<Vec<YtVideoCollection>, TYoutubeError> = ids
             .chunks(50)
             .into_iter()
             .par_bridge()
@@ -232,12 +229,11 @@ impl ApiClient {
                     self.key
                 );
 
-                self.get::<YTVideos>(&url)
+                self.get::<YtVideoCollection>(&url)
             })
             .collect();
 
-        let processed = processed?;
-        for mut chunk in processed {
+        for mut chunk in processed? {
             vector.append(&mut chunk.items);
         }
 

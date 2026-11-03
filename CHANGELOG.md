@@ -2,6 +2,16 @@
 
 Active since v2.0.0.
 
+### v5.4.0
+
+Improvements:
+
+- Chunk-based video-fetching has been parallelized using `rayon` for faster processing times.
+
+Internal Changes:
+
+- `core::api::types` has received type-renames based on the endpoints they are deserialized from.
+
 ### v5.3.0
 
 New features:
