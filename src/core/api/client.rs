@@ -4,6 +4,7 @@ use std::{
 };
 
 use http_cache_ureq::{CachedAgent, RedbManager};
+use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 use serde::de::DeserializeOwned;
 use ureq::Agent;
 
@@ -207,27 +208,37 @@ impl ApiClient {
         Ok(total_ids)
     }
 
-    /// Fetches a single chunk of video items.
+    /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
     pub fn fetch_video_items(
         &self,
         ids: &[TYoutubeId],
     ) -> Result<Vec<YTVideosItem>, TYoutubeError> {
         let mut vector: Vec<YTVideosItem> = Vec::new();
 
-        for chunk_ids in ids.chunks(50) {
-            let url = format!(
-                "{}?id={}&key={}&part=snippet,contentDetails",
-                VIDEOS_URL,
-                chunk_ids
-                    .iter()
-                    .map(|f| f.as_str())
-                    .collect::<Vec<&str>>()
-                    .join(","),
-                self.key
-            );
+        let processed: Result<Vec<YTVideos>, TYoutubeError> = ids
+            .chunks(50)
+            .into_iter()
+            .par_bridge()
+            .into_par_iter()
+            .map(|chunk_ids| {
+                let url = format!(
+                    "{}?id={}&key={}&part=snippet,contentDetails",
+                    VIDEOS_URL,
+                    chunk_ids
+                        .iter()
+                        .map(|f| f.as_str())
+                        .collect::<Vec<&str>>()
+                        .join(","),
+                    self.key
+                );
 
-            let mut response: YTVideos = self.get(&url)?;
-            vector.append(&mut response.items);
+                self.get::<YTVideos>(&url)
+            })
+            .collect();
+
+        let processed = processed?;
+        for mut chunk in processed {
+            vector.append(&mut chunk.items);
         }
 
         Ok(vector)

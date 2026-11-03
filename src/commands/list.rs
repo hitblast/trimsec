@@ -32,10 +32,14 @@ impl ListCmd {
             .fetch_video_items(&ids)
             .map_err(|e| anyhow::anyhow!("Failed to fetch playlist videos: {e}"))?;
 
-        for v in videos {
-            println!("{}", v.snippet.title)
-        }
-
+        println!(
+            "{}",
+            videos
+                .iter()
+                .map(|f| f.snippet.title.as_str())
+                .collect::<Vec<&str>>()
+                .join("\n")
+        );
         Ok(())
     }
 }
