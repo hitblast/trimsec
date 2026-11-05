@@ -11,14 +11,14 @@ use ureq::Agent;
 use crate::{
     core::{
         CACHE_DIR,
-        api::{
-            YtInnerClient,
-            types::{YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection},
+        api::types::{
+            YtInnerClient, YtPlaylistCollection, YtPlaylistItemCollection, YtVideo,
+            YtVideoCollection,
         },
         time::TDuration,
         youtils::TYoutubeId,
     },
-    errors::TYoutubeError,
+    errors::{TYoutubeError, YtInnerClientInitError},
 };
 
 macro_rules! gen_url {
@@ -50,20 +50,22 @@ fn get_http_cache_path() -> Option<PathBuf> {
 }
 
 impl YtInnerClient for YtInnerApiClient {
-    fn new(key: impl ToString) -> Result<Self, anyhow::Error> {
+    fn new(key: impl ToString) -> Result<Self, YtInnerClientInitError> {
         let mut cache_path = None;
         let mut cache_manager = None;
 
         let agent = match get_http_cache_path() {
             Some(path) => ApiClientType::Cached({
-                let manager = RedbManager::new(&path).map_err(|e| anyhow::anyhow!(e))?;
+                let manager = RedbManager::new(&path)
+                    .map_err(|e| YtInnerClientInitError::YtDataApi(e.to_string()))?;
                 cache_path = Some(path);
                 cache_manager = Some(manager.clone());
 
                 CachedAgent::builder()
                     .cache_manager(manager)
                     .cache_mode(http_cache_ureq::CacheMode::Default)
-                    .build()?
+                    .build()
+                    .map_err(|e| YtInnerClientInitError::YtDataApi(e.to_string()))?
             }),
             _ => ApiClientType::Uncached(Agent::new_with_defaults()),
         };

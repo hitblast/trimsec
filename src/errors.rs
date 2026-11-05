@@ -105,3 +105,21 @@ impl Display for TYoutubeError {
         write!(f, "{wr}")
     }
 }
+
+#[derive(Debug)]
+pub enum YtInnerClientInitError {
+    Ytdlp(String),
+    YtDataApi(String),
+}
+
+impl Display for YtInnerClientInitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let wr = match self {
+            YtInnerClientInitError::Ytdlp(e) => format!("error initializing yt-dlp client: {e}"),
+            YtInnerClientInitError::YtDataApi(e) => {
+                format!("error initializing youtube data api client: {e}")
+            }
+        };
+        write!(f, "{wr}")
+    }
+}

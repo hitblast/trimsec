@@ -1,18 +1,17 @@
 use std::path::Path;
 
-use anyhow::Result;
 use http_cache_ureq::RedbManager;
 use serde::Deserialize;
 
 use crate::{
     core::{time::TDuration, youtils::TYoutubeId},
-    errors::TYoutubeError,
+    errors::{TYoutubeError, YtInnerClientInitError},
 };
 
 // The naming convention is based on the actual API endpoints they are deserialized from.
 
 pub trait YtInnerClient {
-    fn new(key: impl ToString) -> Result<Self, anyhow::Error>
+    fn new(key: impl ToString) -> Result<Self, YtInnerClientInitError>
     where
         Self: Sized;
 

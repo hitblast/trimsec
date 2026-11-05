@@ -1,7 +1,7 @@
 use crate::{
     args::{ColorMode, TKeywordArgs},
     core::{
-        api::{YtInnerApiClient, YtInnerClient},
+        api::{YtInnerApiClient, types::YtInnerClient},
         config::Config,
         youtils::decide_youtube_key,
     },
@@ -70,7 +70,7 @@ impl Ctx {
 
                 match key {
                     Some(key) => {
-                        let client = YtInnerApiClient::new(key)?;
+                        let client = YtInnerApiClient::new(key).map_err(|e| anyhow::anyhow!(e))?;
                         let ins = self.api_client.insert(YtClient::ApiBased(client)).inner()?;
                         Ok(ins)
                     }
