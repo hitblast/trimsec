@@ -80,13 +80,22 @@ impl Display for TFetchClipboardError {
 
 #[derive(Debug)]
 pub enum TYtClientError {
+    // Youtube Data API
     UreqError(String),
     RequestUriParseError(String),
     InvalidResponseBody(String),
     ItemNotFound,
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
+    // yt-dlp
     UnsupportedError(String),
+    StderrReadError(String),
+    StdoutTakeError,
+    StderrTakeError,
+    CmdSpawnError(String),
+    BufReaderError(String),
+    ErroneousCmdOutput(String),
+    DeserializationError(String),
 }
 
 impl Display for TYtClientError {
@@ -103,22 +112,31 @@ impl Display for TYtClientError {
             }
             TYtClientError::InvalidResponseBody(e) => format!("response body invalid: {e}"),
             TYtClientError::UnsupportedError(e) => format!("unsupported behavior: {e}"),
+            TYtClientError::ErroneousCmdOutput(e) => {
+                format!("erroneous output while executing command: {e}")
+            }
+            TYtClientError::StderrReadError(e) => format!("error reading stderr: {e}"),
+            TYtClientError::StderrTakeError => "error taking stderr".to_string(),
+            TYtClientError::StdoutTakeError => "error taking stdout".to_string(),
+            TYtClientError::BufReaderError(e) => format!("error reading stdout: {e}"),
+            TYtClientError::CmdSpawnError(e) => format!("error spawning command: {e}"),
+            TYtClientError::DeserializationError(e) => format!("error deserializing response: {e}"),
         };
         write!(f, "{wr}")
     }
 }
 
 #[derive(Debug)]
-pub enum TYtInnerClientInitError {
+pub enum TYtClientInitError {
     Ytdlp(String),
     YtDataApi(String),
 }
 
-impl Display for TYtInnerClientInitError {
+impl Display for TYtClientInitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
-            TYtInnerClientInitError::Ytdlp(e) => format!("error initializing yt-dlp client: {e}"),
-            TYtInnerClientInitError::YtDataApi(e) => {
+            TYtClientInitError::Ytdlp(e) => format!("error initializing yt-dlp client: {e}"),
+            TYtClientInitError::YtDataApi(e) => {
                 format!("error initializing youtube data api client: {e}")
             }
         };

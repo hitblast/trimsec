@@ -1,20 +1,16 @@
-use std::path::Path;
-
-use http_cache_ureq::RedbManager;
 use serde::Deserialize;
 
 use crate::{
     core::{time::TDuration, youtils::TYoutubeId},
-    errors::{TYtClientError, TYtInnerClientInitError},
+    errors::TYtClientError,
 };
 
-// The naming convention is based on the actual API endpoints they are deserialized from.
-
-pub trait YtInnerClient: Send + Sync {
-    fn new(key: impl ToString) -> Result<Self, TYtInnerClientInitError>
-    where
-        Self: Sized;
-
+/// Represents a YouTube client's common methods inside trimsec.
+///
+/// This trait allows to switch between `yt-dlp` and the internal YouTube Data API wrapper via static dispatch
+/// and is shared between both the upper and the lower-level structs.
+///
+pub trait YtClientCommon: Send + Sync {
     /// Returns a vector of IDs from a single YouTube ID.
     ///
     /// This is expected to be used for fetching the contents of a playlist (or "video IDs"). If the [`YoutubeId`] object
@@ -34,21 +30,11 @@ pub trait YtInnerClient: Send + Sync {
         id: &TYoutubeId,
         max_items: usize,
     ) -> Result<TDuration, TYtClientError>;
-
-    /// Returns the API-request cache-path for trimsec.
-    ///
-    /// This might return `None` if the client is not using the cache.
-    ///
-    /// NOTE: This is only available on the [`YtClient`] implementation.
-    fn cache_path(&self) -> Option<&Path>;
-
-    /// Returns the cache manager for the API client.
-    ///
-    /// This might return `None` if the client is not using the cache.
-    ///
-    /// NOTE: This is only available on the [`YtClient`] implementation.
-    fn cache_manager(&self) -> Option<&RedbManager>;
 }
+
+/*
+ * The naming convention is based on the actual API endpoints they are deserialized from.
+ */
 
 // videos
 

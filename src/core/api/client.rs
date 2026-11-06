@@ -12,13 +12,13 @@ use crate::{
     core::{
         CACHE_DIR,
         api::types::{
-            YtInnerClient, YtPlaylistCollection, YtPlaylistItemCollection, YtVideo,
+            YtClientCommon, YtPlaylistCollection, YtPlaylistItemCollection, YtVideo,
             YtVideoCollection,
         },
         time::TDuration,
         youtils::TYoutubeId,
     },
-    errors::{TYtClientError, TYtInnerClientInitError},
+    errors::{TYtClientError, TYtClientInitError},
 };
 
 macro_rules! gen_url {
@@ -36,7 +36,7 @@ pub enum ApiClientType {
     Uncached(Agent),
 }
 
-pub struct YtInnerApiClient {
+pub struct YtInnerDataApiClient {
     client: ApiClientType,
     cache_path: Option<PathBuf>,
     cache_manager: Option<RedbManager>,
@@ -49,35 +49,7 @@ fn get_http_cache_path() -> Option<PathBuf> {
     CACHE_DIR.as_ref().map(|f| f.join(HTTP_CACHE_FILENAME))
 }
 
-impl YtInnerClient for YtInnerApiClient {
-    fn new(key: impl ToString) -> Result<Self, TYtInnerClientInitError> {
-        let mut cache_path = None;
-        let mut cache_manager = None;
-
-        let agent = match get_http_cache_path() {
-            Some(path) => ApiClientType::Cached({
-                let manager = RedbManager::new(&path)
-                    .map_err(|e| TYtInnerClientInitError::YtDataApi(e.to_string()))?;
-                cache_path = Some(path);
-                cache_manager = Some(manager.clone());
-
-                CachedAgent::builder()
-                    .cache_manager(manager)
-                    .cache_mode(http_cache_ureq::CacheMode::Default)
-                    .build()
-                    .map_err(|e| TYtInnerClientInitError::YtDataApi(e.to_string()))?
-            }),
-            _ => ApiClientType::Uncached(Agent::new_with_defaults()),
-        };
-
-        Ok(Self {
-            client: agent,
-            cache_path,
-            cache_manager,
-            key: key.to_string(),
-        })
-    }
-
+impl YtClientCommon for YtInnerDataApiClient {
     fn expand_id(
         &self,
         id: &TYoutubeId,
@@ -226,17 +198,37 @@ impl YtInnerClient for YtInnerApiClient {
 
         Ok(total_duration)
     }
-
-    fn cache_path(&self) -> Option<&Path> {
-        self.cache_path.as_ref().map(|f| f.as_path())
-    }
-
-    fn cache_manager(&self) -> Option<&RedbManager> {
-        self.cache_manager.as_ref()
-    }
 }
 
-impl YtInnerApiClient {
+impl YtInnerDataApiClient {
+    pub fn new(key: impl ToString) -> Result<Self, TYtClientInitError> {
+        let mut cache_path = None;
+        let mut cache_manager = None;
+
+        let agent = match get_http_cache_path() {
+            Some(path) => ApiClientType::Cached({
+                let manager = RedbManager::new(&path)
+                    .map_err(|e| TYtClientInitError::YtDataApi(e.to_string()))?;
+                cache_path = Some(path);
+                cache_manager = Some(manager.clone());
+
+                CachedAgent::builder()
+                    .cache_manager(manager)
+                    .cache_mode(http_cache_ureq::CacheMode::Default)
+                    .build()
+                    .map_err(|e| TYtClientInitError::YtDataApi(e.to_string()))?
+            }),
+            _ => ApiClientType::Uncached(Agent::new_with_defaults()),
+        };
+
+        Ok(Self {
+            client: agent,
+            cache_path,
+            cache_manager,
+            key: key.to_string(),
+        })
+    }
+
     fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYtClientError> {
         match &self.client {
             ApiClientType::Cached(cached_agent) => smol::block_on(async {
@@ -256,5 +248,13 @@ impl YtInnerApiClient {
                 .read_json()
                 .map_err(|e| TYtClientError::InvalidResponseBody(e.to_string())),
         }
+    }
+
+    pub fn cache_path(&self) -> Option<&Path> {
+        self.cache_path.as_ref().map(|f| f.as_path())
+    }
+
+    pub fn cache_manager(&self) -> Option<&RedbManager> {
+        self.cache_manager.as_ref()
     }
 }

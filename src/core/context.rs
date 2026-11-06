@@ -1,11 +1,16 @@
 use crate::{
     args::{ColorMode, TKeywordArgs},
     core::{
-        api::{YtInnerApiClient, types::YtInnerClient},
+        api::{
+            YtInnerDataApiClient,
+            types::{YtClientCommon, YtVideo},
+        },
         config::Config,
-        youtils::decide_youtube_key,
+        time::TDuration,
+        youtils::{TYoutubeId, decide_youtube_key},
         ytdlp::YtInnerYtdlpWrapper,
     },
+    errors::TYtClientError,
     style::Style,
 };
 use anyhow::{Result, anyhow};
@@ -19,14 +24,44 @@ pub struct Ctx {
 
 pub enum YtClient {
     Ytdlp(YtInnerYtdlpWrapper),
-    ApiBased(YtInnerApiClient),
+    ApiBased(YtInnerDataApiClient),
 }
 
-impl YtClient {
-    pub fn inner(&self) -> Result<&dyn YtInnerClient> {
+impl YtClientCommon for YtClient {
+    fn expand_id(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<Vec<TYoutubeId>, TYtClientError> {
         match self {
-            YtClient::ApiBased(c) => Ok(c),
-            YtClient::Ytdlp(c) => Ok(c),
+            YtClient::Ytdlp(yt_inner_ytdlp_wrapper) => {
+                yt_inner_ytdlp_wrapper.expand_id(id, max_items)
+            }
+            YtClient::ApiBased(yt_inner_api_client) => yt_inner_api_client.expand_id(id, max_items),
+        }
+    }
+
+    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYtClientError> {
+        match self {
+            YtClient::Ytdlp(yt_inner_ytdlp_wrapper) => {
+                yt_inner_ytdlp_wrapper.fetch_video_items(ids)
+            }
+            YtClient::ApiBased(yt_inner_api_client) => yt_inner_api_client.fetch_video_items(ids),
+        }
+    }
+
+    fn fetch_duration_from_id(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<TDuration, TYtClientError> {
+        match self {
+            YtClient::Ytdlp(yt_inner_ytdlp_wrapper) => {
+                yt_inner_ytdlp_wrapper.fetch_duration_from_id(id, max_items)
+            }
+            YtClient::ApiBased(yt_inner_api_client) => {
+                yt_inner_api_client.fetch_duration_from_id(id, max_items)
+            }
         }
     }
 }
@@ -62,23 +97,23 @@ impl Ctx {
         }
     }
 
-    pub fn client(&mut self) -> Result<&dyn YtInnerClient> {
+    pub fn client(&mut self) -> Result<&YtClient> {
         match self.api_client {
-            Some(ref c) => Ok(c.inner()?),
+            Some(ref c) => Ok(c),
             None => {
                 let cfg = self.config()?;
                 let key = decide_youtube_key(cfg);
 
                 match key {
                     Some(key) => {
-                        let client = YtInnerApiClient::new(key).map_err(|e| anyhow::anyhow!(e))?;
-                        let ins = self.api_client.insert(YtClient::ApiBased(client)).inner()?;
+                        let client =
+                            YtInnerDataApiClient::new(key).map_err(|e| anyhow::anyhow!(e))?;
+                        let ins = self.api_client.insert(YtClient::ApiBased(client));
                         Ok(ins)
                     }
                     None => {
-                        let client =
-                            YtInnerYtdlpWrapper::new("").map_err(|e| anyhow::anyhow!(e))?;
-                        let ins = self.api_client.insert(YtClient::Ytdlp(client)).inner()?;
+                        let client = YtInnerYtdlpWrapper::new().map_err(|e| anyhow::anyhow!(e))?;
+                        let ins = self.api_client.insert(YtClient::Ytdlp(client));
                         Ok(ins)
                     }
                 }

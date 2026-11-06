@@ -1,7 +1,7 @@
 use crate::{
     clip::TClipString,
     core::{
-        api::{YtInnerApiClient, types::YtInnerClient},
+        api::{YtInnerDataApiClient, types::YtClientCommon},
         context::Ctx,
         youtils::TYoutubeId,
     },
@@ -38,7 +38,8 @@ impl KeySetCmd {
             println!("Testing key... (use --no-check to skip)");
 
             let id: TYoutubeId = TYoutubeId::new("dQw4w9WgXcQ", false);
-            let client = YtInnerApiClient::new(&self.api_key).map_err(|e| anyhow::anyhow!(e))?;
+            let client =
+                YtInnerDataApiClient::new(&self.api_key).map_err(|e| anyhow::anyhow!(e))?;
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
                 bail!("invalid API key passed!",)

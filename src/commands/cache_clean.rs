@@ -8,9 +8,16 @@ pub struct CacheCleanCmd;
 impl CacheCleanCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         ctx.client().and_then(|f| {
-            if let Some(manager) = f.cache_manager() {
-                smol::block_on(manager.clear())
-                    .map_err(|e| anyhow::anyhow!("Error clearing cache: {e}"))?;
+            match f {
+                crate::core::context::YtClient::ApiBased(yt_inner_data_api_client) => {
+                    if let Some(manager) = yt_inner_data_api_client.cache_manager() {
+                        smol::block_on(manager.clear())
+                            .map_err(|e| anyhow::anyhow!("Error clearing cache: {e}"))?;
+                    }
+                }
+                crate::core::context::YtClient::Ytdlp(_) => {
+                    println!("Cache not supported in yt-dlp-based clients.")
+                }
             }
 
             Ok(())

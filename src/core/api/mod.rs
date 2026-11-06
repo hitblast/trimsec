@@ -1,3 +1,3 @@
 mod client;
-pub use client::YtInnerApiClient;
+pub use client::YtInnerDataApiClient;
 pub mod types;

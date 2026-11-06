@@ -19,6 +19,7 @@ use crate::{
         trim::TrimCmd,
     },
     core::{
+        api::types::YtClientCommon,
         context::Ctx,
         time::{TDuration, parse_multiplier},
         timeutils::time_in_day_left,

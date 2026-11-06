@@ -8,11 +8,16 @@ pub struct CacheNoneCmd;
 impl CacheNoneCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
         ctx.client().and_then(|f| {
-            match f.cache_path() {
-                Some(p) => {
-                    println!("path: {}", p.display(),);
+            match f {
+                crate::core::context::YtClient::ApiBased(yt_inner_data_api_client) => {
+                    if let Some(manager) = yt_inner_data_api_client.cache_manager() {
+                        smol::block_on(manager.clear())
+                            .map_err(|e| anyhow::anyhow!("Error clearing cache: {e}"))?;
+                    }
                 }
-                None => println!("cache path not found"),
+                crate::core::context::YtClient::Ytdlp(_) => {
+                    println!("Cache not supported in yt-dlp-based clients.")
+                }
             }
 
             Ok(())
