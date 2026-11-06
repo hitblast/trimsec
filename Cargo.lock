@@ -1845,6 +1845,7 @@ dependencies = [
  "rayon",
  "rustyline",
  "serde",
+ "serde_json",
  "smol",
  "supports-color",
  "terminal_size",

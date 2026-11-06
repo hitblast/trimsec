@@ -6,9 +6,9 @@ use std::{
     str::FromStr,
 };
 
-use crate::errors::ParseTDurationError;
+use crate::errors::TParseDurationError;
 
-pub fn parse_multiplier(multiplier: &str) -> Result<f64, ParseTDurationError> {
+pub fn parse_multiplier(multiplier: &str) -> Result<f64, TParseDurationError> {
     let multiplier = if let Some(stripped) = multiplier.strip_suffix('x') {
         stripped
     } else {
@@ -17,10 +17,10 @@ pub fn parse_multiplier(multiplier: &str) -> Result<f64, ParseTDurationError> {
 
     let mult_value: f64 = multiplier
         .parse()
-        .map_err(|_| ParseTDurationError::InvalidMultiplierFormat)?;
+        .map_err(|_| TParseDurationError::InvalidMultiplierFormat)?;
 
     if !(1.0..100.0).contains(&mult_value) {
-        Err(ParseTDurationError::MultiplierOutOfRange)
+        Err(TParseDurationError::MultiplierOutOfRange)
     } else {
         Ok(mult_value)
     }
@@ -301,14 +301,14 @@ impl TDuration {
 }
 
 impl FromStr for TDuration {
-    type Err = ParseTDurationError;
+    type Err = TParseDurationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut seconds = 0f64;
         let mut splits = 0;
 
         if s.is_empty() {
-            return Err(ParseTDurationError::EmptyDurationString);
+            return Err(TParseDurationError::EmptyDurationString);
         }
 
         for part in s.split('+') {
@@ -323,20 +323,20 @@ impl FromStr for TDuration {
                 } else {
                     let number: f64 = current_number
                         .parse()
-                        .map_err(|_| ParseTDurationError::NegativeDuration)?;
+                        .map_err(|_| TParseDurationError::NegativeDuration)?;
                     current_number.clear();
                     part_seconds += match c {
                         's' => number,
                         'm' => number * 60.0,
                         'h' => number * 3600.0,
                         'd' => number * 86400.0,
-                        _ => return Err(ParseTDurationError::InvalidTimeUnit),
+                        _ => return Err(TParseDurationError::InvalidTimeUnit),
                     };
                 }
             }
 
             if !current_number.is_empty() {
-                return Err(ParseTDurationError::InvalidDurationFormat);
+                return Err(TParseDurationError::InvalidDurationFormat);
             }
 
             seconds += part_seconds;

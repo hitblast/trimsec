@@ -1,91 +1,141 @@
-use std::process::Output;
+use std::io::{BufRead, BufReader, Read};
 
 use crate::{
     core::{
         api::types::{YtInnerClient, YtVideo},
+        time::TDuration,
         youtils::TYoutubeId,
     },
-    errors::YtInnerClientInitError,
+    errors::{TYtClientError, TYtInnerClientInitError},
 };
+use anyhow::bail;
+use serde::{Deserialize, de::DeserializeOwned};
 use which::which;
 
-pub struct Ytdlp {
+pub struct YtdlpWrapper {
     path: std::path::PathBuf,
 }
 
-macro_rules! execute {
-    ($self:expr, $($args:tt)*) => {
-        $self.execute(&format!($($args)*))
-    };
+#[derive(Deserialize)]
+pub struct TYtdlpDuration {
+    duration: f64,
 }
 
-impl Ytdlp {
-    pub fn execute(&self, subcmd: &str) -> Result<Output, anyhow::Error> {
+impl YtdlpWrapper {
+    pub fn execute<T: DeserializeOwned>(&self, args: &[String]) -> Result<Vec<T>, anyhow::Error> {
         let mut cmd = std::process::Command::new(&self.path);
-        cmd.args(subcmd.split_whitespace());
-        cmd.stdout(std::process::Stdio::piped());
-        cmd.stderr(std::process::Stdio::piped());
+        cmd.args(args);
+        cmd.args(&["--no-warnings", "--skip-download"]);
 
-        let output = cmd.output()?;
-        if !output.status.success() {
-            anyhow::bail!(
-                "Command failed: {}",
-                String::from_utf8_lossy(&output.stderr)
-            );
+        let mut child = cmd
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()?;
+        let mut stderr = child
+            .stderr
+            .take()
+            .ok_or(anyhow::anyhow!("could not take stderr from child"))?;
+
+        let stdout = child
+            .stdout
+            .take()
+            .ok_or(anyhow::anyhow!("could not take stdout from child"))?;
+
+        let mut vec: Vec<T> = Vec::new();
+
+        for line in BufReader::new(stdout).lines() {
+            let line = line?;
+            let data: T = serde_json::from_str(&line)?;
+            vec.push(data);
         }
 
-        Ok(output)
+        let status = child.wait()?;
+
+        if !status.success() {
+            let mut err_msg = String::new();
+            stderr.read_to_string(&mut err_msg)?;
+
+            let err_msg = if err_msg.trim().is_empty() {
+                "Unknown error (no stderr output)".to_string()
+            } else {
+                err_msg.trim().to_string()
+            };
+
+            bail!("Command execution failed: {}", err_msg);
+        }
+
+        Ok(vec)
     }
 
-    pub fn fetch_duration(&self, id: &TYoutubeId) -> Result<super::time::TDuration, anyhow::Error> {
-        let output = execute!(self, "--print duration {}", id)?;
+    pub fn fetch_duration(
+        &self,
+        id: &TYoutubeId,
+        playlist_end: usize,
+    ) -> Result<super::time::TDuration, anyhow::Error> {
+        let mut vec = vec![
+            "--print".to_string(),
+            "%(.{duration})j".to_string(),
+            id.construct_url(),
+        ];
 
-        let duration = String::from_utf8_lossy(&output.stdout)
-            .trim()
-            .parse::<f64>()?;
+        if id.is_playlist() && playlist_end != 0 {
+            vec.push(format!("--playlist-end {playlist_end}"));
+        }
 
-        Ok(super::time::TDuration::from(duration))
+        let output: Vec<TYtdlpDuration> = self.execute(&vec)?;
+        let duration: TDuration = output.iter().map(|f| TDuration::from(f.duration)).sum();
+
+        Ok(TDuration::from(duration))
     }
 }
 
-impl YtInnerClient for Ytdlp {
-    fn new(_: impl ToString) -> Result<Self, YtInnerClientInitError>
+const YT_DLP_ERROR_MSG_UNSUPPORTED: &str = "yt-dlp can only be used to fetch single-videos. For playlists, please use the YouTube Data API by enabling it via `ts key set`.";
+
+impl YtInnerClient for YtdlpWrapper {
+    fn new(_: impl ToString) -> Result<Self, TYtInnerClientInitError>
     where
         Self: Sized,
     {
-        let result = which("yt-dlp").map_err(|e| YtInnerClientInitError::Ytdlp(e.to_string()));
+        let result = which("yt-dlp").map_err(|e| TYtInnerClientInitError::Ytdlp(e.to_string()));
 
         Ok(Self { path: result? })
     }
 
+    // unsupported: ytdlp performance regression
     fn expand_id(
         &self,
-        id: &super::youtils::TYoutubeId,
-        max_items: usize,
-    ) -> Result<Vec<super::youtils::TYoutubeId>, crate::errors::TYoutubeError> {
-        todo!()
+        _: &super::youtils::TYoutubeId,
+        _: usize,
+    ) -> Result<Vec<super::youtils::TYoutubeId>, crate::errors::TYtClientError> {
+        Err(TYtClientError::UnsupportedError(
+            YT_DLP_ERROR_MSG_UNSUPPORTED.to_string(),
+        ))
     }
 
+    // unsupported: ytdlp performance regression
     fn fetch_video_items(
         &self,
-        ids: &[super::youtils::TYoutubeId],
-    ) -> Result<Vec<YtVideo>, crate::errors::TYoutubeError> {
-        todo!()
+        _: &[super::youtils::TYoutubeId],
+    ) -> Result<Vec<YtVideo>, crate::errors::TYtClientError> {
+        Err(TYtClientError::UnsupportedError(
+            YT_DLP_ERROR_MSG_UNSUPPORTED.to_string(),
+        ))
     }
 
     fn fetch_duration_from_id(
         &self,
-        id: &super::youtils::TYoutubeId,
+        id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<super::time::TDuration, crate::errors::TYoutubeError> {
-        todo!()
+    ) -> Result<super::time::TDuration, crate::errors::TYtClientError> {
+        self.fetch_duration(id, max_items)
+            .map_err(|e| crate::errors::TYtClientError::UreqError(e.to_string()))
     }
 
     fn cache_path(&self) -> Option<&std::path::Path> {
-        todo!()
+        None
     }
 
     fn cache_manager(&self) -> Option<&http_cache_ureq::RedbManager> {
-        todo!()
+        None
     }
 }

@@ -4,6 +4,7 @@ use crate::{
         api::{YtInnerApiClient, types::YtInnerClient},
         config::Config,
         youtils::decide_youtube_key,
+        ytdlp::YtdlpWrapper,
     },
     style::Style,
 };
@@ -17,15 +18,15 @@ pub struct Ctx {
 }
 
 pub enum YtClient {
-    Ytdlp(),
+    Ytdlp(YtdlpWrapper),
     ApiBased(YtInnerApiClient),
 }
 
 impl YtClient {
-    pub fn inner(&self) -> Result<&impl YtInnerClient> {
+    pub fn inner(&self) -> Result<&dyn YtInnerClient> {
         match self {
             YtClient::ApiBased(c) => Ok(c),
-            _ => unimplemented!(),
+            YtClient::Ytdlp(c) => Ok(c),
         }
     }
 }
@@ -61,7 +62,7 @@ impl Ctx {
         }
     }
 
-    pub fn client(&mut self) -> Result<&impl YtInnerClient> {
+    pub fn client(&mut self) -> Result<&dyn YtInnerClient> {
         match self.api_client {
             Some(ref c) => Ok(c.inner()?),
             None => {
@@ -74,7 +75,11 @@ impl Ctx {
                         let ins = self.api_client.insert(YtClient::ApiBased(client)).inner()?;
                         Ok(ins)
                     }
-                    None => Err(anyhow!("no youtube key")),
+                    None => {
+                        let client = YtdlpWrapper::new("").map_err(|e| anyhow::anyhow!(e))?;
+                        let ins = self.api_client.insert(YtClient::Ytdlp(client)).inner()?;
+                        Ok(ins)
+                    }
                 }
             }
         }

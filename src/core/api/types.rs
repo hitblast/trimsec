@@ -5,13 +5,13 @@ use serde::Deserialize;
 
 use crate::{
     core::{time::TDuration, youtils::TYoutubeId},
-    errors::{TYoutubeError, YtInnerClientInitError},
+    errors::{TYtClientError, TYtInnerClientInitError},
 };
 
 // The naming convention is based on the actual API endpoints they are deserialized from.
 
-pub trait YtInnerClient {
-    fn new(key: impl ToString) -> Result<Self, YtInnerClientInitError>
+pub trait YtInnerClient: Send + Sync {
+    fn new(key: impl ToString) -> Result<Self, TYtInnerClientInitError>
     where
         Self: Sized;
 
@@ -23,17 +23,17 @@ pub trait YtInnerClient {
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<Vec<TYoutubeId>, TYoutubeError>;
+    ) -> Result<Vec<TYoutubeId>, TYtClientError>;
 
     /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
-    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError>;
+    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYtClientError>;
 
     /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
     fn fetch_duration_from_id(
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<TDuration, TYoutubeError>;
+    ) -> Result<TDuration, TYtClientError>;
 
     /// Returns the API-request cache-path for trimsec.
     ///

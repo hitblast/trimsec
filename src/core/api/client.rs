@@ -18,7 +18,7 @@ use crate::{
         time::TDuration,
         youtils::TYoutubeId,
     },
-    errors::{TYoutubeError, YtInnerClientInitError},
+    errors::{TYtClientError, TYtInnerClientInitError},
 };
 
 macro_rules! gen_url {
@@ -50,14 +50,14 @@ fn get_http_cache_path() -> Option<PathBuf> {
 }
 
 impl YtInnerClient for YtInnerApiClient {
-    fn new(key: impl ToString) -> Result<Self, YtInnerClientInitError> {
+    fn new(key: impl ToString) -> Result<Self, TYtInnerClientInitError> {
         let mut cache_path = None;
         let mut cache_manager = None;
 
         let agent = match get_http_cache_path() {
             Some(path) => ApiClientType::Cached({
                 let manager = RedbManager::new(&path)
-                    .map_err(|e| YtInnerClientInitError::YtDataApi(e.to_string()))?;
+                    .map_err(|e| TYtInnerClientInitError::YtDataApi(e.to_string()))?;
                 cache_path = Some(path);
                 cache_manager = Some(manager.clone());
 
@@ -65,7 +65,7 @@ impl YtInnerClient for YtInnerApiClient {
                     .cache_manager(manager)
                     .cache_mode(http_cache_ureq::CacheMode::Default)
                     .build()
-                    .map_err(|e| YtInnerClientInitError::YtDataApi(e.to_string()))?
+                    .map_err(|e| TYtInnerClientInitError::YtDataApi(e.to_string()))?
             }),
             _ => ApiClientType::Uncached(Agent::new_with_defaults()),
         };
@@ -82,7 +82,7 @@ impl YtInnerClient for YtInnerApiClient {
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<Vec<TYoutubeId>, TYoutubeError> {
+    ) -> Result<Vec<TYoutubeId>, TYtClientError> {
         let total_ids = {
             let mut next_tok: Option<String> = None;
             let mut ids: Vec<TYoutubeId> = Vec::new();
@@ -103,7 +103,7 @@ impl YtInnerClient for YtInnerApiClient {
 
                     if max_items != 0 {
                         if max_items > max_traversible {
-                            return Err(TYoutubeError::InvalidMaxSize((
+                            return Err(TYtClientError::InvalidMaxSize((
                                 max_items,
                                 max_traversible,
                             )));
@@ -114,7 +114,7 @@ impl YtInnerClient for YtInnerApiClient {
                         max_traversible
                     }
                 } else {
-                    return Err(TYoutubeError::InvalidPlaylist(id.to_string()));
+                    return Err(TYtClientError::InvalidPlaylist(id.to_string()));
                 };
 
                 for start in (0..traversible_items).step_by(50) {
@@ -171,10 +171,10 @@ impl YtInnerClient for YtInnerApiClient {
         Ok(total_ids)
     }
 
-    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYoutubeError> {
+    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYtClientError> {
         let mut vector: Vec<YtVideo> = Vec::new();
 
-        let processed: Result<Vec<YtVideoCollection>, TYoutubeError> = ids
+        let processed: Result<Vec<YtVideoCollection>, TYtClientError> = ids
             .chunks(50)
             .into_iter()
             .par_bridge()
@@ -206,7 +206,7 @@ impl YtInnerClient for YtInnerApiClient {
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<TDuration, TYoutubeError> {
+    ) -> Result<TDuration, TYtClientError> {
         let total_ids = self.expand_id(id, max_items)?;
         let fetched_items = self.fetch_video_items(&total_ids)?;
 
@@ -237,24 +237,24 @@ impl YtInnerClient for YtInnerApiClient {
 }
 
 impl YtInnerApiClient {
-    fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYoutubeError> {
+    fn get<T: DeserializeOwned>(&self, url: &str) -> Result<T, TYtClientError> {
         match &self.client {
             ApiClientType::Cached(cached_agent) => smol::block_on(async {
                 cached_agent
                     .get(url)
                     .call()
                     .await
-                    .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                    .map_err(|e| TYtClientError::UreqError(e.to_string()))?
                     .into_json::<T>()
-                    .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string()))
+                    .map_err(|e| TYtClientError::InvalidResponseBody(e.to_string()))
             }),
             ApiClientType::Uncached(agent) => agent
                 .get(url)
                 .call()
-                .map_err(|e| TYoutubeError::UreqError(e.to_string()))?
+                .map_err(|e| TYtClientError::UreqError(e.to_string()))?
                 .body_mut()
                 .read_json()
-                .map_err(|e| TYoutubeError::InvalidResponseBody(e.to_string())),
+                .map_err(|e| TYtClientError::InvalidResponseBody(e.to_string())),
         }
     }
 }

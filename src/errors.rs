@@ -29,7 +29,7 @@ impl Display for TConfigError {
 }
 
 #[derive(Debug)]
-pub enum ParseTDurationError {
+pub enum TParseDurationError {
     InvalidDurationFormat,
     InvalidTimeUnit,
     NegativeDuration,
@@ -38,7 +38,7 @@ pub enum ParseTDurationError {
     MultiplierOutOfRange,
 }
 
-impl Display for ParseTDurationError {
+impl Display for TParseDurationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
             Self::InvalidTimeUnit => {
@@ -55,22 +55,22 @@ impl Display for ParseTDurationError {
 }
 
 #[derive(Debug)]
-pub enum FetchTClipStringError {
+pub enum TFetchClipboardError {
     ClipboardMutexPoisoned(String),
     ClipboardContentFetchFailed(String),
     Clipboard(String),
 }
 
-impl Display for FetchTClipStringError {
+impl Display for TFetchClipboardError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
-            FetchTClipStringError::Clipboard(e) => {
+            TFetchClipboardError::Clipboard(e) => {
                 &format!("clipboard could not be initialized: {e}")
             }
-            FetchTClipStringError::ClipboardMutexPoisoned(e) => {
+            TFetchClipboardError::ClipboardMutexPoisoned(e) => {
                 &format!("clipboard mutex lock poisoned: {e}")
             }
-            FetchTClipStringError::ClipboardContentFetchFailed(e) => {
+            TFetchClipboardError::ClipboardContentFetchFailed(e) => {
                 &format!("failed to fetch clipboard content: {e}")
             }
         };
@@ -79,44 +79,46 @@ impl Display for FetchTClipStringError {
 }
 
 #[derive(Debug)]
-pub enum TYoutubeError {
+pub enum TYtClientError {
     UreqError(String),
     RequestUriParseError(String),
     InvalidResponseBody(String),
     ItemNotFound,
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
+    UnsupportedError(String),
 }
 
-impl Display for TYoutubeError {
+impl Display for TYtClientError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
-            TYoutubeError::UreqError(e) => format!("error performing request: {e}."),
-            TYoutubeError::RequestUriParseError(e) => format!("error parsing request Uri: {e}"),
-            TYoutubeError::ItemNotFound => {
+            TYtClientError::UreqError(e) => format!("error performing request: {e}."),
+            TYtClientError::RequestUriParseError(e) => format!("error parsing request Uri: {e}"),
+            TYtClientError::ItemNotFound => {
                 "given YouTube video item was not found in API response.".to_string()
             }
-            TYoutubeError::InvalidPlaylist(id) => format!("invalid playlist: {id}"),
-            TYoutubeError::InvalidMaxSize((given, max)) => {
+            TYtClientError::InvalidPlaylist(id) => format!("invalid playlist: {id}"),
+            TYtClientError::InvalidMaxSize((given, max)) => {
                 format!("max items ({given}) is larger than the length of the playlist ({max}).")
             }
-            TYoutubeError::InvalidResponseBody(e) => format!("response body invalid: {e}"),
+            TYtClientError::InvalidResponseBody(e) => format!("response body invalid: {e}"),
+            TYtClientError::UnsupportedError(e) => format!("unsupported behavior: {e}"),
         };
         write!(f, "{wr}")
     }
 }
 
 #[derive(Debug)]
-pub enum YtInnerClientInitError {
+pub enum TYtInnerClientInitError {
     Ytdlp(String),
     YtDataApi(String),
 }
 
-impl Display for YtInnerClientInitError {
+impl Display for TYtInnerClientInitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let wr = match self {
-            YtInnerClientInitError::Ytdlp(e) => format!("error initializing yt-dlp client: {e}"),
-            YtInnerClientInitError::YtDataApi(e) => {
+            TYtInnerClientInitError::Ytdlp(e) => format!("error initializing yt-dlp client: {e}"),
+            TYtInnerClientInitError::YtDataApi(e) => {
                 format!("error initializing youtube data api client: {e}")
             }
         };

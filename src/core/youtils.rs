@@ -14,7 +14,7 @@ pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct TYoutubeId {
     id: String,
     is_playlist: bool,
@@ -26,6 +26,14 @@ impl TYoutubeId {
         Self {
             id: id.to_string(),
             is_playlist,
+        }
+    }
+
+    pub fn construct_url(&self) -> String {
+        if self.is_playlist {
+            format!("https://www.youtube.com/playlist?list={}", self.id)
+        } else {
+            format!("https://www.youtube.com/watch?v={}", self.id)
         }
     }
 

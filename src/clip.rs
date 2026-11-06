@@ -4,7 +4,7 @@ use std::{
     sync::{LazyLock, Mutex},
 };
 
-use crate::errors::FetchTClipStringError;
+use crate::errors::TFetchClipboardError;
 
 pub static CLIPBOARD: LazyLock<Result<Mutex<arboard::Clipboard>, String>> = LazyLock::new(|| {
     arboard::Clipboard::new()
@@ -24,20 +24,20 @@ impl TClipString {
         self.inner
     }
 
-    pub fn resolve(s: &str) -> Result<Option<Self>, FetchTClipStringError> {
+    pub fn resolve(s: &str) -> Result<Option<Self>, TFetchClipboardError> {
         if s == "-clip" {
             match &*CLIPBOARD {
                 Ok(clip) => {
-                    let mut clip = clip.lock().map_err(|e| {
-                        FetchTClipStringError::ClipboardMutexPoisoned(e.to_string())
-                    })?;
+                    let mut clip = clip
+                        .lock()
+                        .map_err(|e| TFetchClipboardError::ClipboardMutexPoisoned(e.to_string()))?;
                     let content = clip.get_text().map_err(|e| {
-                        FetchTClipStringError::ClipboardContentFetchFailed(e.to_string())
+                        TFetchClipboardError::ClipboardContentFetchFailed(e.to_string())
                     })?;
 
                     Ok(Some(TClipString { inner: content }))
                 }
-                Err(e) => Err(FetchTClipStringError::Clipboard(e.clone())),
+                Err(e) => Err(TFetchClipboardError::Clipboard(e.clone())),
             }
         } else {
             Ok(None)
