@@ -79,7 +79,8 @@ impl YtdlpWrapper {
         ];
 
         if id.is_playlist() && playlist_end != 0 {
-            vec.push(format!("--playlist-end {playlist_end}"));
+            vec.push("--playlist-end".to_string());
+            vec.push(playlist_end.to_string());
         }
 
         let output: Vec<TYtdlpDuration> = self.execute(&vec)?;
