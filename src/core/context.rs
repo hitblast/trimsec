@@ -4,7 +4,7 @@ use crate::{
         api::{YtInnerApiClient, types::YtInnerClient},
         config::Config,
         youtils::decide_youtube_key,
-        ytdlp::YtdlpWrapper,
+        ytdlp::YtInnerYtdlpWrapper,
     },
     style::Style,
 };
@@ -18,7 +18,7 @@ pub struct Ctx {
 }
 
 pub enum YtClient {
-    Ytdlp(YtdlpWrapper),
+    Ytdlp(YtInnerYtdlpWrapper),
     ApiBased(YtInnerApiClient),
 }
 
@@ -76,7 +76,8 @@ impl Ctx {
                         Ok(ins)
                     }
                     None => {
-                        let client = YtdlpWrapper::new("").map_err(|e| anyhow::anyhow!(e))?;
+                        let client =
+                            YtInnerYtdlpWrapper::new("").map_err(|e| anyhow::anyhow!(e))?;
                         let ins = self.api_client.insert(YtClient::Ytdlp(client)).inner()?;
                         Ok(ins)
                     }

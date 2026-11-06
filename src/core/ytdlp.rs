@@ -12,7 +12,7 @@ use anyhow::bail;
 use serde::{Deserialize, de::DeserializeOwned};
 use which::which;
 
-pub struct YtdlpWrapper {
+pub struct YtInnerYtdlpWrapper {
     path: std::path::PathBuf,
 }
 
@@ -21,7 +21,7 @@ pub struct TYtdlpDuration {
     duration: f64,
 }
 
-impl YtdlpWrapper {
+impl YtInnerYtdlpWrapper {
     pub fn execute<T: DeserializeOwned>(&self, args: &[String]) -> Result<Vec<T>, anyhow::Error> {
         let mut cmd = std::process::Command::new(&self.path);
         cmd.args(args);
@@ -92,7 +92,7 @@ impl YtdlpWrapper {
 
 const YT_DLP_ERROR_MSG_UNSUPPORTED: &str = "yt-dlp can only be used to fetch single-videos. For playlists, please use the YouTube Data API by enabling it via `ts key set`.";
 
-impl YtInnerClient for YtdlpWrapper {
+impl YtInnerClient for YtInnerYtdlpWrapper {
     fn new(_: impl ToString) -> Result<Self, TYtInnerClientInitError>
     where
         Self: Sized,
