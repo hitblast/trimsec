@@ -1,5 +1,3 @@
-use std::io::{BufRead, BufReader, Read};
-
 use crate::{
     core::{api::types::YtClientCommon, time::TDuration, youtils::TYoutubeId},
     errors::{TYtClientError, TYtClientInitError},
@@ -12,11 +10,15 @@ pub struct YtInnerYtdlpWrapper {
 }
 
 #[derive(Deserialize)]
-struct TYtdlpDuration {
+struct TYtdlpVideo {
+    id: String,
     duration: f64,
 }
 
-const YT_DLP_ERROR_MSG_UNSUPPORTED: &str = "yt-dlp can only be used to fetch single-videos. For playlists, please use the YouTube Data API by enabling it via `ts key set`.";
+#[derive(Deserialize)]
+struct TYtdlpPlaylist {
+    entries: Vec<TYtdlpVideo>,
+}
 
 impl YtInnerYtdlpWrapper {
     pub fn new() -> Result<Self, TYtClientInitError> {
@@ -25,89 +27,117 @@ impl YtInnerYtdlpWrapper {
         Ok(Self { path: result? })
     }
 
-    pub fn execute<T: DeserializeOwned>(&self, args: &[String]) -> Result<Vec<T>, TYtClientError> {
+    fn execute_command(&self, args: &[String]) -> Result<String, TYtClientError> {
         let mut cmd = std::process::Command::new(&self.path);
         cmd.args(args);
-        cmd.args(&["--no-warnings", "--skip-download"]);
 
-        let mut child = cmd
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
+        // global flags which must be set for all commands
+        // otherwise yt-dlp output might get messy
+        cmd.args(["--no-warnings", "--skip-download", "--dump-single-json"]);
+
+        let output = cmd
+            .output()
             .map_err(|e| TYtClientError::CmdSpawnError(e.to_string()))?;
 
-        let stdout = child.stdout.take().ok_or(TYtClientError::StdoutTakeError)?;
-        let mut stderr = child.stderr.take().ok_or(TYtClientError::StderrTakeError)?;
-
-        let mut vec: Vec<T> = Vec::new();
-
-        for line in BufReader::new(stdout).lines() {
-            let line = line.map_err(|e| TYtClientError::BufReaderError(e.to_string()))?;
-            let data: T = serde_json::from_str(&line)
-                .map_err(|e| TYtClientError::DeserializationError(e.to_string()))?;
-            vec.push(data);
-        }
-
-        let status = child
-            .wait()
-            .map_err(|e| TYtClientError::ErroneousCmdOutput(e.to_string()))?;
-
-        if !status.success() {
-            let mut err_msg = String::new();
-            stderr
-                .read_to_string(&mut err_msg)
-                .map_err(|e| TYtClientError::BufReaderError(e.to_string()))?;
-
-            let err_msg = if err_msg.trim().is_empty() {
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let err_msg = if stderr.trim().is_empty() {
                 "Unknown error (no stderr output)".to_string()
             } else {
-                err_msg.trim().to_string()
+                stderr.trim().to_string()
             };
 
             return Err(TYtClientError::ErroneousCmdOutput(err_msg));
         }
 
-        Ok(vec)
+        String::from_utf8(output.stdout).map_err(|e| TYtClientError::BufReaderError(e.to_string()))
+    }
+
+    fn execute_parse<T: DeserializeOwned>(&self, args: &[String]) -> Result<T, TYtClientError> {
+        let output = self.execute_command(args)?;
+
+        serde_json::from_str(&output)
+            .map_err(|e| TYtClientError::DeserializationError(e.to_string()))
+    }
+
+    /// deprecated: use `execute_parse` instead for single-pass operations
+    /// (preferred since `yt-dlp --print` is no longer used internally)
+    #[deprecated]
+    fn _execute_parse_vec<T: DeserializeOwned>(
+        &self,
+        args: &[String],
+    ) -> Result<Vec<T>, TYtClientError> {
+        let output = self.execute_command(args)?;
+
+        output
+            .lines()
+            .map(|line| {
+                serde_json::from_str(line)
+                    .map_err(|e| TYtClientError::DeserializationError(e.to_string()))
+            })
+            .collect()
     }
 }
 
-macro_rules! unsupported {
-    () => {
-        return Err(crate::errors::TYtClientError::UnsupportedError(
-            YT_DLP_ERROR_MSG_UNSUPPORTED,
-        ))
-    };
+impl YtInnerYtdlpWrapper {
+    fn fetch_playlist(
+        &self,
+        mut args: Vec<String>,
+        max_items: usize,
+    ) -> Result<TYtdlpPlaylist, crate::errors::TYtClientError> {
+        //
+        // using --flat-playlist significantly speeds up command execution
+        // for large playlists, then we can just deserialize the "entries" field for all the videoss
+        args.push("--flat-playlist".to_string());
+
+        if max_items != 0 {
+            args.push("--playlist-end".to_string());
+            args.push(max_items.to_string());
+        }
+
+        let output: TYtdlpPlaylist = self.execute_parse(&args)?;
+        Ok(output)
+    }
 }
+
 impl YtClientCommon for YtInnerYtdlpWrapper {
     fn fetch_duration_from_id(
         &self,
         id: &TYoutubeId,
         max_items: usize,
     ) -> Result<crate::core::time::TDuration, crate::errors::TYtClientError> {
-        let mut vec = vec![
-            "--print".to_string(),
-            "%(.{duration})j".to_string(),
-            id.construct_url(),
-        ];
+        let vec = vec![id.construct_url()];
 
-        if id.is_playlist() && max_items != 0 {
-            vec.push("--playlist-end".to_string());
-            vec.push(max_items.to_string());
+        if !id.is_playlist() {
+            let output = self.execute_parse::<TYtdlpVideo>(&vec)?;
+            return Ok(TDuration::from(output.duration));
         }
 
-        let output: Vec<TYtdlpDuration> = self.execute(&vec)?;
-        let duration: TDuration = output.iter().map(|f| TDuration::from(f.duration)).sum();
+        let output = self.fetch_playlist(vec, max_items)?;
 
-        Ok(TDuration::from(duration))
+        Ok(output
+            .entries
+            .iter()
+            .map(|e| TDuration::from(e.duration))
+            .sum())
     }
 
-    #[allow(unused)]
     fn expand_id(
         &self,
         id: &TYoutubeId,
         max_items: usize,
     ) -> Result<Vec<TYoutubeId>, crate::errors::TYtClientError> {
-        unsupported!()
+        if !id.is_playlist() {
+            return Ok(vec![id.clone()]);
+        }
+
+        let output = self.fetch_playlist(vec![id.construct_url()], max_items)?;
+
+        Ok(output
+            .entries
+            .into_iter()
+            .map(|e| TYoutubeId::new(e.id, false))
+            .collect())
     }
 
     #[allow(unused)]
@@ -115,6 +145,6 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
         &self,
         ids: &[TYoutubeId],
     ) -> Result<Vec<crate::core::api::types::YtVideo>, crate::errors::TYtClientError> {
-        unsupported!()
+        todo!()
     }
 }

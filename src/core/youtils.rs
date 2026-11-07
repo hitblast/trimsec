@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use serde::Deserialize;
 use url::Url;
 
 use crate::core::config::Config;
@@ -18,6 +19,16 @@ pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
 pub struct TYoutubeId {
     id: String,
     is_playlist: bool,
+}
+
+impl<'de> Deserialize<'de> for TYoutubeId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let id: String = serde::Deserialize::deserialize(deserializer)?;
+        Ok(Self::new(id, false))
+    }
 }
 
 impl TYoutubeId {
