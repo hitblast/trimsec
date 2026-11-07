@@ -12,7 +12,7 @@ pub struct YtInnerYtdlpWrapper {
 }
 
 #[derive(Deserialize)]
-pub struct TYtdlpDuration {
+struct TYtdlpDuration {
     duration: f64,
 }
 
@@ -74,7 +74,7 @@ impl YtInnerYtdlpWrapper {
 macro_rules! unsupported {
     () => {
         return Err(crate::errors::TYtClientError::UnsupportedError(
-            YT_DLP_ERROR_MSG_UNSUPPORTED.to_string(),
+            YT_DLP_ERROR_MSG_UNSUPPORTED,
         ))
     };
 }
@@ -83,7 +83,7 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
         &self,
         id: &TYoutubeId,
         max_items: usize,
-    ) -> Result<super::time::TDuration, crate::errors::TYtClientError> {
+    ) -> Result<crate::core::time::TDuration, crate::errors::TYtClientError> {
         let mut vec = vec![
             "--print".to_string(),
             "%(.{duration})j".to_string(),
@@ -114,7 +114,7 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
     fn fetch_video_items(
         &self,
         ids: &[TYoutubeId],
-    ) -> Result<Vec<super::api::types::YtVideo>, crate::errors::TYtClientError> {
+    ) -> Result<Vec<crate::core::api::types::YtVideo>, crate::errors::TYtClientError> {
         unsupported!()
     }
 }

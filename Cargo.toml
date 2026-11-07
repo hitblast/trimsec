@@ -34,6 +34,7 @@ http-cache-ureq = { version = "1.0.0-alpha.9", features = ["json"] }
 smol = "2.0.2"
 which = "8.0.6"
 serde_json = "1.0.154"
+enum_dispatch = "0.3.13"
 
 [features]
 interactive = ["dep:rustyline"]

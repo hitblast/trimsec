@@ -1,7 +1,12 @@
+use enum_dispatch::enum_dispatch;
 use serde::Deserialize;
 
 use crate::{
-    core::{time::TDuration, youtils::TYoutubeId},
+    core::{
+        api::{YtClient, YtInnerDataApiClient, YtInnerYtdlpWrapper},
+        time::TDuration,
+        youtils::TYoutubeId,
+    },
     errors::TYtClientError,
 };
 
@@ -10,6 +15,7 @@ use crate::{
 /// This trait allows to switch between `yt-dlp` and the internal YouTube Data API wrapper via static dispatch
 /// and is shared between both the upper and the lower-level structs.
 ///
+#[enum_dispatch]
 pub trait YtClientCommon: Send + Sync {
     /// Returns a vector of IDs from a single YouTube ID.
     ///

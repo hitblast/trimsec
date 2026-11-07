@@ -88,7 +88,7 @@ pub enum TYtClientError {
     InvalidPlaylist(String),
     InvalidMaxSize((usize, usize)),
     // yt-dlp
-    UnsupportedError(String),
+    UnsupportedError(&'static str),
     StderrReadError(String),
     StdoutTakeError,
     StderrTakeError,
