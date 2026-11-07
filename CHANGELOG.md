@@ -12,8 +12,13 @@ Improvements:
 
 - Chunk-based video-fetching has been parallelized using `rayon` for faster processing times.
 
+Visible Changes:
+
+- `trim` command: Only show "No time in day after this" when the remaining time is zero, and remove this field for the upcoming `TrimCmd` runs.
+
 Internal Changes:
 
+- Internal state management for YouTube clients and the global state manager (`Ctx`) has been improved.
 - `core::api::types` has received type-renames based on the endpoints they are deserialized from.
 
 ### v5.3.0

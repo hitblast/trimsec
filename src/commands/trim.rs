@@ -126,7 +126,12 @@ impl TrimCmd {
         Ok(runnables)
     }
 
-    pub fn run(&mut self, ctx: &mut Ctx, remaining: &mut TDuration) -> Result<()> {
+    pub fn run(
+        &mut self,
+        ctx: &mut Ctx,
+        remaining: &mut TDuration,
+        has_shown_remaining: &mut bool,
+    ) -> Result<()> {
         if self.multiplier == 1.0 {
             println!("Would finish in linear time as used a multiplier of 1x.");
             return Ok(());
@@ -162,12 +167,15 @@ impl TrimCmd {
             ),
             if !remaining.is_zero() {
                 format!("Time in day left: {} ", remaining)
-            } else {
+            } else if !*has_shown_remaining {
+                *has_shown_remaining = true;
                 format!(
                     "{}No time in day after this.{}",
                     ctx.style.boldred(),
                     ctx.style.reset()
                 )
+            } else {
+                "".to_string()
             },
             format!(
                 "{}Saved {}!{}\n",
@@ -176,6 +184,9 @@ impl TrimCmd {
                 ctx.style.reset(),
             ),
         ]
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
         .join("\n");
 
         println!("{message}");

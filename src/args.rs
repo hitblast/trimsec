@@ -55,10 +55,12 @@ impl TCmd {
                     },
                     tokens,
                 )?;
+
                 let mut remaining = time_in_day_left(ctx);
+                let mut has_shown_remaining = false;
 
                 for mut x in cmds {
-                    x.run(ctx, &mut remaining)?
+                    x.run(ctx, &mut remaining, &mut has_shown_remaining)?
                 }
 
                 Ok(())
