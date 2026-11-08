@@ -185,11 +185,7 @@ impl YtClientCommon for YtInnerDataApiClient {
                     .parse::<TDuration>()
                     .map_err(|e| TYtClientError::DurationParseError(e.to_string()))?;
 
-                Ok(TYoutubeVideo {
-                    id: e.id,
-                    title: e.snippet.title,
-                    duration,
-                })
+                Ok(TYoutubeVideo::new(e.id, e.snippet.title, duration))
             })
             .collect::<Result<Vec<TYoutubeVideo>, TYtClientError>>()?;
 
@@ -205,7 +201,7 @@ impl YtClientCommon for YtInnerDataApiClient {
 
         let total_duration: TDuration = fetched_items
             .into_iter()
-            .map(|f| f.duration)
+            .map(|f| f.duration_owned())
             .collect::<Vec<TDuration>>()
             .into_iter()
             .sum();

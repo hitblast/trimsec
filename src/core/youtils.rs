@@ -15,11 +15,46 @@ pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Deserialize, Clone, Debug)]
 pub struct TYoutubeVideo {
-    pub id: TYoutubeId,
-    pub title: String,
-    pub duration: TDuration,
+    id: TYoutubeId,
+    title: String,
+    duration: TDuration,
+}
+
+impl TYoutubeVideo {
+    pub fn new(id: TYoutubeId, title: String, duration: TDuration) -> Self {
+        Self {
+            id,
+            title,
+            duration,
+        }
+    }
+
+    #[must_use]
+    pub fn id(&self) -> &TYoutubeId {
+        &self.id
+    }
+
+    #[must_use]
+    pub fn id_owned(self) -> TYoutubeId {
+        self.id
+    }
+
+    #[must_use]
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    #[must_use]
+    pub fn duration(&self) -> &TDuration {
+        &self.duration
+    }
+
+    #[must_use]
+    pub fn duration_owned(self) -> TDuration {
+        self.duration
+    }
 }
 
 #[derive(PartialEq, Clone, Debug)]

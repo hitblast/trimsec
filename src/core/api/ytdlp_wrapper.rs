@@ -3,7 +3,6 @@ use std::vec;
 use crate::{
     core::{
         api::types::YtClientCommon,
-        time::TDuration,
         youtils::{TYoutubeId, TYoutubeVideo},
     },
     errors::{TYtClientError, TYtClientInitError},
@@ -16,15 +15,8 @@ pub struct YtInnerYtdlpWrapper {
 }
 
 #[derive(Deserialize)]
-struct TYtdlpVideo {
-    id: String,
-    title: String,
-    duration: f64,
-}
-
-#[derive(Deserialize)]
-struct TYtdlpPlaylist {
-    entries: Vec<TYtdlpVideo>,
+struct YtdlpPlaylist {
+    entries: Vec<TYoutubeVideo>,
 }
 
 impl YtInnerYtdlpWrapper {
@@ -73,7 +65,7 @@ impl YtInnerYtdlpWrapper {
         &self,
         mut args: Vec<String>,
         max_items: usize,
-    ) -> Result<TYtdlpPlaylist, crate::errors::TYtClientError> {
+    ) -> Result<YtdlpPlaylist, crate::errors::TYtClientError> {
         //
         // using --flat-playlist significantly speeds up command execution
         // for large playlists, then we can just deserialize the "entries" field for all the videoss
@@ -84,7 +76,7 @@ impl YtInnerYtdlpWrapper {
             args.push(max_items.to_string());
         }
 
-        let output: TYtdlpPlaylist = self.execute_parse(&args)?;
+        let output: YtdlpPlaylist = self.execute_parse(&args)?;
         Ok(output)
     }
 }
@@ -98,17 +90,13 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
         let vec = vec![id.construct_url()];
 
         if !id.is_playlist() {
-            let output = self.execute_parse::<TYtdlpVideo>(&vec)?;
-            return Ok(TDuration::from(output.duration));
+            let output = self.execute_parse::<TYoutubeVideo>(&vec)?;
+            return Ok(output.duration_owned());
         }
 
         let output = self.fetch_playlist(vec, max_items)?;
 
-        Ok(output
-            .entries
-            .iter()
-            .map(|e| TDuration::from(e.duration))
-            .sum())
+        Ok(output.entries.into_iter().map(|e| e.duration_owned()).sum())
     }
 
     fn expand_id(
@@ -121,12 +109,7 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
         }
 
         let output = self.fetch_playlist(vec![id.construct_url()], max_items)?;
-
-        Ok(output
-            .entries
-            .into_iter()
-            .map(|e| TYoutubeId::new(e.id, false))
-            .collect())
+        Ok(output.entries.into_iter().map(|e| e.id_owned()).collect())
     }
 
     fn fetch_video_items(
@@ -134,16 +117,7 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
         id: &TYoutubeId,
         max_items: usize,
     ) -> Result<Vec<TYoutubeVideo>, crate::errors::TYtClientError> {
-        let playlist: TYtdlpPlaylist = self.fetch_playlist(vec![id.construct_url()], max_items)?;
-
-        Ok(playlist
-            .entries
-            .into_iter()
-            .map(|e| TYoutubeVideo {
-                id: TYoutubeId::new(id, false),
-                title: e.title,
-                duration: TDuration::from(e.duration),
-            })
-            .collect())
+        let playlist: YtdlpPlaylist = self.fetch_playlist(vec![id.construct_url()], max_items)?;
+        Ok(playlist.entries)
     }
 }

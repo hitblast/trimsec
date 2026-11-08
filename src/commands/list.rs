@@ -30,7 +30,7 @@ impl ListCmd {
             .map_err(|e| anyhow::anyhow!("Failed to fetch playlist videos: {e}"))?;
 
         for video in &videos {
-            println!("{}", video.title);
+            println!("{}", video.title());
         }
 
         Ok(())
