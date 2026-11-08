@@ -82,6 +82,7 @@ impl Display for TFetchClipboardError {
 pub enum TYtClientError {
     // Youtube Data API
     UreqError(String),
+    DurationParseError(String),
     RequestUriParseError(String),
     InvalidResponseBody(String),
     ItemNotFound,
@@ -111,6 +112,7 @@ impl Display for TYtClientError {
                 format!("max items ({given}) is larger than the length of the playlist ({max}).")
             }
             TYtClientError::InvalidResponseBody(e) => format!("response body invalid: {e}"),
+            TYtClientError::DurationParseError(e) => format!("duration parse error: {e}"),
             TYtClientError::UnsupportedError(e) => format!("unsupported behavior: {e}"),
             TYtClientError::ErroneousCmdOutput(e) => {
                 format!("erroneous output while executing command: {e}")

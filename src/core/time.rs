@@ -311,7 +311,13 @@ impl FromStr for TDuration {
             return Err(TParseDurationError::EmptyDurationString);
         }
 
-        for part in s.split('+') {
+        let parseable = if !s.to_lowercase().starts_with("pt") {
+            s
+        } else {
+            &s[2..]
+        };
+
+        for part in parseable.split('+') {
             let mut current_number = String::new();
             let mut part_seconds = 0f64;
 
@@ -326,10 +332,10 @@ impl FromStr for TDuration {
                         .map_err(|_| TParseDurationError::NegativeDuration)?;
                     current_number.clear();
                     part_seconds += match c {
-                        's' => number,
-                        'm' => number * 60.0,
-                        'h' => number * 3600.0,
-                        'd' => number * 86400.0,
+                        's' | 'S' => number,
+                        'm' | 'M' => number * 60.0,
+                        'h' | 'H' => number * 3600.0,
+                        'd' | 'D' => number * 86400.0,
                         _ => return Err(TParseDurationError::InvalidTimeUnit),
                     };
                 }

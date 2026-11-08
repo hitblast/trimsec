@@ -16,7 +16,7 @@ use crate::{
             YtVideoCollection,
         },
         time::TDuration,
-        youtils::TYoutubeId,
+        youtils::{TYoutubeId, TYoutubeVideo},
     },
     errors::{TYtClientError, TYtClientInitError},
 };
@@ -143,8 +143,13 @@ impl YtClientCommon for YtInnerDataApiClient {
         Ok(total_ids)
     }
 
-    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYtClientError> {
+    fn fetch_video_items(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<Vec<TYoutubeVideo>, TYtClientError> {
         let mut vector: Vec<YtVideo> = Vec::new();
+        let ids = self.expand_id(id, max_items)?;
 
         let processed: Result<Vec<YtVideoCollection>, TYtClientError> = ids
             .chunks(50)
@@ -171,6 +176,23 @@ impl YtClientCommon for YtInnerDataApiClient {
             vector.append(&mut chunk.items);
         }
 
+        let vector: Vec<TYoutubeVideo> = vector
+            .into_iter()
+            .map(|e| {
+                let duration = e
+                    .content_details
+                    .duration
+                    .parse::<TDuration>()
+                    .map_err(|e| TYtClientError::DurationParseError(e.to_string()))?;
+
+                Ok(TYoutubeVideo {
+                    id: e.id,
+                    title: e.snippet.title,
+                    duration,
+                })
+            })
+            .collect::<Result<Vec<TYoutubeVideo>, TYtClientError>>()?;
+
         Ok(vector)
     }
 
@@ -179,19 +201,11 @@ impl YtClientCommon for YtInnerDataApiClient {
         id: &TYoutubeId,
         max_items: usize,
     ) -> Result<TDuration, TYtClientError> {
-        let total_ids = self.expand_id(id, max_items)?;
-        let fetched_items = self.fetch_video_items(&total_ids)?;
+        let fetched_items = self.fetch_video_items(id, max_items)?;
 
         let total_duration: TDuration = fetched_items
             .into_iter()
-            .map(|f| {
-                f.content_details
-                    .duration
-                    .to_lowercase()
-                    .trim_start_matches("pt")
-                    .parse::<TDuration>()
-                    .unwrap_or_default()
-            })
+            .map(|f| f.duration)
             .collect::<Vec<TDuration>>()
             .into_iter()
             .sum();

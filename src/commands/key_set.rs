@@ -42,7 +42,7 @@ impl KeySetCmd {
                 YtInnerDataApiClient::new(&self.api_key).map_err(|e| anyhow::anyhow!(e))?;
 
             if client.fetch_duration_from_id(&id, 1).is_err() {
-                bail!("invalid API key passed!",)
+                bail!("invalid API key passed!")
             }
         }
 

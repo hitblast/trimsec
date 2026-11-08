@@ -5,7 +5,7 @@ use crate::{
     core::{
         api::{YtClient, YtInnerDataApiClient, YtInnerYtdlpWrapper},
         time::TDuration,
-        youtils::TYoutubeId,
+        youtils::{TYoutubeId, TYoutubeVideo},
     },
     errors::TYtClientError,
 };
@@ -28,7 +28,11 @@ pub trait YtClientCommon: Send + Sync {
     ) -> Result<Vec<TYoutubeId>, TYtClientError>;
 
     /// Fetches an array of videos by their IDs (represented by [`TYoutubeId`]).
-    fn fetch_video_items(&self, ids: &[TYoutubeId]) -> Result<Vec<YtVideo>, TYtClientError>;
+    fn fetch_video_items(
+        &self,
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<Vec<TYoutubeVideo>, TYtClientError>;
 
     /// Fetches the total duration from a single YouTube ID. The ID could be of either a playlist or a video.
     fn fetch_duration_from_id(
@@ -51,6 +55,7 @@ pub struct YtVideoCollection {
 
 #[derive(Debug, Deserialize)]
 pub struct YtVideo {
+    pub id: TYoutubeId,
     pub snippet: YtVideoSnippet,
     #[serde(rename = "contentDetails")]
     pub content_details: YtVideoContentDetails,

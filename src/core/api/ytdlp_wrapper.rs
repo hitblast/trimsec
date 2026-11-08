@@ -1,5 +1,11 @@
+use std::vec;
+
 use crate::{
-    core::{api::types::YtClientCommon, time::TDuration, youtils::TYoutubeId},
+    core::{
+        api::types::YtClientCommon,
+        time::TDuration,
+        youtils::{TYoutubeId, TYoutubeVideo},
+    },
     errors::{TYtClientError, TYtClientInitError},
 };
 use serde::{Deserialize, de::DeserializeOwned};
@@ -12,6 +18,7 @@ pub struct YtInnerYtdlpWrapper {
 #[derive(Deserialize)]
 struct TYtdlpVideo {
     id: String,
+    title: String,
     duration: f64,
 }
 
@@ -58,24 +65,6 @@ impl YtInnerYtdlpWrapper {
 
         serde_json::from_str(&output)
             .map_err(|e| TYtClientError::DeserializationError(e.to_string()))
-    }
-
-    /// deprecated: use `execute_parse` instead for single-pass operations
-    /// (preferred since `yt-dlp --print` is no longer used internally)
-    #[deprecated]
-    fn _execute_parse_vec<T: DeserializeOwned>(
-        &self,
-        args: &[String],
-    ) -> Result<Vec<T>, TYtClientError> {
-        let output = self.execute_command(args)?;
-
-        output
-            .lines()
-            .map(|line| {
-                serde_json::from_str(line)
-                    .map_err(|e| TYtClientError::DeserializationError(e.to_string()))
-            })
-            .collect()
     }
 }
 
@@ -140,11 +129,21 @@ impl YtClientCommon for YtInnerYtdlpWrapper {
             .collect())
     }
 
-    #[allow(unused)]
     fn fetch_video_items(
         &self,
-        ids: &[TYoutubeId],
-    ) -> Result<Vec<crate::core::api::types::YtVideo>, crate::errors::TYtClientError> {
-        todo!()
+        id: &TYoutubeId,
+        max_items: usize,
+    ) -> Result<Vec<TYoutubeVideo>, crate::errors::TYtClientError> {
+        let playlist: TYtdlpPlaylist = self.fetch_playlist(vec![id.construct_url()], max_items)?;
+
+        Ok(playlist
+            .entries
+            .into_iter()
+            .map(|e| TYoutubeVideo {
+                id: TYoutubeId::new(id, false),
+                title: e.title,
+                duration: TDuration::from(e.duration),
+            })
+            .collect())
     }
 }

@@ -3,7 +3,7 @@ use std::fmt::Display;
 use serde::Deserialize;
 use url::Url;
 
-use crate::core::config::Config;
+use crate::core::{config::Config, time::TDuration};
 
 pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
     const ENV_VAR_NAME: &str = "TRIMSEC_YOUTUBE_KEY";
@@ -13,6 +13,13 @@ pub fn decide_youtube_key(cfg: &Config) -> Option<String> {
         Some(x) => Some(x),
         None => cfg.api_key().map(|f| f.to_string()),
     }
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct TYoutubeVideo {
+    pub id: TYoutubeId,
+    pub title: String,
+    pub duration: TDuration,
 }
 
 #[derive(PartialEq, Clone, Debug)]

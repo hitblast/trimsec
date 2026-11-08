@@ -1,7 +1,7 @@
 use crate::core::{
     api::types::YtClientCommon,
     context::Ctx,
-    youtils::{TYoutubeId, get_youtube_id},
+    youtils::{TYoutubeId, TYoutubeVideo, get_youtube_id},
 };
 use anyhow::{Result, bail};
 use clap::Args;
@@ -24,23 +24,15 @@ impl ListCmd {
             None => bail!("no YouTube playlist ID was found in this link."),
         };
 
-        let ids: Vec<TYoutubeId> = ctx
+        let videos: Vec<TYoutubeVideo> = ctx
             .client()?
-            .expand_id(&id, 0)
-            .map_err(|e| anyhow::anyhow!("Failed to get playlist item IDs: {e}"))?;
-        let videos = ctx
-            .client()?
-            .fetch_video_items(&ids)
+            .fetch_video_items(&id, 0)
             .map_err(|e| anyhow::anyhow!("Failed to fetch playlist videos: {e}"))?;
 
-        println!(
-            "{}",
-            videos
-                .iter()
-                .map(|f| f.snippet.title.as_str())
-                .collect::<Vec<&str>>()
-                .join("\n")
-        );
+        for video in &videos {
+            println!("{}", video.title);
+        }
+
         Ok(())
     }
 }
