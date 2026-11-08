@@ -13,9 +13,7 @@ use crate::{
         CACHE_DIR,
         time::TDuration,
         youtube::{
-            serde_types::{
-                YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection,
-            },
+            serde::{YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection},
             traits::YtClientCommon,
             youtils::{TYoutubeId, TYoutubeVideo},
         },

@@ -1,4 +1,4 @@
-pub mod serde_types;
+pub mod serde;
 pub mod traits;
 pub mod youtils;
 
