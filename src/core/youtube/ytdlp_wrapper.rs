@@ -2,8 +2,8 @@ use std::vec;
 
 use crate::{
     core::{
-        api::types::YtClientCommon,
-        youtils::{TYoutubeId, TYoutubeVideo},
+        youtube::traits::YtClientCommon,
+        youtube::youtils::{TYoutubeId, TYoutubeVideo},
     },
     errors::{TYtClientError, TYtClientInitError},
 };

@@ -2,11 +2,16 @@ use enum_dispatch::enum_dispatch;
 
 use crate::{
     core::{
-        api::{api_client::YtInnerDataApiClient, ytdlp_wrapper::YtInnerYtdlpWrapper},
         config::Config,
-        youtils::decide_youtube_key,
+        time::TDuration,
+        youtube::{
+            api_client::YtInnerDataApiClient,
+            traits::YtClientCommon,
+            youtils::{TYoutubeId, TYoutubeVideo, decide_youtube_key},
+            ytdlp_wrapper::YtInnerYtdlpWrapper,
+        },
     },
-    errors::TYtClientInitError,
+    errors::{TYtClientError, TYtClientInitError},
 };
 
 #[enum_dispatch(YtClientCommon)]

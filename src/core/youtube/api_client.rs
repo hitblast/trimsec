@@ -11,12 +11,14 @@ use ureq::Agent;
 use crate::{
     core::{
         CACHE_DIR,
-        api::types::{
-            YtClientCommon, YtPlaylistCollection, YtPlaylistItemCollection, YtVideo,
-            YtVideoCollection,
-        },
         time::TDuration,
-        youtils::{TYoutubeId, TYoutubeVideo},
+        youtube::{
+            serde_types::{
+                YtPlaylistCollection, YtPlaylistItemCollection, YtVideo, YtVideoCollection,
+            },
+            traits::YtClientCommon,
+            youtils::{TYoutubeId, TYoutubeVideo},
+        },
     },
     errors::{TYtClientError, TYtClientInitError},
 };

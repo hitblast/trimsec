@@ -1,9 +1,9 @@
 use crate::{
     clip::TClipString,
     core::{
-        api::{YtInnerDataApiClient, types::YtClientCommon},
         context::Ctx,
-        youtils::TYoutubeId,
+        youtube::youtils::TYoutubeId,
+        youtube::{YtInnerDataApiClient, traits::YtClientCommon},
     },
 };
 use anyhow::{Result, bail};

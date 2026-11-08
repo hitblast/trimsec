@@ -1,7 +1,7 @@
 use crate::core::{
-    api::types::YtClientCommon,
     context::Ctx,
-    youtils::{TYoutubeId, TYoutubeVideo, get_youtube_id},
+    youtube::traits::YtClientCommon,
+    youtube::youtils::{TYoutubeId, TYoutubeVideo, get_youtube_id},
 };
 use anyhow::{Result, bail};
 use clap::Args;

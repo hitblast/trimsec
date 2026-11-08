@@ -1,6 +1,6 @@
 use crate::{
     args::{ColorMode, TKeywordArgs},
-    core::{api::YtClient, config::Config},
+    core::{youtube::YtClient, config::Config},
     style::Style,
 };
 use anyhow::{Result, anyhow};

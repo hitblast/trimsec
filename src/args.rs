@@ -19,11 +19,11 @@ use crate::{
         trim::TrimCmd,
     },
     core::{
-        api::types::YtClientCommon,
         context::Ctx,
         time::{TDuration, parse_multiplier},
         timeutils::time_in_day_left,
-        youtils::{TYoutubeId, get_youtube_id},
+        youtube::traits::YtClientCommon,
+        youtube::youtils::{TYoutubeId, get_youtube_id},
     },
     draw::point_at_arg,
 };
