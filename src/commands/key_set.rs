@@ -25,13 +25,13 @@ impl KeySetCmd {
             bail!("given key is empty!");
         }
 
-        if ctx
-            .config()?
-            .api_key()
-            .is_some_and(|f| f == self.api_key.as_ref())
-        {
-            eprintln!("Key is already installed.");
-            return Ok(());
+        let cfg = ctx.config()?;
+
+        if let Some(key) = cfg.api_key() {
+            if key == self.api_key.as_ref() {
+                eprintln!("Key is already installed.");
+                return Ok(());
+            }
         }
 
         if !self.no_check {
@@ -46,8 +46,7 @@ impl KeySetCmd {
             }
         }
 
-        ctx.config()?
-            .write_key(self.api_key)
+        cfg.write_key(self.api_key)
             .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         println!("Key added successfully.");
 

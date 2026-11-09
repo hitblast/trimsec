@@ -7,12 +7,12 @@ pub struct KeyUnsetCmd;
 
 impl KeyUnsetCmd {
     pub fn run(self, ctx: &mut Ctx) -> Result<()> {
-        if ctx.config()?.api_key().is_none() {
+        let cfg = ctx.config()?;
+        if cfg.api_key().is_none() {
             return Ok(());
         }
 
-        ctx.config()?
-            .unset_key()
+        cfg.unset_key()
             .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         println!("Key removed.");
 
