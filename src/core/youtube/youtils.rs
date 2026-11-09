@@ -47,6 +47,11 @@ impl TYoutubeVideo {
     }
 
     #[must_use]
+    pub fn title_owned(self) -> String {
+        self.title
+    }
+
+    #[must_use]
     pub fn duration(&self) -> &TDuration {
         &self.duration
     }
