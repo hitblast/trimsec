@@ -18,6 +18,7 @@ Visible Changes:
 
 Internal Changes:
 
+- `TDuration` can now be derived (using custom `Deserialize` implementations) from `u64`, `f64`, `i64` and `String`/`&str` data types.
 - Internal state management for YouTube clients and the global state manager (`Ctx`) has been improved.
 - `core::api::types` has received type-renames based on the endpoints they are deserialized from.
 
